@@ -14,16 +14,331 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      achievements: {
+        Row: {
+          code: string
+          description: string
+          icon: string
+          name: string
+        }
+        Insert: {
+          code: string
+          description: string
+          icon: string
+          name: string
+        }
+        Update: {
+          code?: string
+          description?: string
+          icon?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      curriculum_weeks: {
+        Row: {
+          created_at: string
+          fact: string
+          quarter: number
+          status: string
+          topic: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          fact: string
+          quarter: number
+          status?: string
+          topic: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          fact?: string
+          quarter?: number
+          status?: string
+          topic?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
+      departments: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      invites: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          email: string
+          id: string
+          invited_by: string | null
+          status: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          email: string
+          id?: string
+          invited_by?: string | null
+          status?: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          email?: string
+          id?: string
+          invited_by?: string | null
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_settings: {
+        Row: {
+          company_name: string
+          current_week: number
+          id: number
+          release_day: string
+          release_time: string
+          setup_complete: boolean
+        }
+        Insert: {
+          company_name?: string
+          current_week?: number
+          id?: number
+          release_day?: string
+          release_time?: string
+          setup_complete?: boolean
+        }
+        Update: {
+          company_name?: string
+          current_week?: number
+          id?: number
+          release_day?: string
+          release_time?: string
+          setup_complete?: boolean
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          current_streak: number
+          department_id: string | null
+          email: string
+          full_name: string | null
+          id: string
+          last_completed_at: string | null
+          last_completed_week: number | null
+          level: number
+          longest_streak: number
+          total_xp: number
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          department_id?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          last_completed_at?: string | null
+          last_completed_week?: number | null
+          level?: number
+          longest_streak?: number
+          total_xp?: number
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          department_id?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          last_completed_at?: string | null
+          last_completed_week?: number | null
+          level?: number
+          longest_streak?: number
+          total_xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_overrides: {
+        Row: {
+          correct_index: number
+          explanation: string
+          id: string
+          options: Json
+          question_index: number
+          scenario: string
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          correct_index: number
+          explanation: string
+          id?: string
+          options: Json
+          question_index: number
+          scenario: string
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          correct_index?: number
+          explanation?: string
+          id?: string
+          options?: Json
+          question_index?: number
+          scenario?: string
+          updated_at?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_overrides_week_number_fkey"
+            columns: ["week_number"]
+            isOneToOne: false
+            referencedRelation: "curriculum_weeks"
+            referencedColumns: ["week_number"]
+          },
+        ]
+      }
+      responses: {
+        Row: {
+          answers: Json
+          completed_at: string
+          id: string
+          score: number
+          streak_bonus: number
+          user_id: string
+          week_number: number
+          xp_earned: number
+        }
+        Insert: {
+          answers: Json
+          completed_at?: string
+          id?: string
+          score: number
+          streak_bonus?: number
+          user_id: string
+          week_number: number
+          xp_earned: number
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          id?: string
+          score?: number
+          streak_bonus?: number
+          user_id?: string
+          week_number?: number
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "responses_week_number_fkey"
+            columns: ["week_number"]
+            isOneToOne: false
+            referencedRelation: "curriculum_weeks"
+            referencedColumns: ["week_number"]
+          },
+        ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_code: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          achievement_code: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          achievement_code?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_code_fkey"
+            columns: ["achievement_code"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "ta_admin" | "hiring_manager"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +465,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["ta_admin", "hiring_manager"],
+    },
   },
 } as const
