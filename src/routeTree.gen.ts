@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
+import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -33,16 +34,24 @@ const AuthenticatedHubRoute = AuthenticatedHubRouteImport.update({
   path: '/hub',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSessionWeekRoute =
+  AuthenticatedSessionWeekRouteImport.update({
+    id: '/session/$week',
+    path: '/session/$week',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/hub': typeof AuthenticatedHubRoute
+  '/session/$week': typeof AuthenticatedSessionWeekRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/hub': typeof AuthenticatedHubRoute
+  '/session/$week': typeof AuthenticatedSessionWeekRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,13 +59,20 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/hub': typeof AuthenticatedHubRoute
+  '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/hub'
+  fullPaths: '/' | '/auth' | '/hub' | '/session/$week'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/hub'
-  id: '__root__' | '/' | '/_authenticated' | '/auth' | '/_authenticated/hub'
+  to: '/' | '/auth' | '/hub' | '/session/$week'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/hub'
+    | '/_authenticated/session/$week'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,15 +111,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHubRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/session/$week': {
+      id: '/_authenticated/session/$week'
+      path: '/session/$week'
+      fullPath: '/session/$week'
+      preLoaderRoute: typeof AuthenticatedSessionWeekRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedHubRoute: typeof AuthenticatedHubRoute
+  AuthenticatedSessionWeekRoute: typeof AuthenticatedSessionWeekRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHubRoute: AuthenticatedHubRoute,
+  AuthenticatedSessionWeekRoute: AuthenticatedSessionWeekRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
