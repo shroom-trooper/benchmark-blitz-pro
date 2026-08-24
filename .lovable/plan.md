@@ -39,7 +39,7 @@ A gamified, continuous interview-training platform. Hiring managers complete wee
 - Curriculum control centre: all 52 weeks grouped by quarter (Q1 structured evaluation, Q2 bias mitigation, Q3 candidate experience, Q4 advanced decision-making), topic inspector to edit the fact, edit the 3 questions, and toggle release status.
 
 ### Curriculum content
-All 52 weeks authored with real topic titles, facts, and 156 scenario questions written to the quarter themes, loaded as curriculum content (product content, not fake user activity).
+Your supplied 52-week matrix is used verbatim — each week's Session Topic and "Did You Know?" fact seeded exactly as written across Q1 Foundational & Structured Evaluation (W1–13), Q2 Inclusive Hiring & Bias Mitigation (W14–26), Q3 Candidate Experience & Employer Brand (W27–39), Q4 Advanced Decision-Making & Leadership (W40–52). On top of that I author the 156 scenario questions (3 per week: initial reaction, nuance, rubric application) with answer options and principle explanations tied to each week's fact. Every week and question is editable later in the admin curriculum control centre.
 
 ## Assumptions (tell me to change any)
 - Sign-in: email/password + Google + magic-link invites; enterprise SAML SSO deferred.
