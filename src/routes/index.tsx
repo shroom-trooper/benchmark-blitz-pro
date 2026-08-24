@@ -1,24 +1,126 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Flame, Trophy, Target, Zap, BarChart3, CalendarClock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Benchmark · Continuous hiring capability training" },
+      {
+        name: "description",
+        content:
+          "Benchmark turns hiring training into a weekly habit: three-question micro-simulations, XP, streaks and leaderboards, plus org-wide capability telemetry for TA teams.",
+      },
+      { property: "og:title", content: "Benchmark · Continuous hiring capability training" },
+      {
+        property: "og:description",
+        content:
+          "Weekly hiring micro-simulations for managers, with gamified progress and TA telemetry.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Landing() {
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
+  }, []);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-dvh bg-background">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
+        <div className="flex items-center gap-2">
+          <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
+            <Zap className="size-4" />
+          </span>
+          <span className="font-display text-lg font-semibold">Benchmark</span>
+        </div>
+        <Button asChild variant="outline">
+          <Link to={signedIn ? "/hub" : "/auth"}>{signedIn ? "Open hub" : "Sign in"}</Link>
+        </Button>
+      </header>
+
+      <main className="mx-auto max-w-6xl px-4">
+        <section className="py-16 sm:py-24">
+          <p className="font-medium text-primary">Continuous hiring capability training</p>
+          <h1 className="mt-4 max-w-3xl font-display text-4xl font-semibold tracking-tight sm:text-6xl">
+            Turn one-off interview training into a weekly habit.
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
+            Three realistic hiring scenarios every week. Four minutes. Instant
+            evidence-based feedback, XP, streaks and leaderboards — with organisational
+            telemetry that shows Talent Acquisition exactly where capability is thin.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <Link to={signedIn ? "/hub" : "/auth"}>
+                {signedIn ? "Go to your hub" : "Get started"}
+              </Link>
+            </Button>
+          </div>
+        </section>
+
+        <section className="grid gap-4 pb-16 sm:grid-cols-2 lg:grid-cols-3">
+          <Feature
+            icon={<CalendarClock className="size-5 text-primary" />}
+            title="52-week curriculum"
+            body="Four quarterly themes: interview fundamentals, bias mitigation, candidate experience and strategic talent leadership."
+          />
+          <Feature
+            icon={<Target className="size-5 text-primary" />}
+            title="Micro-simulations"
+            body="Realistic decision points with the reasoning behind the best answer, delivered the moment a manager responds."
+          />
+          <Feature
+            icon={<Flame className="size-5 text-warning" />}
+            title="Streaks that stick"
+            body="Weekly streaks, XP bonuses and ten levels from Novice Interviewer to Master Bar Raiser."
+          />
+          <Feature
+            icon={<Trophy className="size-5 text-warning" />}
+            title="Team leaderboards"
+            body="Manager and department rankings that turn capability building into friendly competition."
+          />
+          <Feature
+            icon={<BarChart3 className="size-5 text-success" />}
+            title="Org telemetry"
+            body="Participation, decision accuracy and the weakest capability areas — by week and by department."
+          />
+          <Feature
+            icon={<Zap className="size-5 text-success" />}
+            title="TA in control"
+            body="Release weeks on your schedule, edit any scenario, and manage managers and departments in one console."
+          />
+        </section>
+      </main>
+
+      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
+        Benchmark — continuous hiring capability training.
+      </footer>
+    </div>
+  );
+}
+
+function Feature({
+  icon,
+  title,
+  body,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-surface p-6">
+      {icon}
+      <h2 className="mt-3 font-display text-lg font-semibold">{title}</h2>
+      <p className="mt-2 text-sm text-muted-foreground">{body}</p>
     </div>
   );
 }

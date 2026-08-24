@@ -1,0 +1,630 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { AlertTriangle, Users, Activity, CalendarClock } from "lucide-react";
+import { toast } from "sonner";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { AppShell } from "@/components/AppShell";
+import {
+  assignDepartment,
+  createDepartment,
+  createInvite,
+  getTelemetry,
+  loadWeekEditor,
+  saveQuestion,
+  setCurrentWeek,
+  updateOrg,
+  updateWeekContent,
+} from "@/lib/benchmark.functions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({
+    meta: [
+      { title: "TA Admin console · Benchmark" },
+      {
+        name: "description",
+        content:
+          "Manage managers, departments, weekly curriculum releases and organisational hiring-capability telemetry.",
+      },
+      { property: "og:title", content: "TA Admin console · Benchmark" },
+      {
+        property: "og:description",
+        content: "Telemetry, user management and curriculum control for TA leaders.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: AdminPage,
+});
+
+function AdminPage() {
+  const telemetryFn = useServerFn(getTelemetry);
+  const query = useQuery({ queryKey: ["telemetry"], queryFn: () => telemetryFn({}), retry: false });
+
+  if (query.isLoading) {
+    return (
+      <AppShell>
+        <Skeleton className="h-96 w-full rounded-xl" />
+      </AppShell>
+    );
+  }
+
+  if (query.error) {
+    return (
+      <AppShell>
+        <div className="rounded-xl border border-border bg-surface p-8 text-center">
+          <h1 className="font-display text-xl font-semibold">Admin access required</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{query.error.message}</p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  const t = query.data!;
+
+  return (
+    <AppShell>
+      <div className="space-y-8">
+        <div>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
+            TA Admin console
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t.settings?.company_name} · currently releasing week {t.summary.currentWeek} of
+            52
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Metric label="Managers enrolled" value={String(t.summary.managers)} icon={<Users className="size-4" />} />
+          <Metric
+            label="This week participation"
+            value={`${t.summary.participation}%`}
+            icon={<Activity className="size-4" />}
+          />
+          <Metric
+            label="Org decision accuracy"
+            value={`${t.summary.avgAccuracy}%`}
+            icon={<CalendarClock className="size-4" />}
+          />
+          <Metric
+            label="Dormant managers"
+            value={String(t.summary.dormant)}
+            icon={<AlertTriangle className="size-4" />}
+          />
+        </div>
+
+        <Tabs defaultValue="telemetry">
+          <TabsList>
+            <TabsTrigger value="telemetry">Telemetry</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="telemetry" className="mt-6 space-y-6">
+            <Panel title="Accuracy by released week">
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={t.weekStats}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="week" stroke="var(--muted-foreground)" fontSize={12} />
+                    <YAxis stroke="var(--muted-foreground)" fontSize={12} domain={[0, 100]} />
+                    <Tooltip
+                      contentStyle={{
+                        background: "var(--surface)",
+                        border: "1px solid var(--border)",
+                        borderRadius: 8,
+                        color: "var(--foreground)",
+                      }}
+                    />
+                    <Bar dataKey="accuracy" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Panel>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Panel title="Weakest capability areas">
+                <ul className="space-y-3">
+                  {t.riskiest.map((w) => (
+                    <li key={w.week} className="flex items-start gap-3 text-sm">
+                      <span className="rounded-md bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive">
+                        {w.accuracy}%
+                      </span>
+                      <span>
+                        <span className="font-medium">Week {w.week}</span> · {w.topic}
+                        <span className="block text-xs text-muted-foreground">
+                          {w.completions} completion{w.completions === 1 ? "" : "s"}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                  {!t.riskiest.length ? (
+                    <li className="text-sm text-muted-foreground">No responses yet.</li>
+                  ) : null}
+                </ul>
+              </Panel>
+
+              <Panel title="Department performance">
+                <ul className="space-y-3">
+                  {t.deptStats.map((d) => (
+                    <li key={d.id} className="flex items-center gap-3 text-sm">
+                      <span className="font-medium">{d.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {d.members} manager{d.members === 1 ? "" : "s"}
+                      </span>
+                      <span className="ml-auto text-muted-foreground">
+                        {d.accuracy}% accuracy · {d.avgXp} XP avg
+                      </span>
+                    </li>
+                  ))}
+                  {!t.deptStats.length ? (
+                    <li className="text-sm text-muted-foreground">
+                      No departments created yet.
+                    </li>
+                  ) : null}
+                </ul>
+              </Panel>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="users" className="mt-6 space-y-6">
+            <UsersTab telemetry={t} />
+          </TabsContent>
+
+          <TabsContent value="curriculum" className="mt-6 space-y-6">
+            <CurriculumTab telemetry={t} />
+          </TabsContent>
+
+          <TabsContent value="settings" className="mt-6 space-y-6">
+            <SettingsTab telemetry={t} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AppShell>
+  );
+}
+
+type Telemetry = Awaited<ReturnType<typeof getTelemetry>>;
+
+function UsersTab({ telemetry }: { telemetry: Telemetry }) {
+  const qc = useQueryClient();
+  const assignFn = useServerFn(assignDepartment);
+  const inviteFn = useServerFn(createInvite);
+  const deptFn = useServerFn(createDepartment);
+  const [email, setEmail] = useState("");
+  const [deptName, setDeptName] = useState("");
+
+  const refresh = () => qc.invalidateQueries({ queryKey: ["telemetry"] });
+
+  const assign = useMutation({
+    mutationFn: (v: { userId: string; departmentId: string | null }) =>
+      assignFn({ data: v }),
+    onSuccess: () => {
+      toast.success("Department updated");
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const invite = useMutation({
+    mutationFn: () => inviteFn({ data: { email, departmentId: null } }),
+    onSuccess: () => {
+      toast.success("Invite recorded — share the sign-up link with them");
+      setEmail("");
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const addDept = useMutation({
+    mutationFn: () => deptFn({ data: { name: deptName } }),
+    onSuccess: () => {
+      toast.success("Department created");
+      setDeptName("");
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Panel title="Invite a hiring manager">
+          <div className="flex gap-2">
+            <Input
+              type="email"
+              placeholder="manager@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Button onClick={() => invite.mutate()} disabled={!email || invite.isPending}>
+              Invite
+            </Button>
+          </div>
+          <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
+            {telemetry.invites.slice(0, 5).map((i) => (
+              <li key={i.id}>
+                {i.email} · {i.status}
+              </li>
+            ))}
+          </ul>
+        </Panel>
+
+        <Panel title="Create a department">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Engineering"
+              value={deptName}
+              onChange={(e) => setDeptName(e.target.value)}
+            />
+            <Button
+              onClick={() => addDept.mutate()}
+              disabled={!deptName || addDept.isPending}
+            >
+              Add
+            </Button>
+          </div>
+        </Panel>
+      </div>
+
+      <Panel title="Managers">
+        <div className="space-y-2">
+          {telemetry.users.map((u) => (
+            <div
+              key={u.id}
+              className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3 text-sm"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium">{u.name}</p>
+                <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+              </div>
+              <div className="ml-auto flex flex-wrap items-center gap-4">
+                <span className="text-xs text-muted-foreground">
+                  Lvl {u.level} · {u.totalXp} XP · {u.completions} sessions · streak{" "}
+                  {u.streak}
+                </span>
+                <Select
+                  value={u.departmentId ?? "none"}
+                  onValueChange={(v) =>
+                    assign.mutate({
+                      userId: u.id,
+                      departmentId: v === "none" ? null : v,
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-44">
+                    <SelectValue placeholder="Department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Unassigned</SelectItem>
+                    {telemetry.departments.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>
+                        {d.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
+    </>
+  );
+}
+
+function CurriculumTab({ telemetry }: { telemetry: Telemetry }) {
+  const qc = useQueryClient();
+  const [week, setWeek] = useState(telemetry.summary.currentWeek);
+  const editorFn = useServerFn(loadWeekEditor);
+  const saveQuestionFn = useServerFn(saveQuestion);
+  const weekContentFn = useServerFn(updateWeekContent);
+  const releaseFn = useServerFn(setCurrentWeek);
+
+  const editor = useQuery({
+    queryKey: ["week-editor", week],
+    queryFn: () => editorFn({ data: { week } }),
+  });
+
+  const release = useMutation({
+    mutationFn: (w: number) => releaseFn({ data: { week: w } }),
+    onSuccess: () => {
+      toast.success("Release week updated");
+      qc.invalidateQueries({ queryKey: ["telemetry"] });
+      qc.invalidateQueries({ queryKey: ["me"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const saveContent = useMutation({
+    mutationFn: (v: { topic: string; fact: string }) =>
+      weekContentFn({ data: { week, ...v } }),
+    onSuccess: () => {
+      toast.success("Week content saved");
+      qc.invalidateQueries({ queryKey: ["week-editor", week] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const saveQ = useMutation({
+    mutationFn: (v: {
+      index: number;
+      scenario: string;
+      options: string[];
+      correctIndex: number;
+      explanation: string;
+    }) => saveQuestionFn({ data: { week, ...v } }),
+    onSuccess: () => {
+      toast.success("Question saved");
+      qc.invalidateQueries({ queryKey: ["week-editor", week] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <>
+      <Panel title="Release control">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="w-40">
+            <Label htmlFor="release-week">Released up to week</Label>
+            <Input
+              id="release-week"
+              type="number"
+              min={1}
+              max={52}
+              defaultValue={telemetry.summary.currentWeek}
+              onChange={(e) => setWeek(Number(e.target.value))}
+            />
+          </div>
+          <Button onClick={() => release.mutate(week)} disabled={release.isPending}>
+            Release week {week}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Weeks after the release week stay locked for hiring managers.
+          </p>
+        </div>
+      </Panel>
+
+      <Panel title={`Week ${week} content`}>
+        {editor.isLoading || !editor.data?.week ? (
+          <Skeleton className="h-40 w-full" />
+        ) : (
+          <WeekEditor
+            key={week}
+            topic={editor.data.week.topic}
+            fact={editor.data.week.fact}
+            questions={editor.data.questions}
+            onSaveContent={(v) => saveContent.mutate(v)}
+            onSaveQuestion={(v) => saveQ.mutate(v)}
+          />
+        )}
+      </Panel>
+    </>
+  );
+}
+
+function WeekEditor({
+  topic,
+  fact,
+  questions,
+  onSaveContent,
+  onSaveQuestion,
+}: {
+  topic: string;
+  fact: string;
+  questions: {
+    index: number;
+    scenario: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+  }[];
+  onSaveContent: (v: { topic: string; fact: string }) => void;
+  onSaveQuestion: (v: {
+    index: number;
+    scenario: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+  }) => void;
+}) {
+  const [t, setT] = useState(topic);
+  const [f, setF] = useState(fact);
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <div>
+          <Label htmlFor="topic">Session topic</Label>
+          <Input id="topic" value={t} onChange={(e) => setT(e.target.value)} />
+        </div>
+        <div>
+          <Label htmlFor="fact">Did you know?</Label>
+          <Textarea id="fact" value={f} onChange={(e) => setF(e.target.value)} rows={3} />
+        </div>
+        <Button variant="outline" onClick={() => onSaveContent({ topic: t, fact: f })}>
+          Save week content
+        </Button>
+      </div>
+
+      {questions.map((q) => (
+        <QuestionEditor key={q.index} question={q} onSave={onSaveQuestion} />
+      ))}
+    </div>
+  );
+}
+
+function QuestionEditor({
+  question,
+  onSave,
+}: {
+  question: {
+    index: number;
+    scenario: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+  };
+  onSave: (v: {
+    index: number;
+    scenario: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+  }) => void;
+}) {
+  const [scenario, setScenario] = useState(question.scenario);
+  const [options, setOptions] = useState(question.options);
+  const [correctIndex, setCorrectIndex] = useState(question.correctIndex);
+  const [explanation, setExplanation] = useState(question.explanation);
+
+  return (
+    <div className="space-y-3 rounded-lg border border-border p-4">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+        Scenario {question.index + 1}
+      </p>
+      <Textarea value={scenario} onChange={(e) => setScenario(e.target.value)} rows={3} />
+      {options.map((o, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <input
+            type="radio"
+            name={`correct-${question.index}`}
+            checked={correctIndex === i}
+            onChange={() => setCorrectIndex(i)}
+            aria-label={`Mark option ${i + 1} correct`}
+          />
+          <Input
+            value={o}
+            onChange={(e) =>
+              setOptions(options.map((v, vi) => (vi === i ? e.target.value : v)))
+            }
+          />
+        </div>
+      ))}
+      <Textarea
+        value={explanation}
+        onChange={(e) => setExplanation(e.target.value)}
+        rows={2}
+      />
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() =>
+          onSave({ index: question.index, scenario, options, correctIndex, explanation })
+        }
+      >
+        Save scenario
+      </Button>
+    </div>
+  );
+}
+
+function SettingsTab({ telemetry }: { telemetry: Telemetry }) {
+  const qc = useQueryClient();
+  const fn = useServerFn(updateOrg);
+  const [name, setName] = useState(telemetry.settings?.company_name ?? "");
+  const [day, setDay] = useState(telemetry.settings?.release_day ?? "monday");
+  const [time, setTime] = useState(telemetry.settings?.release_time ?? "08:00");
+
+  const save = useMutation({
+    mutationFn: () =>
+      fn({ data: { company_name: name, release_day: day, release_time: time } }),
+    onSuccess: () => {
+      toast.success("Settings saved");
+      qc.invalidateQueries({ queryKey: ["telemetry"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Panel title="Organisation settings">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div>
+          <Label htmlFor="org-name">Company name</Label>
+          <Input id="org-name" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <Label htmlFor="org-day">Release day</Label>
+          <Select value={day} onValueChange={setDay}>
+            <SelectTrigger id="org-day">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {["monday", "tuesday", "wednesday", "thursday", "friday"].map((d) => (
+                <SelectItem key={d} value={d}>
+                  {d[0]!.toUpperCase() + d.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="org-time">Release time</Label>
+          <Input
+            id="org-time"
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+          />
+        </div>
+      </div>
+      <Button className="mt-4" onClick={() => save.mutate()} disabled={save.isPending}>
+        Save settings
+      </Button>
+    </Panel>
+  );
+}
+
+function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-border bg-surface p-6">
+      <h2 className="mb-4 font-display text-lg font-semibold">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-surface p-5">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        {icon}
+        <p className="text-xs uppercase tracking-wide">{label}</p>
+      </div>
+      <p className="mt-2 font-display text-2xl font-semibold">{value}</p>
+    </div>
+  );
+}

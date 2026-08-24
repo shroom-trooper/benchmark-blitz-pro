@@ -403,10 +403,19 @@ export async function adminSetCurrentWeek(supabase: DB, userId: string, week: nu
 export async function adminUpdateOrg(
   supabase: DB,
   userId: string,
-  patch: { company_name?: string; release_day?: string; release_time?: string },
+  patch: {
+    company_name?: string | undefined;
+    release_day?: string | undefined;
+    release_time?: string | undefined;
+  },
+
 ) {
   await requireAdmin(supabase, userId);
-  const { error } = await supabase.from("org_settings").update(patch).eq("id", 1);
+  const clean = Object.fromEntries(
+    Object.entries(patch).filter(([, v]) => v !== undefined),
+  ) as { company_name?: string; release_day?: string; release_time?: string };
+  const { error } = await supabase.from("org_settings").update(clean).eq("id", 1);
+
   if (error) fail(error.message);
   return { ok: true };
 }
