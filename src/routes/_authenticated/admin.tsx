@@ -52,7 +52,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { property: "og:title", content: "Group console · Benchmark" },
       {
         property: "og:description",
-        content: "Manage your training group and see capability telemetry.",
+        content: "Manage your training group and see capability analytics.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
