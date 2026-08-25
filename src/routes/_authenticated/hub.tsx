@@ -260,3 +260,129 @@ function Stat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function GroupPanel({
+  group,
+  ownsGroup,
+  pendingInvites,
+  displayName,
+}: {
+  group: { id: string; name: string } | null;
+  ownsGroup: boolean;
+  pendingInvites: { id: string; groupName: string }[];
+  displayName: string;
+}) {
+  const qc = useQueryClient();
+  const createFn = useServerFn(createGroup);
+  const acceptFn = useServerFn(acceptInvite);
+  const nameFn = useServerFn(updateDisplayName);
+  const [groupName, setGroupName] = useState("");
+  const [name, setName] = useState(displayName);
+
+  const create = useMutation({
+    mutationFn: () => createFn({ data: { name: groupName.trim() } }),
+    onSuccess: async () => {
+      await qc.invalidateQueries();
+      toast.success("Group created — invite your managers");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const accept = useMutation({
+    mutationFn: (inviteId: string) => acceptFn({ data: { inviteId } }),
+    onSuccess: async () => {
+      await qc.invalidateQueries();
+      toast.success("You've joined the group");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const saveName = useMutation({
+    mutationFn: () => nameFn({ data: { name: name.trim() } }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["me"] });
+      toast.success("Display name updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <section className="grid gap-4 lg:grid-cols-2">
+      <div className="rounded-xl border border-border bg-surface p-6">
+        <h2 className="font-display text-lg font-semibold">Your group</h2>
+        {group ? (
+          <>
+            <p className="mt-2 text-sm text-muted-foreground">
+              You're {ownsGroup ? "the admin of" : "a member of"}{" "}
+              <span className="font-medium text-foreground">{group.name}</span>.
+            </p>
+            <div className="mt-4 flex gap-2">
+              {ownsGroup ? (
+                <Button asChild size="sm">
+                  <Link to="/admin">Open group console</Link>
+                </Button>
+              ) : null}
+              <Button asChild size="sm" variant="outline">
+                <Link to="/leaderboard">Group leaderboard</Link>
+              </Button>
+            </div>
+          </>
+        ) : pendingInvites.length ? (
+          <div className="mt-3 space-y-2">
+            <p className="text-sm text-muted-foreground">You've been invited to join:</p>
+            {pendingInvites.map((i) => (
+              <div key={i.id} className="flex items-center gap-3 text-sm">
+                <span className="font-medium">{i.groupName}</span>
+                <Button
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => accept.mutate(i.id)}
+                  disabled={accept.isPending}
+                >
+                  Join
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Training your managers? Create a group and invite up to 3 of them — you'll see
+              their progress and a private group board.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <Input
+                placeholder="Acme hiring managers"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+              />
+              <Button
+                onClick={() => create.mutate()}
+                disabled={groupName.trim().length < 2 || create.isPending}
+              >
+                Create group
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="rounded-xl border border-border bg-surface p-6">
+        <h2 className="font-display text-lg font-semibold">Public profile</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          This name appears on the global leaderboard.
+        </p>
+        <div className="mt-4 flex gap-2">
+          <Input value={name} onChange={(e) => setName(e.target.value)} aria-label="Display name" />
+          <Button
+            variant="outline"
+            onClick={() => saveName.mutate()}
+            disabled={name.trim().length < 2 || saveName.isPending}
+          >
+            Save
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
