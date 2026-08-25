@@ -185,6 +185,8 @@
   --radius: 0.75rem;
   --background: oklch(0.208 0.041 265.4);
   --foreground: oklch(0.968 0.007 247.9);
+  --heading: oklch(0.97 0.005 250);
+  --body: oklch(0.72 0.035 257);
   --surface: oklch(0.253 0.04 264.6);
   --surface-2: oklch(0.302 0.04 263.5);
   --card: oklch(0.253 0.04 264.6);
