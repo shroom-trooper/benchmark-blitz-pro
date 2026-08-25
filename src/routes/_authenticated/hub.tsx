@@ -164,6 +164,13 @@ function Hub() {
           <Stat label="Decision accuracy" value={`${accuracy}%`} />
         </section>
 
+        <GroupPanel
+          group={me.group}
+          ownsGroup={me.ownsGroup}
+          pendingInvites={me.pendingInvites}
+          displayName={me.profile?.display_name ?? ""}
+        />
+
         <section>
           <h2 className="font-display text-xl font-semibold">Achievements</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
