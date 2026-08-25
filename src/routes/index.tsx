@@ -138,7 +138,7 @@ function Landing() {
           <Cell tag="streaks" accent="warning" title="Habits that stick" body="Weekly streaks, XP bonuses and ten levels from Novice Interviewer to Master Bar Raiser.">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1 border border-warning/40 bg-warning/10 px-3 py-1 font-display text-lg text-warning">
-                <Flame className="size-4" /> 12
+                <Flame className="size-4 animate-flicker origin-bottom" /> 12
               </div>
               <div className="flex gap-1">
                 {[1, 1, 1, 1, 1, 0, 0].map((on, i) => (
