@@ -71,8 +71,8 @@ function AuthPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Account created — signing you in.");
-    router.navigate({ to: "/hub" });
+    toast.success("Account created — let's set you up.");
+    router.navigate({ to: "/onboarding" });
   }
 
   async function google() {
