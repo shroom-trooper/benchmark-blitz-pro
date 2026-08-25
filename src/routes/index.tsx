@@ -77,6 +77,43 @@ function Landing() {
         </section>
 
         <section className="mb-16 grid grid-cols-1 border border-border sm:grid-cols-2 lg:grid-cols-3">
+          <Cell tag="AI generator" accent="primary" title="Custom assessments from your documents" body="Upload your hiring principles, job descriptions or culture deck. Benchmark AI turns them into scored, multiple-choice scenarios your managers can practice in minutes." className="lg:col-span-2">
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr]">
+              <div className="border border-border p-3">
+                <div className="flex items-center gap-2">
+                  <span className="grid size-8 place-items-center border border-border bg-surface-2">
+                    <span className="font-mono text-xs text-primary">PDF</span>
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-foreground">Acme Hiring Principles.pdf</p>
+                    <p className="font-mono text-[11px] text-muted-foreground">1.4 MB</p>
+                  </div>
+                </div>
+              </div>
+              <div className="hidden items-center justify-center sm:flex">
+                <Sparkles className="size-4 text-primary" />
+              </div>
+              <div className="space-y-2 border border-border p-3">
+                <p className="font-mono text-[11px] uppercase tracking-wider text-primary">Generated scenarios</p>
+                <div className="h-2 w-full bg-surface-2" />
+                <div className="h-2 w-5/6 bg-surface-2" />
+                <div className="h-2 w-4/6 bg-surface-2" />
+              </div>
+            </div>
+          </Cell>
+
+          <Cell tag="4 min" accent="primary" title="Micro-simulations" body="Realistic decision points with the reasoning behind the best answer, delivered the moment you respond.">
+            <div className="space-y-2">
+              <p className="font-mono text-xs text-muted-foreground">Q2 · STRUCTURED SCORING</p>
+              <div className="border border-success/40 bg-success/10 px-3 py-2 text-sm text-foreground">
+                <span className="mr-2 text-success">✓</span>Score against the rubric first
+              </div>
+              <div className="border border-border px-3 py-2 text-sm text-muted-foreground">
+                Go with your gut read
+              </div>
+            </div>
+          </Cell>
+
           <Cell tag="52 weeks" accent="primary" title="Structured curriculum" body="Four quarterly themes: interview fundamentals, bias mitigation, candidate experience and strategic talent leadership." className="lg:col-span-2">
             <div className="grid gap-2 sm:grid-cols-2">
               {[
@@ -95,18 +132,6 @@ function Landing() {
                   </div>
                 </div>
               ))}
-            </div>
-          </Cell>
-
-          <Cell tag="4 min" accent="primary" title="Micro-simulations" body="Realistic decision points with the reasoning behind the best answer, delivered the moment you respond.">
-            <div className="space-y-2">
-              <p className="font-mono text-xs text-muted-foreground">Q2 · STRUCTURED SCORING</p>
-              <div className="border border-success/40 bg-success/10 px-3 py-2 text-sm text-foreground">
-                <span className="mr-2 text-success">✓</span>Score against the rubric first
-              </div>
-              <div className="border border-border px-3 py-2 text-sm text-muted-foreground">
-                Go with your gut read
-              </div>
             </div>
           </Cell>
 
