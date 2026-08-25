@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { AlertTriangle, Users, Activity, CalendarClock } from "lucide-react";
+import { AlertTriangle, Users, Activity, CalendarClock, Lock } from "lucide-react";
 import { toast } from "sonner";
 import {
   Bar,
@@ -15,11 +15,12 @@ import {
 } from "recharts";
 import { AppShell } from "@/components/AppShell";
 import {
-  assignDepartment,
-  createDepartment,
-  createInvite,
-  getTelemetry,
+  getGroupConsole,
+  inviteToGroup,
   loadWeekEditor,
+  registerUpgradeInterest,
+  removeMember,
+  revokeInvite,
   saveQuestion,
   setCurrentWeek,
   updateOrg,
@@ -42,16 +43,16 @@ import {
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "TA Admin console · Benchmark" },
+      { title: "Group console · Benchmark" },
       {
         name: "description",
         content:
-          "Manage managers, departments, weekly curriculum releases and organisational hiring-capability telemetry.",
+          "Invite your managers, track their weekly hiring simulations, and see where your team's decision quality is weakest.",
       },
-      { property: "og:title", content: "TA Admin console · Benchmark" },
+      { property: "og:title", content: "Group console · Benchmark" },
       {
         property: "og:description",
-        content: "Telemetry, user management and curriculum control for TA leaders.",
+        content: "Manage your training group and see capability telemetry.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -60,9 +61,15 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+type Console = NonNullable<Awaited<ReturnType<typeof getGroupConsole>>>;
+
 function AdminPage() {
-  const telemetryFn = useServerFn(getTelemetry);
-  const query = useQuery({ queryKey: ["telemetry"], queryFn: () => telemetryFn({}), retry: false });
+  const consoleFn = useServerFn(getGroupConsole);
+  const query = useQuery({
+    queryKey: ["group-console"],
+    queryFn: () => consoleFn({}),
+    retry: false,
+  });
 
   if (query.isLoading) {
     return (
@@ -72,58 +79,65 @@ function AdminPage() {
     );
   }
 
-  if (query.error) {
+  if (query.error || !query.data) {
     return (
       <AppShell>
         <div className="rounded-xl border border-border bg-surface p-8 text-center">
-          <h1 className="font-display text-xl font-semibold">Admin access required</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{query.error.message}</p>
+          <h1 className="font-display text-xl font-semibold">You don't have a group yet</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Create one from your hub to invite managers and track their progress.
+          </p>
+          <Button asChild className="mt-4">
+            <Link to="/hub">Go to hub</Link>
+          </Button>
         </div>
       </AppShell>
     );
   }
 
-  const t = query.data!;
+  const t = query.data;
 
   return (
     <AppShell>
       <div className="space-y-8">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight">
-            TA Admin console
-          </h1>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">{t.group.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {t.settings?.company_name} · currently releasing week {t.summary.currentWeek} of
-            52
+            Week {t.summary.currentWeek} of 52 · {t.group.seatsUsed}/{t.group.memberLimit}{" "}
+            seats used
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric label="Managers enrolled" value={String(t.summary.managers)} icon={<Users className="size-4" />} />
+          <Metric label="Members" value={String(t.summary.members)} icon={<Users className="size-4" />} />
           <Metric
             label="This week participation"
             value={`${t.summary.participation}%`}
             icon={<Activity className="size-4" />}
           />
           <Metric
-            label="Org decision accuracy"
+            label="Group decision accuracy"
             value={`${t.summary.avgAccuracy}%`}
             icon={<CalendarClock className="size-4" />}
           />
           <Metric
-            label="Dormant managers"
+            label="Dormant members"
             value={String(t.summary.dormant)}
             icon={<AlertTriangle className="size-4" />}
           />
         </div>
 
-        <Tabs defaultValue="telemetry">
+        <Tabs defaultValue="team">
           <TabsList>
+            <TabsTrigger value="team">Team</TabsTrigger>
             <TabsTrigger value="telemetry">Telemetry</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            {t.isPlatformAdmin ? <TabsTrigger value="curriculum">Curriculum</TabsTrigger> : null}
+            {t.isPlatformAdmin ? <TabsTrigger value="settings">Settings</TabsTrigger> : null}
           </TabsList>
+
+          <TabsContent value="team" className="mt-6 space-y-6">
+            <TeamTab data={t} />
+          </TabsContent>
 
           <TabsContent value="telemetry" className="mt-6 space-y-6">
             <Panel title="Accuracy by released week">
@@ -147,114 +161,124 @@ function AdminPage() {
               </div>
             </Panel>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Panel title="Weakest capability areas">
-                <ul className="space-y-3">
-                  {t.riskiest.map((w) => (
-                    <li key={w.week} className="flex items-start gap-3 text-sm">
-                      <span className="rounded-md bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive">
-                        {w.accuracy}%
+            <Panel title="Weakest capability areas">
+              <ul className="space-y-3">
+                {t.riskiest.map((w) => (
+                  <li key={w.week} className="flex items-start gap-3 text-sm">
+                    <span className="rounded-md bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive">
+                      {w.accuracy}%
+                    </span>
+                    <span>
+                      <span className="font-medium">Week {w.week}</span> · {w.topic}
+                      <span className="block text-xs text-muted-foreground">
+                        {w.completions} completion{w.completions === 1 ? "" : "s"}
                       </span>
-                      <span>
-                        <span className="font-medium">Week {w.week}</span> · {w.topic}
-                        <span className="block text-xs text-muted-foreground">
-                          {w.completions} completion{w.completions === 1 ? "" : "s"}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                  {!t.riskiest.length ? (
-                    <li className="text-sm text-muted-foreground">No responses yet.</li>
-                  ) : null}
-                </ul>
-              </Panel>
-
-              <Panel title="Department performance">
-                <ul className="space-y-3">
-                  {t.deptStats.map((d) => (
-                    <li key={d.id} className="flex items-center gap-3 text-sm">
-                      <span className="font-medium">{d.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {d.members} manager{d.members === 1 ? "" : "s"}
-                      </span>
-                      <span className="ml-auto text-muted-foreground">
-                        {d.accuracy}% accuracy · {d.avgXp} XP avg
-                      </span>
-                    </li>
-                  ))}
-                  {!t.deptStats.length ? (
-                    <li className="text-sm text-muted-foreground">
-                      No departments created yet.
-                    </li>
-                  ) : null}
-                </ul>
-              </Panel>
-            </div>
+                    </span>
+                  </li>
+                ))}
+                {!t.riskiest.length ? (
+                  <li className="text-sm text-muted-foreground">
+                    No completed sessions in your group yet.
+                  </li>
+                ) : null}
+              </ul>
+            </Panel>
           </TabsContent>
 
-          <TabsContent value="users" className="mt-6 space-y-6">
-            <UsersTab telemetry={t} />
-          </TabsContent>
+          {t.isPlatformAdmin ? (
+            <TabsContent value="curriculum" className="mt-6 space-y-6">
+              <CurriculumTab currentWeek={t.summary.currentWeek} />
+            </TabsContent>
+          ) : null}
 
-          <TabsContent value="curriculum" className="mt-6 space-y-6">
-            <CurriculumTab telemetry={t} />
-          </TabsContent>
-
-          <TabsContent value="settings" className="mt-6 space-y-6">
-            <SettingsTab telemetry={t} />
-          </TabsContent>
+          {t.isPlatformAdmin ? (
+            <TabsContent value="settings" className="mt-6 space-y-6">
+              <SettingsTab data={t} />
+            </TabsContent>
+          ) : null}
         </Tabs>
       </div>
     </AppShell>
   );
 }
 
-type Telemetry = Awaited<ReturnType<typeof getTelemetry>>;
-
-function UsersTab({ telemetry }: { telemetry: Telemetry }) {
+function TeamTab({ data }: { data: Console }) {
   const qc = useQueryClient();
-  const assignFn = useServerFn(assignDepartment);
-  const inviteFn = useServerFn(createInvite);
-  const deptFn = useServerFn(createDepartment);
+  const inviteFn = useServerFn(inviteToGroup);
+  const revokeFn = useServerFn(revokeInvite);
+  const removeFn = useServerFn(removeMember);
+  const interestFn = useServerFn(registerUpgradeInterest);
   const [email, setEmail] = useState("");
-  const [deptName, setDeptName] = useState("");
+  const [seats, setSeats] = useState("10");
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["telemetry"] });
-
-  const assign = useMutation({
-    mutationFn: (v: { userId: string; departmentId: string | null }) =>
-      assignFn({ data: v }),
-    onSuccess: () => {
-      toast.success("Department updated");
-      refresh();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  const refresh = () => qc.invalidateQueries({ queryKey: ["group-console"] });
+  const full = data.group.seatsLeft <= 0;
 
   const invite = useMutation({
-    mutationFn: () => inviteFn({ data: { email, departmentId: null } }),
+    mutationFn: () => inviteFn({ data: { email } }),
     onSuccess: () => {
-      toast.success("Invite recorded — share the sign-up link with them");
+      toast.success("Invite created — they'll see it when they sign in with that email");
       setEmail("");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const addDept = useMutation({
-    mutationFn: () => deptFn({ data: { name: deptName } }),
+  const revoke = useMutation({
+    mutationFn: (inviteId: string) => revokeFn({ data: { inviteId } }),
     onSuccess: () => {
-      toast.success("Department created");
-      setDeptName("");
+      toast.success("Invite revoked");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const remove = useMutation({
+    mutationFn: (memberId: string) => removeFn({ data: { memberId } }),
+    onSuccess: () => {
+      toast.success("Member removed");
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const interest = useMutation({
+    mutationFn: () => interestFn({ data: { seats: Number(seats) || null } }),
+    onSuccess: () => toast.success("Noted — we'll let you know when bigger groups open up"),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Panel title="Invite a hiring manager">
+      <Panel title="Invite a manager">
+        {full ? (
+          <div className="rounded-lg border border-warning/40 bg-warning/10 p-4">
+            <p className="flex items-center gap-2 text-sm font-semibold text-warning">
+              <Lock className="size-4" /> Group limit reached
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              The free tier covers {data.group.memberLimit} members plus you. Larger teams are
+              coming soon — tell us how many seats you need.
+            </p>
+            <div className="mt-3 flex gap-2">
+              <Input
+                type="number"
+                min={1}
+                className="w-28"
+                value={seats}
+                onChange={(e) => setSeats(e.target.value)}
+                aria-label="Seats needed"
+              />
+              <Button
+                variant="outline"
+                onClick={() => interest.mutate()}
+                disabled={interest.isPending}
+              >
+                Notify me
+              </Button>
+            </div>
+          </div>
+        ) : (
           <div className="flex gap-2">
             <Input
               type="email"
@@ -266,69 +290,54 @@ function UsersTab({ telemetry }: { telemetry: Telemetry }) {
               Invite
             </Button>
           </div>
-          <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
-            {telemetry.invites.slice(0, 5).map((i) => (
-              <li key={i.id}>
-                {i.email} · {i.status}
-              </li>
-            ))}
-          </ul>
-        </Panel>
+        )}
 
-        <Panel title="Create a department">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Engineering"
-              value={deptName}
-              onChange={(e) => setDeptName(e.target.value)}
-            />
-            <Button
-              onClick={() => addDept.mutate()}
-              disabled={!deptName || addDept.isPending}
-            >
-              Add
-            </Button>
-          </div>
-        </Panel>
-      </div>
+        <ul className="mt-4 space-y-2 text-sm">
+          {data.invites.map((i) => (
+            <li key={i.id} className="flex items-center gap-3">
+              <span className="truncate">{i.email}</span>
+              <span className="text-xs text-muted-foreground">{i.status}</span>
+              {i.status === "pending" ? (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="ml-auto"
+                  onClick={() => revoke.mutate(i.id)}
+                >
+                  Revoke
+                </Button>
+              ) : null}
+            </li>
+          ))}
+          {!data.invites.length ? (
+            <li className="text-xs text-muted-foreground">No invites yet.</li>
+          ) : null}
+        </ul>
+      </Panel>
 
-      <Panel title="Managers">
+      <Panel title="Members">
         <div className="space-y-2">
-          {telemetry.users.map((u) => (
+          {data.users.map((u) => (
             <div
               key={u.id}
               className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3 text-sm"
             >
               <div className="min-w-0">
-                <p className="truncate font-medium">{u.name}</p>
+                <p className="truncate font-medium">
+                  {u.name}
+                  {u.isOwner ? <span className="text-primary"> · you</span> : null}
+                </p>
                 <p className="truncate text-xs text-muted-foreground">{u.email}</p>
               </div>
               <div className="ml-auto flex flex-wrap items-center gap-4">
                 <span className="text-xs text-muted-foreground">
-                  Lvl {u.level} · {u.totalXp} XP · {u.completions} sessions · streak{" "}
-                  {u.streak}
+                  Lvl {u.level} · {u.totalXp} XP · {u.completions} sessions · streak {u.streak}
                 </span>
-                <Select
-                  value={u.departmentId ?? "none"}
-                  onValueChange={(v) =>
-                    assign.mutate({
-                      userId: u.id,
-                      departmentId: v === "none" ? null : v,
-                    })
-                  }
-                >
-                  <SelectTrigger className="w-44">
-                    <SelectValue placeholder="Department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Unassigned</SelectItem>
-                    {telemetry.departments.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {!u.isOwner ? (
+                  <Button size="sm" variant="ghost" onClick={() => remove.mutate(u.id)}>
+                    Remove
+                  </Button>
+                ) : null}
               </div>
             </div>
           ))}
@@ -338,9 +347,9 @@ function UsersTab({ telemetry }: { telemetry: Telemetry }) {
   );
 }
 
-function CurriculumTab({ telemetry }: { telemetry: Telemetry }) {
+function CurriculumTab({ currentWeek }: { currentWeek: number }) {
   const qc = useQueryClient();
-  const [week, setWeek] = useState(telemetry.summary.currentWeek);
+  const [week, setWeek] = useState(currentWeek);
   const editorFn = useServerFn(loadWeekEditor);
   const saveQuestionFn = useServerFn(saveQuestion);
   const weekContentFn = useServerFn(updateWeekContent);
@@ -355,7 +364,7 @@ function CurriculumTab({ telemetry }: { telemetry: Telemetry }) {
     mutationFn: (w: number) => releaseFn({ data: { week: w } }),
     onSuccess: () => {
       toast.success("Release week updated");
-      qc.invalidateQueries({ queryKey: ["telemetry"] });
+      qc.invalidateQueries({ queryKey: ["group-console"] });
       qc.invalidateQueries({ queryKey: ["me"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -397,7 +406,7 @@ function CurriculumTab({ telemetry }: { telemetry: Telemetry }) {
               type="number"
               min={1}
               max={52}
-              defaultValue={telemetry.summary.currentWeek}
+              defaultValue={currentWeek}
               onChange={(e) => setWeek(Number(e.target.value))}
             />
           </div>
@@ -405,7 +414,7 @@ function CurriculumTab({ telemetry }: { telemetry: Telemetry }) {
             Release week {week}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Weeks after the release week stay locked for hiring managers.
+            Weeks after the release week stay locked for everyone.
           </p>
         </div>
       </Panel>
@@ -544,28 +553,28 @@ function QuestionEditor({
   );
 }
 
-function SettingsTab({ telemetry }: { telemetry: Telemetry }) {
+function SettingsTab({ data }: { data: Console }) {
   const qc = useQueryClient();
   const fn = useServerFn(updateOrg);
-  const [name, setName] = useState(telemetry.settings?.company_name ?? "");
-  const [day, setDay] = useState(telemetry.settings?.release_day ?? "monday");
-  const [time, setTime] = useState(telemetry.settings?.release_time ?? "08:00");
+  const [name, setName] = useState(data.settings?.company_name ?? "");
+  const [day, setDay] = useState(data.settings?.release_day ?? "monday");
+  const [time, setTime] = useState(data.settings?.release_time ?? "08:00");
 
   const save = useMutation({
     mutationFn: () =>
       fn({ data: { company_name: name, release_day: day, release_time: time } }),
     onSuccess: () => {
       toast.success("Settings saved");
-      qc.invalidateQueries({ queryKey: ["telemetry"] });
+      qc.invalidateQueries({ queryKey: ["group-console"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   return (
-    <Panel title="Organisation settings">
+    <Panel title="Platform settings">
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
-          <Label htmlFor="org-name">Company name</Label>
+          <Label htmlFor="org-name">Platform name</Label>
           <Input id="org-name" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div>
