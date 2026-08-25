@@ -22,8 +22,10 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   acceptInvite,
   createGroup,
+  listMemberAssessments,
   updateDisplayName,
 } from "@/lib/benchmark.functions";
+
 import { levelProgress, QUARTER_THEMES, quarterForWeek } from "@/lib/gamification";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
