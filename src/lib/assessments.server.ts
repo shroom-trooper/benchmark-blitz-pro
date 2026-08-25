@@ -405,7 +405,14 @@ export async function updateAssessment(
       .eq("assessment_id", id);
     if (!count) fail("Add at least one question before publishing.");
   }
-  const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+  const clean = {
+    ...(patch.title !== undefined ? { title: patch.title } : {}),
+    ...(patch.description !== undefined ? { description: patch.description } : {}),
+    ...(patch.estimated_minutes !== undefined
+      ? { estimated_minutes: patch.estimated_minutes }
+      : {}),
+    ...(patch.status !== undefined ? { status: patch.status } : {}),
+  };
   const { error } = await supabase.from("assessments").update(clean).eq("id", id);
   if (error) fail(error.message);
   return { ok: true };
