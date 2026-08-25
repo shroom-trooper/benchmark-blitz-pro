@@ -62,7 +62,7 @@ function LeaderboardPage() {
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <Zap className="size-4" />
             </span>
-            <span className="font-display text-lg font-semibold">Benchmark</span>
+            <span className="font-display text-lg">Benchmark</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
             {signedIn ? (
@@ -80,10 +80,8 @@ function LeaderboardPage() {
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-10">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight">
-            Global leaderboard
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-3xl">Global leaderboard</h1>
+          <p className="mt-1 text-sm text-body">
             {publicBoard.data
               ? `${publicBoard.data.totalPlayers} people training their hiring judgement`
               : "Loading rankings"}
@@ -111,7 +109,7 @@ function LeaderboardPage() {
                 />
               ))}
               {!publicBoard.data?.players.length ? (
-                <p className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted-foreground">
+                <p className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-body">
                   No one has completed a simulation yet. Be first.
                 </p>
               ) : null}
@@ -137,8 +135,8 @@ function LeaderboardPage() {
 
         {signedIn === false ? (
           <div className="rounded-xl border border-primary/40 bg-primary/10 p-6 text-center">
-            <p className="font-display text-lg font-semibold">Think you can rank higher?</p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="font-display text-lg">Think you can rank higher?</p>
+            <p className="mt-1 text-sm leading-relaxed text-body">
               Three scenarios a week, four minutes. Free to join.
             </p>
             <Button asChild className="mt-4">
@@ -182,7 +180,7 @@ function Row({
           <Flame className="size-4" />
           {streak}
         </span>
-        <span className="font-display text-lg font-semibold">
+        <span className="font-display text-lg">
           {xp}
           <span className="ml-1 text-xs text-muted-foreground">XP</span>
         </span>
@@ -202,7 +200,7 @@ function RankBadge({ rank }: { rank: number }) {
           : "bg-surface-2 text-muted-foreground";
   return (
     <span
-      className={`grid size-9 shrink-0 place-items-center rounded-lg font-display font-semibold ${colour}`}
+      className={`grid size-9 shrink-0 place-items-center rounded-lg font-display ${colour}`}
     >
       {rank <= 3 ? (
         rank === 1 ? (

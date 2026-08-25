@@ -39,7 +39,7 @@ function Landing() {
           <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
             <Zap className="size-4" />
           </span>
-          <span className="font-display text-lg font-semibold">Benchmark</span>
+          <span className="font-display text-lg">Benchmark</span>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost">
@@ -54,10 +54,10 @@ function Landing() {
       <main className="mx-auto max-w-6xl px-4">
         <section className="py-16 sm:py-24">
           <p className="font-medium text-primary">Continuous hiring capability training</p>
-          <h1 className="mt-4 max-w-3xl font-display text-4xl font-semibold tracking-tight sm:text-6xl">
+          <h1 className="mt-4 max-w-3xl text-4xl sm:text-6xl">
             Turn one-off interview training into a weekly habit.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-body">
             Three realistic hiring scenarios every week. Four minutes. Instant
             evidence-based feedback, XP, streaks and a public leaderboard. Training your
             managers? Create a group and watch their judgement improve week by week.
@@ -127,8 +127,8 @@ function Feature({
   return (
     <div className="rounded-xl border border-border bg-surface p-6">
       {icon}
-      <h2 className="mt-3 font-display text-lg font-semibold">{title}</h2>
-      <p className="mt-2 text-sm text-muted-foreground">{body}</p>
+      <h2 className="mt-3 font-display text-lg">{title}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-body">{body}</p>
     </div>
   );
 }

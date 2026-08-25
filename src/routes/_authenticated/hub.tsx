@@ -107,10 +107,8 @@ function Hub() {
               <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
                 Week {currentWeek} · Q{quarterForWeek(currentWeek)} {theme.name}
               </Badge>
-              <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
-                {current?.topic ?? "Curriculum loading"}
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <h1 className="mt-3 text-3xl">{current?.topic ?? "Curriculum loading"}</h1>
+              <p className="mt-2 text-sm leading-relaxed text-body">
                 Three scenarios. Roughly four minutes. One week closer to Master Bar
                 Raiser.
               </p>
@@ -138,7 +136,7 @@ function Hub() {
 
             <div className="w-full max-w-xs rounded-xl border border-border bg-background/40 p-5">
               <div className="flex items-baseline justify-between">
-                <span className="font-display text-2xl font-semibold">
+                <span className="font-display text-2xl">
                   Level {lp.current.level}
                 </span>
                 <span className="text-sm text-muted-foreground">
@@ -161,7 +159,7 @@ function Hub() {
             <Lightbulb className="mt-0.5 size-5 shrink-0 text-warning" />
             <div>
               <p className="text-sm font-semibold text-warning">Did you know?</p>
-              <p className="mt-1 text-sm text-foreground/90">{current.fact}</p>
+              <p className="mt-1 text-sm text-body">{current.fact}</p>
             </div>
           </section>
         ) : null}
@@ -181,7 +179,7 @@ function Hub() {
         />
 
         <section>
-          <h2 className="font-display text-xl font-semibold">Achievements</h2>
+          <h2 className="text-xl">Achievements</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {me.achievements.map((a) => {
               const Icon = ICONS[a.icon] ?? Sparkles;
@@ -196,8 +194,8 @@ function Hub() {
                   }`}
                 >
                   <Icon className={`size-5 ${has ? "text-primary" : "text-muted-foreground"}`} />
-                  <p className="mt-2 text-sm font-semibold">{a.name}</p>
-                  <p className="text-xs text-muted-foreground">{a.description}</p>
+                  <p className="mt-2 font-display text-sm">{a.name}</p>
+                  <p className="text-xs text-body">{a.description}</p>
                 </div>
               );
             })}
@@ -205,8 +203,8 @@ function Hub() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-semibold">52-week curriculum</h2>
-          <p className="text-sm text-muted-foreground">{theme.blurb}</p>
+          <h2 className="text-xl">52-week curriculum</h2>
+          <p className="text-sm leading-relaxed text-body">{theme.blurb}</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {weeks.map((w) => {
               const isDone = completedWeeks.has(w.week_number);
@@ -265,7 +263,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-border bg-surface p-5">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-2xl font-semibold">{value}</p>
+      <p className="mt-1 font-display text-2xl">{value}</p>
     </div>
   );
 }
@@ -318,10 +316,10 @@ function GroupPanel({
   return (
     <section className="grid gap-4 lg:grid-cols-2">
       <div className="rounded-xl border border-border bg-surface p-6">
-        <h2 className="font-display text-lg font-semibold">Your group</h2>
+        <h2 className="text-lg">Your group</h2>
         {group ? (
           <>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm leading-relaxed text-body">
               You're {ownsGroup ? "the admin of" : "a member of"}{" "}
               <span className="font-medium text-foreground">{group.name}</span>.
             </p>
@@ -338,7 +336,7 @@ function GroupPanel({
           </>
         ) : pendingInvites.length ? (
           <div className="mt-3 space-y-2">
-            <p className="text-sm text-muted-foreground">You've been invited to join:</p>
+            <p className="text-sm text-body">You've been invited to join:</p>
             {pendingInvites.map((i) => (
               <div key={i.id} className="flex items-center gap-3 text-sm">
                 <span className="font-medium">{i.groupName}</span>
@@ -355,7 +353,7 @@ function GroupPanel({
           </div>
         ) : (
           <>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm leading-relaxed text-body">
               Training your managers? Create a group and invite up to 3 of them — you'll see
               their progress and a private group board.
             </p>
@@ -377,8 +375,8 @@ function GroupPanel({
       </div>
 
       <div className="rounded-xl border border-border bg-surface p-6">
-        <h2 className="font-display text-lg font-semibold">Public profile</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h2 className="text-lg">Public profile</h2>
+        <p className="mt-2 text-sm text-body">
           This name appears on the global leaderboard.
         </p>
         <div className="mt-4 flex gap-2">
