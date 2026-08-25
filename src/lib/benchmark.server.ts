@@ -297,145 +297,228 @@ export async function submitWeek(
   };
 }
 
-export async function loadLeaderboard(supabase: DB, userId: string) {
-  const { data: profiles } = await supabase
+export async function loadGroupLeaderboard(supabase: DB, userId: string) {
+  const { data: profile } = await supabase
     .from("profiles")
-    .select("id, full_name, email, total_xp, level, current_streak, department_id");
-  const { data: departments } = await supabase.from("departments").select("*");
-  const deptName = new Map((departments ?? []).map((d) => [d.id, d.name]));
+    .select("group_id")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!profile?.group_id) return null;
 
-  const ranked = (profiles ?? [])
+  const { data: group } = await supabase
+    .from("groups")
+    .select("*")
+    .eq("id", profile.group_id)
+    .maybeSingle();
+  const { data: members } = await supabase
+    .from("profiles")
+    .select("id, full_name, display_name, email, total_xp, level, current_streak")
+    .eq("group_id", profile.group_id);
+
+  const ranked = (members ?? [])
     .map((p) => ({
       id: p.id,
-      name: p.full_name || p.email.split("@")[0]!,
+      name: p.display_name || p.full_name || p.email.split("@")[0]!,
       totalXp: p.total_xp,
       level: p.level,
       streak: p.current_streak,
-      departmentId: p.department_id,
-      department: p.department_id ? (deptName.get(p.department_id) ?? null) : null,
       isMe: p.id === userId,
+      isOwner: p.id === group?.owner_id,
     }))
     .sort((a, b) => b.totalXp - a.totalXp)
     .map((p, i) => ({ ...p, rank: i + 1 }));
 
-  const byDept = new Map<string, { name: string; totalXp: number; members: number }>();
-  for (const p of ranked) {
-    const key = p.department ?? "Unassigned";
-    const row = byDept.get(key) ?? { name: key, totalXp: 0, members: 0 };
-    row.totalXp += p.totalXp;
-    row.members += 1;
-    byDept.set(key, row);
-  }
-  const departmentBoard = [...byDept.values()]
-    .map((d) => ({ ...d, avgXp: Math.round(d.totalXp / Math.max(1, d.members)) }))
-    .sort((a, b) => b.avgXp - a.avgXp)
-    .map((d, i) => ({ ...d, rank: i + 1 }));
-
-  const me = ranked.find((p) => p.isMe) ?? null;
-  return { global: ranked.slice(0, 50), departmentBoard, me, totalPlayers: ranked.length };
+  return {
+    group: group ? { id: group.id, name: group.name, memberLimit: group.member_limit } : null,
+    members: ranked,
+  };
 }
 
-export async function loadTelemetry(supabase: DB, userId: string) {
-  await requireAdmin(supabase, userId);
-  const [profilesRes, responsesRes, weeksRes, deptRes, settingsRes, invitesRes] =
-    await Promise.all([
-      supabase.from("profiles").select("*"),
-      supabase.from("responses").select("*"),
-      supabase.from("curriculum_weeks").select("*").order("week_number"),
-      supabase.from("departments").select("*").order("name"),
-      supabase.from("org_settings").select("*").eq("id", 1).maybeSingle(),
-      supabase.from("invites").select("*").order("created_at", { ascending: false }),
-    ]);
+export async function loadGroupConsole(supabase: DB, userId: string) {
+  const group = await requireGroupOwner(supabase, userId);
 
-  const profiles = profilesRes.data ?? [];
-  const responses = responsesRes.data ?? [];
+  const [membersRes, weeksRes, settingsRes, invitesRes] = await Promise.all([
+    supabase.from("profiles").select("*").eq("group_id", group.id),
+    supabase.from("curriculum_weeks").select("*").order("week_number"),
+    supabase.from("org_settings").select("*").eq("id", 1).maybeSingle(),
+    supabase
+      .from("invites")
+      .select("*")
+      .eq("group_id", group.id)
+      .order("created_at", { ascending: false }),
+  ]);
+
+  const members = membersRes.data ?? [];
   const weeks = weeksRes.data ?? [];
-  const departments = deptRes.data ?? [];
   const currentWeek = settingsRes.data?.current_week ?? 1;
+  const memberIds = members.map((m) => m.id);
 
-  const completedCurrent = responses.filter((r) => r.week_number === currentWeek).length;
-  const participation = profiles.length
-    ? Math.round((completedCurrent / profiles.length) * 100)
+  const { data: responses } = memberIds.length
+    ? await supabase.from("responses").select("*").in("user_id", memberIds)
+    : { data: [] as never[] };
+  const rows = responses ?? [];
+
+  const completedCurrent = rows.filter((r) => r.week_number === currentWeek).length;
+  const participation = members.length
+    ? Math.round((completedCurrent / members.length) * 100)
     : 0;
 
   const weekStats = weeks
     .filter((w) => w.week_number <= currentWeek)
     .map((w) => {
-      const rows = responses.filter((r) => r.week_number === w.week_number);
-      const avg = rows.length
-        ? rows.reduce((s, r) => s + r.score, 0) / rows.length
-        : 0;
+      const wr = rows.filter((r) => r.week_number === w.week_number);
+      const avg = wr.length ? wr.reduce((s, r) => s + r.score, 0) / wr.length : 0;
       return {
         week: w.week_number,
         topic: w.topic,
-        completions: rows.length,
+        completions: wr.length,
         avgScore: Math.round(avg * 100) / 100,
         accuracy: Math.round((avg / 3) * 100),
       };
     });
 
-  const deptStats = departments.map((d) => {
-    const members = profiles.filter((p) => p.department_id === d.id);
-    const ids = new Set(members.map((m) => m.id));
-    const rows = responses.filter((r) => ids.has(r.user_id));
-    const avg = rows.length ? rows.reduce((s, r) => s + r.score, 0) / rows.length : 0;
-    return {
-      id: d.id,
-      name: d.name,
-      members: members.length,
-      avgXp: members.length
-        ? Math.round(members.reduce((s, m) => s + m.total_xp, 0) / members.length)
-        : 0,
-      accuracy: Math.round((avg / 3) * 100),
-      completions: rows.length,
-    };
-  });
+  const riskiest = [...weekStats]
+    .filter((w) => w.completions > 0)
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .slice(0, 5);
 
-  const riskiest = [...weekStats].sort((a, b) => a.accuracy - b.accuracy).slice(0, 5);
-
-  const users = profiles
+  const users = members
     .map((p) => ({
       id: p.id,
-      name: p.full_name || p.email.split("@")[0]!,
+      name: p.display_name || p.full_name || p.email.split("@")[0]!,
       email: p.email,
-      departmentId: p.department_id,
+      isOwner: p.id === group.owner_id,
       level: p.level,
       totalXp: p.total_xp,
       streak: p.current_streak,
-      completions: responses.filter((r) => r.user_id === p.id).length,
+      completions: rows.filter((r) => r.user_id === p.id).length,
       lastCompletedAt: p.last_completed_at,
     }))
     .sort((a, b) => b.totalXp - a.totalXp);
 
-  const dormant = users.filter((u) => u.completions === 0 || u.streak === 0).length;
+  const invites = invitesRes.data ?? [];
+  const pendingInvites = invites.filter((i) => i.status === "pending");
+  const seatsUsed = users.filter((u) => !u.isOwner).length + pendingInvites.length;
 
   return {
+    group: {
+      id: group.id,
+      name: group.name,
+      memberLimit: group.member_limit,
+      seatsUsed,
+      seatsLeft: Math.max(0, group.member_limit - seatsUsed),
+    },
     summary: {
-      managers: profiles.length,
+      members: members.length,
       currentWeek,
       participation,
       completedCurrent,
-      totalCompletions: responses.length,
-      avgAccuracy: responses.length
-        ? Math.round(
-            (responses.reduce((s, r) => s + r.score, 0) / (responses.length * 3)) * 100,
-          )
+      totalCompletions: rows.length,
+      avgAccuracy: rows.length
+        ? Math.round((rows.reduce((s, r) => s + r.score, 0) / (rows.length * 3)) * 100)
         : 0,
-      dormant,
+      dormant: users.filter((u) => u.completions === 0 || u.streak === 0).length,
     },
     weekStats,
     riskiest,
-    deptStats,
     users,
-    departments,
+    invites,
     weeks,
-    invites: invitesRes.data ?? [],
     settings: settingsRes.data,
+    isPlatformAdmin: await isPlatformAdmin(supabase, userId),
   };
 }
 
+export async function createGroup(supabase: DB, _userId: string, name: string) {
+  const { data, error } = await supabase.rpc("create_group", { _name: name });
+  if (error) fail(error.message);
+  return { groupId: data as string };
+}
+
+export async function acceptInvite(supabase: DB, _userId: string, inviteId: string) {
+  const { data, error } = await supabase.rpc("accept_invite", { _invite_id: inviteId });
+  if (error) fail(friendly(error.message));
+  return { groupId: data as string };
+}
+
+export async function leaveGroup(supabase: DB, _userId: string) {
+  const { error } = await supabase.rpc("leave_group");
+  if (error) fail(error.message);
+  return { ok: true };
+}
+
+export async function updateDisplayName(supabase: DB, userId: string, name: string) {
+  const { error } = await supabase
+    .from("profiles")
+    .update({ display_name: name.trim() })
+    .eq("id", userId);
+  if (error) fail(error.message);
+  return { ok: true };
+}
+
+export async function inviteToGroup(supabase: DB, userId: string, email: string) {
+  const group = await requireGroupOwner(supabase, userId);
+  const { data, error } = await supabase
+    .from("invites")
+    .insert({ email: email.trim().toLowerCase(), group_id: group.id, invited_by: userId })
+    .select()
+    .single();
+  if (error) fail(friendly(error.message));
+  return data;
+}
+
+export async function revokeInvite(supabase: DB, userId: string, inviteId: string) {
+  const group = await requireGroupOwner(supabase, userId);
+  const { error } = await supabase
+    .from("invites")
+    .delete()
+    .eq("id", inviteId)
+    .eq("group_id", group.id);
+  if (error) fail(error.message);
+  return { ok: true };
+}
+
+export async function removeMember(supabase: DB, userId: string, memberId: string) {
+  const group = await requireGroupOwner(supabase, userId);
+  if (memberId === userId) fail("You cannot remove yourself from your own group.");
+  const { error } = await supabase
+    .from("profiles")
+    .update({ group_id: null })
+    .eq("id", memberId)
+    .eq("group_id", group.id);
+  if (error) fail(error.message);
+  return { ok: true };
+}
+
+export async function registerUpgradeInterest(
+  supabase: DB,
+  userId: string,
+  seatsWanted: number | null,
+) {
+  const { data: group } = await supabase
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  const { error } = await supabase.from("upgrade_interest").insert({
+    user_id: userId,
+    group_id: group?.id ?? null,
+    seats_wanted: seatsWanted,
+  });
+  if (error) fail(error.message);
+  return { ok: true };
+}
+
+function friendly(message: string) {
+  if (message.includes("GROUP_LIMIT"))
+    return "Group limit reached — the free tier allows 3 members plus you.";
+  if (message.includes("invites_group_email_unique"))
+    return "That email has already been invited to your group.";
+  return message;
+}
+
 export async function adminSetCurrentWeek(supabase: DB, userId: string, week: number) {
-  await requireAdmin(supabase, userId);
+  await requirePlatformAdmin(supabase, userId);
   if (week < 1 || week > 52) fail("Week must be between 1 and 52.");
   const { error } = await supabase
     .from("org_settings")
@@ -461,54 +544,14 @@ export async function adminUpdateOrg(
     release_day?: string | undefined;
     release_time?: string | undefined;
   },
-
 ) {
-  await requireAdmin(supabase, userId);
+  await requirePlatformAdmin(supabase, userId);
   const clean = Object.fromEntries(
     Object.entries(patch).filter(([, v]) => v !== undefined),
   ) as { company_name?: string; release_day?: string; release_time?: string };
   const { error } = await supabase.from("org_settings").update(clean).eq("id", 1);
-
   if (error) fail(error.message);
   return { ok: true };
-}
-
-export async function adminCreateDepartment(supabase: DB, userId: string, name: string) {
-  await requireAdmin(supabase, userId);
-  const { error } = await supabase.from("departments").insert({ name });
-  if (error) fail(error.message);
-  return { ok: true };
-}
-
-export async function adminAssignDepartment(
-  supabase: DB,
-  userId: string,
-  targetUserId: string,
-  departmentId: string | null,
-) {
-  await requireAdmin(supabase, userId);
-  const { error } = await supabase
-    .from("profiles")
-    .update({ department_id: departmentId })
-    .eq("id", targetUserId);
-  if (error) fail(error.message);
-  return { ok: true };
-}
-
-export async function adminCreateInvite(
-  supabase: DB,
-  userId: string,
-  email: string,
-  departmentId: string | null,
-) {
-  await requireAdmin(supabase, userId);
-  const { data, error } = await supabase
-    .from("invites")
-    .insert({ email, department_id: departmentId, invited_by: userId })
-    .select()
-    .single();
-  if (error) fail(error.message);
-  return data;
 }
 
 export async function adminSaveQuestion(
@@ -523,7 +566,7 @@ export async function adminSaveQuestion(
     explanation: string;
   },
 ) {
-  await requireAdmin(supabase, userId);
+  await requirePlatformAdmin(supabase, userId);
   const { error } = await supabase.from("question_overrides").upsert(
     {
       week_number: payload.week,
@@ -541,7 +584,7 @@ export async function adminSaveQuestion(
 }
 
 export async function adminLoadWeekEditor(supabase: DB, userId: string, week: number) {
-  await requireAdmin(supabase, userId);
+  await requirePlatformAdmin(supabase, userId);
   const { data: weekRow } = await supabase
     .from("curriculum_weeks")
     .select("*")
@@ -557,7 +600,7 @@ export async function adminUpdateWeekContent(
   week: number,
   patch: { topic?: string; fact?: string },
 ) {
-  await requireAdmin(supabase, userId);
+  await requirePlatformAdmin(supabase, userId);
   const { error } = await supabase
     .from("curriculum_weeks")
     .update(patch)
