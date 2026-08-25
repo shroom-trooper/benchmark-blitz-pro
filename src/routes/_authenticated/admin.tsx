@@ -14,6 +14,8 @@ import {
   YAxis,
 } from "recharts";
 import { AppShell } from "@/components/AppShell";
+import { AssessmentsTab } from "@/components/AssessmentsTab";
+
 import {
   getGroupConsole,
   inviteToGroup,
