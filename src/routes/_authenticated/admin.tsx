@@ -130,7 +130,7 @@ function AdminPage() {
         <Tabs defaultValue="team">
           <TabsList>
             <TabsTrigger value="team">Team</TabsTrigger>
-            <TabsTrigger value="telemetry">Telemetry</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             {t.isPlatformAdmin ? <TabsTrigger value="curriculum">Curriculum</TabsTrigger> : null}
             {t.isPlatformAdmin ? <TabsTrigger value="settings">Settings</TabsTrigger> : null}
           </TabsList>
@@ -139,8 +139,11 @@ function AdminPage() {
             <TeamTab data={t} />
           </TabsContent>
 
-          <TabsContent value="telemetry" className="mt-6 space-y-6">
+          <TabsContent value="analytics" className="mt-6 space-y-6">
+            <MemberAnalytics data={t} />
+
             <Panel title="Accuracy by released week">
+
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={t.weekStats}>
