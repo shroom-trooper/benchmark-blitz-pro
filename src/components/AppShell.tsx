@@ -43,8 +43,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               icon={<Trophy className="size-4" />}
               label="Leaderboard"
             />
-            {me?.isAdmin ? (
-              <NavLink to="/admin" icon={<Shield className="size-4" />} label="Admin" />
+            {me?.ownsGroup ? (
+              <NavLink to="/admin" icon={<Shield className="size-4" />} label="Group" />
             ) : null}
           </nav>
 

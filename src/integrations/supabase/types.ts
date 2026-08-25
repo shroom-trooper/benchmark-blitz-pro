@@ -62,29 +62,38 @@ export type Database = {
         }
         Relationships: []
       }
-      departments: {
+      groups: {
         Row: {
           created_at: string
           id: string
+          member_limit: number
           name: string
+          owner_id: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
+          member_limit?: number
           name: string
+          owner_id: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
+          member_limit?: number
           name?: string
+          owner_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
       invites: {
         Row: {
           created_at: string
-          department_id: string | null
           email: string
+          group_id: string
           id: string
           invited_by: string | null
           status: string
@@ -92,8 +101,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          department_id?: string | null
           email: string
+          group_id: string
           id?: string
           invited_by?: string | null
           status?: string
@@ -101,8 +110,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          department_id?: string | null
           email?: string
+          group_id?: string
           id?: string
           invited_by?: string | null
           status?: string
@@ -110,10 +119,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "invites_department_id_fkey"
-            columns: ["department_id"]
+            foreignKeyName: "invites_group_id_fkey"
+            columns: ["group_id"]
             isOneToOne: false
-            referencedRelation: "departments"
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
@@ -145,13 +154,29 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_admins: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
           current_streak: number
-          department_id: string | null
+          display_name: string | null
           email: string
           full_name: string | null
+          group_id: string | null
           id: string
           last_completed_at: string | null
           last_completed_week: number | null
@@ -162,9 +187,10 @@ export type Database = {
         Insert: {
           created_at?: string
           current_streak?: number
-          department_id?: string | null
+          display_name?: string | null
           email: string
           full_name?: string | null
+          group_id?: string | null
           id: string
           last_completed_at?: string | null
           last_completed_week?: number | null
@@ -175,9 +201,10 @@ export type Database = {
         Update: {
           created_at?: string
           current_streak?: number
-          department_id?: string | null
+          display_name?: string | null
           email?: string
           full_name?: string | null
+          group_id?: string | null
           id?: string
           last_completed_at?: string | null
           last_completed_week?: number | null
@@ -187,10 +214,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_department_id_fkey"
-            columns: ["department_id"]
+            foreignKeyName: "profiles_group_id_fkey"
+            columns: ["group_id"]
             isOneToOne: false
-            referencedRelation: "departments"
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
@@ -277,6 +304,38 @@ export type Database = {
           },
         ]
       }
+      upgrade_interest: {
+        Row: {
+          created_at: string
+          group_id: string | null
+          id: string
+          seats_wanted: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id?: string | null
+          id?: string
+          seats_wanted?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string | null
+          id?: string
+          seats_wanted?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upgrade_interest_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_achievements: {
         Row: {
           achievement_code: string
@@ -326,9 +385,37 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_leaderboard: {
+        Row: {
+          current_streak: number | null
+          display_name: string | null
+          id: string | null
+          last_completed_week: number | null
+          level: number | null
+          total_xp: number | null
+        }
+        Insert: {
+          current_streak?: number | null
+          display_name?: never
+          id?: string | null
+          last_completed_week?: number | null
+          level?: number | null
+          total_xp?: number | null
+        }
+        Update: {
+          current_streak?: number | null
+          display_name?: never
+          id?: string | null
+          last_completed_week?: number | null
+          level?: number | null
+          total_xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      accept_invite: { Args: { _invite_id: string }; Returns: string }
+      create_group: { Args: { _name: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -336,6 +423,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
+      leave_group: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "ta_admin" | "hiring_manager"

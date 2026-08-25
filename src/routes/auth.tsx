@@ -71,8 +71,8 @@ function AuthPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Account created — signing you in.");
-    router.navigate({ to: "/hub" });
+    toast.success("Account created — let's set you up.");
+    router.navigate({ to: "/onboarding" });
   }
 
   async function google() {
@@ -178,7 +178,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          The first account created becomes the TA Admin for your organisation.
+          Train solo, or create a group and invite up to 3 managers — free.
         </p>
       </div>
     </div>
