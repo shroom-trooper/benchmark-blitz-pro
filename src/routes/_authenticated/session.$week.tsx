@@ -84,8 +84,8 @@ function SessionPage() {
     return (
       <AppShell>
         <div className="rounded-xl border border-border bg-surface p-8 text-center">
-          <h1 className="font-display text-xl font-semibold">Session unavailable</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{query.error.message}</p>
+          <h1 className="text-xl">Session unavailable</h1>
+          <p className="mt-2 text-sm text-body">{query.error.message}</p>
           <Button asChild className="mt-6">
             <Link to="/hub">Back to hub</Link>
           </Button>
@@ -105,7 +105,7 @@ function SessionPage() {
         <div className="mx-auto max-w-3xl space-y-6">
           <Header week={weekNumber} topic={data.week.topic} theme={theme.name} />
           <div className="rounded-xl border border-success/40 bg-success/10 p-6">
-            <p className="font-display text-lg font-semibold text-success">
+            <p className="font-display text-lg text-success">
               Completed — {data.completed.score}/3 correct, {data.completed.xpEarned} XP
             </p>
           </div>
@@ -115,7 +115,7 @@ function SessionPage() {
             return (
               <div key={q.index} className="rounded-xl border border-border bg-surface p-6">
                 <p className="text-sm text-muted-foreground">Scenario {i + 1}</p>
-                <p className="mt-2 font-medium">{q.scenario}</p>
+                <p className="mt-2 text-body">{q.scenario}</p>
                 <ul className="mt-4 space-y-2">
                   {q.options.map((o, oi) => (
                     <li
@@ -132,7 +132,7 @@ function SessionPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-4 text-sm text-muted-foreground">{review.explanation}</p>
+                <p className="mt-4 text-sm text-body">{review.explanation}</p>
               </div>
             );
           })}
@@ -167,7 +167,7 @@ function SessionPage() {
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Scenario {step + 1} of {data.questions.length}
           </p>
-          <p className="mt-3 text-lg leading-relaxed">{question.scenario}</p>
+          <p className="mt-3 text-lg text-body">{question.scenario}</p>
           <div className="mt-6 space-y-3">
             {question.options.map((o, oi) => (
               <button
@@ -217,7 +217,7 @@ function Header({
       <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
         Week {week} · {theme}
       </Badge>
-      <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight">{topic}</h1>
+      <h1 className="mt-3 text-2xl">{topic}</h1>
     </div>
   );
 }
@@ -236,10 +236,10 @@ function ResultView({
       <div className="mx-auto max-w-3xl space-y-6">
         <div className="animate-pop rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/15 to-surface p-8 text-center">
           <Sparkles className="mx-auto size-8 text-primary" />
-          <h1 className="mt-3 font-display text-3xl font-semibold">
+          <h1 className="mt-3 text-3xl">
             {result.correctCount}/3 correct
           </h1>
-          <p className="mt-1 text-muted-foreground">Week {weekNumber} complete</p>
+          <p className="mt-1 text-body">Week {weekNumber} complete</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
             <Pill label={`+${result.xp.base} XP base`} />
             {result.xp.perfect ? <Pill label={`+${result.xp.perfect} perfect bonus`} /> : null}
@@ -265,7 +265,7 @@ function ResultView({
           <Lightbulb className="mt-0.5 size-5 shrink-0 text-warning" />
           <div>
             <p className="text-sm font-semibold text-warning">Did you know?</p>
-            <p className="mt-1 text-sm text-foreground/90">{data.week.fact}</p>
+            <p className="mt-1 text-sm text-body">{data.week.fact}</p>
           </div>
         </div>
 
@@ -280,7 +280,7 @@ function ResultView({
                   <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
                 )}
                 <div>
-                  <p className="font-medium">{q.scenario}</p>
+                  <p className="text-body">{q.scenario}</p>
                   <p className="mt-3 text-sm">
                     <span className="text-muted-foreground">Best answer: </span>
                     {q.options[r.correctIndex]}
@@ -291,7 +291,7 @@ function ResultView({
                       {q.options[r.chosen]}
                     </p>
                   ) : null}
-                  <p className="mt-3 text-sm text-muted-foreground">{r.explanation}</p>
+                  <p className="mt-3 text-sm text-body">{r.explanation}</p>
                 </div>
               </div>
             </div>
