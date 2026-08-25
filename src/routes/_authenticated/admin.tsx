@@ -83,8 +83,8 @@ function AdminPage() {
     return (
       <AppShell>
         <div className="rounded-xl border border-border bg-surface p-8 text-center">
-          <h1 className="font-display text-xl font-semibold">You don't have a group yet</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <h1 className="text-xl">You don't have a group yet</h1>
+          <p className="mt-2 text-sm leading-relaxed text-body">
             Create one from your hub to invite managers and track their progress.
           </p>
           <Button asChild className="mt-4">
@@ -101,7 +101,7 @@ function AdminPage() {
     <AppShell>
       <div className="space-y-8">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight">{t.group.name}</h1>
+          <h1 className="text-3xl">{t.group.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Week {t.summary.currentWeek} of 52 · {t.group.seatsUsed}/{t.group.memberLimit}{" "}
             seats used
@@ -256,7 +256,7 @@ function TeamTab({ data }: { data: Console }) {
             <p className="flex items-center gap-2 text-sm font-semibold text-warning">
               <Lock className="size-4" /> Group limit reached
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm leading-relaxed text-body">
               The free tier covers {data.group.memberLimit} members plus you. Larger teams are
               coming soon — tell us how many seats you need.
             </p>
@@ -612,7 +612,7 @@ function SettingsTab({ data }: { data: Console }) {
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-xl border border-border bg-surface p-6">
-      <h2 className="mb-4 font-display text-lg font-semibold">{title}</h2>
+      <h2 className="mb-4 text-lg">{title}</h2>
       {children}
     </section>
   );
@@ -633,7 +633,7 @@ function Metric({
         {icon}
         <p className="text-xs uppercase tracking-wide">{label}</p>
       </div>
-      <p className="mt-2 font-display text-2xl font-semibold">{value}</p>
+      <p className="mt-2 font-display text-2xl">{value}</p>
     </div>
   );
 }
