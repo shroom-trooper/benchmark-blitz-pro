@@ -517,37 +517,22 @@ export type Database = {
       }
     }
     Views: {
-      public_leaderboard: {
-        Row: {
-          current_streak: number | null
-          display_name: string | null
-          id: string | null
-          last_completed_week: number | null
-          level: number | null
-          total_xp: number | null
-        }
-        Insert: {
-          current_streak?: number | null
-          display_name?: never
-          id?: string | null
-          last_completed_week?: number | null
-          level?: number | null
-          total_xp?: number | null
-        }
-        Update: {
-          current_streak?: number | null
-          display_name?: never
-          id?: string | null
-          last_completed_week?: number | null
-          level?: number | null
-          total_xp?: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       accept_invite: { Args: { _invite_id: string }; Returns: string }
       create_group: { Args: { _name: string }; Returns: string }
+      get_public_leaderboard: {
+        Args: never
+        Returns: {
+          current_streak: number
+          display_name: string
+          id: string
+          last_completed_week: number
+          level: number
+          total_xp: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
