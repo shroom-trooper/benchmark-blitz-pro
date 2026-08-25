@@ -94,7 +94,7 @@ function AuthPage() {
           <span className="grid size-9 place-items-center rounded-lg bg-primary text-primary-foreground">
             <Zap className="size-5" />
           </span>
-          <span className="font-display text-2xl font-semibold">Benchmark</span>
+          <span className="font-display text-2xl">Benchmark</span>
         </Link>
 
         <div className="rounded-xl border border-border bg-surface p-6">

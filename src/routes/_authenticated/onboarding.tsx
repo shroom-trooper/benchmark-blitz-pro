@@ -83,12 +83,12 @@ function Onboarding() {
           <span className="grid size-9 place-items-center rounded-lg bg-primary text-primary-foreground">
             <Zap className="size-5" />
           </span>
-          <span className="font-display text-2xl font-semibold">Benchmark</span>
+          <span className="font-display text-2xl">Benchmark</span>
         </div>
 
         {me?.pendingInvites?.length ? (
           <section className="rounded-xl border border-primary/40 bg-primary/10 p-5">
-            <h2 className="font-display text-lg font-semibold">You've been invited</h2>
+            <h2 className="text-lg">You've been invited</h2>
             {me.pendingInvites.map((i) => (
               <div key={i.id} className="mt-3 flex items-center gap-3 text-sm">
                 <span>{i.groupName}</span>
@@ -107,8 +107,8 @@ function Onboarding() {
 
         <section className="space-y-5 rounded-xl border border-border bg-surface p-6">
           <div>
-            <h1 className="font-display text-2xl font-semibold">How will you use Benchmark?</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="text-2xl">How will you use Benchmark?</h1>
+            <p className="mt-1 text-sm leading-relaxed text-body">
               You can change this later — solo players can create a group any time.
             </p>
           </div>
@@ -149,7 +149,7 @@ function Onboarding() {
                 placeholder="Acme hiring managers"
                 onChange={(e) => setGroupName(e.target.value)}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-body">
                 Free tier: 3 members plus you. Larger teams are coming soon.
               </p>
             </div>
@@ -196,8 +196,8 @@ function Choice({
       }`}
     >
       <span className={active ? "text-primary" : "text-muted-foreground"}>{icon}</span>
-      <p className="mt-2 font-semibold">{title}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{body}</p>
+      <p className="mt-2 font-display">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-body">{body}</p>
     </button>
   );
 }
