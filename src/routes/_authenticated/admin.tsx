@@ -14,6 +14,8 @@ import {
   YAxis,
 } from "recharts";
 import { AppShell } from "@/components/AppShell";
+import { AssessmentsTab } from "@/components/AssessmentsTab";
+
 import {
   getGroupConsole,
   inviteToGroup,
@@ -130,6 +132,7 @@ function AdminPage() {
         <Tabs defaultValue="team">
           <TabsList>
             <TabsTrigger value="team">Team</TabsTrigger>
+            <TabsTrigger value="assessments">Assessments</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             {t.isPlatformAdmin ? <TabsTrigger value="curriculum">Curriculum</TabsTrigger> : null}
             {t.isPlatformAdmin ? <TabsTrigger value="settings">Settings</TabsTrigger> : null}
@@ -139,8 +142,13 @@ function AdminPage() {
             <TeamTab data={t} />
           </TabsContent>
 
+          <TabsContent value="assessments" className="mt-6 space-y-6">
+            <AssessmentsTab />
+          </TabsContent>
+
           <TabsContent value="analytics" className="mt-6 space-y-6">
             <MemberAnalytics data={t} />
+
 
             <Panel title="Accuracy by released week">
 

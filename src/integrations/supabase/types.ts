@@ -35,6 +35,138 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_questions: {
+        Row: {
+          assessment_id: string
+          correct_index: number
+          created_at: string
+          explanation: string
+          id: string
+          options: Json
+          position: number
+          scenario: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_id: string
+          correct_index: number
+          created_at?: string
+          explanation?: string
+          id?: string
+          options: Json
+          position: number
+          scenario: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_id?: string
+          correct_index?: number
+          created_at?: string
+          explanation?: string
+          id?: string
+          options?: Json
+          position?: number
+          scenario?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_questions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_responses: {
+        Row: {
+          answers: Json
+          assessment_id: string
+          completed_at: string
+          id: string
+          score: number
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          answers: Json
+          assessment_id: string
+          completed_at?: string
+          id?: string
+          score: number
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          answers?: Json
+          assessment_id?: string
+          completed_at?: string
+          id?: string
+          score?: number
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_responses_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessments: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          estimated_minutes: number
+          group_id: string
+          id: string
+          source: string
+          status: string
+          target_questions: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string
+          estimated_minutes?: number
+          group_id: string
+          id?: string
+          source?: string
+          status?: string
+          target_questions?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          estimated_minutes?: number
+          group_id?: string
+          id?: string
+          source?: string
+          status?: string
+          target_questions?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curriculum_weeks: {
         Row: {
           created_at: string
