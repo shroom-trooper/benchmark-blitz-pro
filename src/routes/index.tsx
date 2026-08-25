@@ -61,7 +61,8 @@ function Landing() {
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-body">
             Three realistic hiring scenarios every week. Four minutes. Instant
             evidence-based feedback, XP, streaks and a public leaderboard. Training your
-            managers? Create a group and watch their judgement improve week by week.
+            managers? Create a group, upload your own hiring principles or JDs, and our AI
+            builds custom assessments tailored to your culture.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
