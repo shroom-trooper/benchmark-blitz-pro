@@ -148,7 +148,7 @@ export async function loadWeek(supabase: DB, userId: string, week: number) {
     .eq("id", 1)
     .maybeSingle();
   const currentWeek = settings?.current_week ?? 1;
-  const admin = await isAdmin(supabase, userId);
+  const admin = await isPlatformAdmin(supabase, userId);
   if (!admin && week > currentWeek) fail("This session has not been released yet.");
 
   const { data: existing } = await supabase
@@ -196,7 +196,7 @@ export async function submitWeek(
     .select("current_week")
     .eq("id", 1)
     .maybeSingle();
-  const admin = await isAdmin(supabase, userId);
+  const admin = await isPlatformAdmin(supabase, userId);
   if (!admin && week > (settings?.current_week ?? 1))
     fail("This session has not been released yet.");
 
