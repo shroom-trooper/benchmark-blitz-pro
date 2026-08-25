@@ -383,18 +383,25 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
     .slice(0, 5);
 
   const users = members
-    .map((p) => ({
-      id: p.id,
-      name: p.display_name || p.full_name || p.email.split("@")[0]!,
-      email: p.email,
-      isOwner: p.id === group.owner_id,
-      level: p.level,
-      totalXp: p.total_xp,
-      streak: p.current_streak,
-      completions: rows.filter((r) => r.user_id === p.id).length,
-      lastCompletedAt: p.last_completed_at,
-    }))
+    .map((p) => {
+      const mine = rows.filter((r) => r.user_id === p.id);
+      const avgScore = mine.length ? mine.reduce((s, r) => s + r.score, 0) / mine.length : 0;
+      return {
+        id: p.id,
+        name: p.display_name || p.full_name || p.email.split("@")[0]!,
+        email: p.email,
+        isOwner: p.id === group.owner_id,
+        level: p.level,
+        totalXp: p.total_xp,
+        streak: p.current_streak,
+        completions: mine.length,
+        avgScore: Math.round(avgScore * 100) / 100,
+        accuracy: Math.round((avgScore / 3) * 100),
+        lastCompletedAt: p.last_completed_at,
+      };
+    })
     .sort((a, b) => b.totalXp - a.totalXp);
+
 
   const invites = invitesRes.data ?? [];
   const pendingInvites = invites.filter((i) => i.status === "pending");
