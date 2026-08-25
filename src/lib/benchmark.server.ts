@@ -39,18 +39,39 @@ async function resolveQuestions(supabase: DB, week: number) {
 
 export async function isAdmin(supabase: DB, userId: string) {
   const { data } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId);
-  return (data ?? []).some((r) => r.role === "ta_admin");
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  return Boolean(data);
 }
 
-export async function requireAdmin(supabase: DB, userId: string) {
-  if (!(await isAdmin(supabase, userId))) fail("Forbidden: TA Admin only");
+export async function requireGroupOwner(supabase: DB, userId: string) {
+  const { data } = await supabase
+    .from("groups")
+    .select("*")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (!data) fail("You do not own a group yet.");
+  return data;
+}
+
+export async function isPlatformAdmin(supabase: DB, userId: string) {
+  const { data } = await supabase
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return Boolean(data);
+}
+
+export async function requirePlatformAdmin(supabase: DB, userId: string) {
+  if (!(await isPlatformAdmin(supabase, userId)))
+    fail("Forbidden: platform administrators only");
 }
 
 export async function loadMe(supabase: DB, userId: string) {
-  const [profileRes, rolesRes, settingsRes, responsesRes, achRes, allAchRes, deptRes] =
+  const [profileRes, rolesRes, settingsRes, responsesRes, achRes, allAchRes] =
     await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", userId),
@@ -65,19 +86,51 @@ export async function loadMe(supabase: DB, userId: string) {
         .select("achievement_code, earned_at")
         .eq("user_id", userId),
       supabase.from("achievements").select("*"),
-      supabase.from("departments").select("*").order("name"),
     ]);
 
+  const profile = profileRes.data;
   const roles = (rolesRes.data ?? []).map((r) => r.role);
+
+  const [ownedRes, groupRes, invitesRes, platformRes] = await Promise.all([
+    supabase.from("groups").select("*").eq("owner_id", userId).maybeSingle(),
+    profile?.group_id
+      ? supabase.from("groups").select("*").eq("id", profile.group_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase
+      .from("invites")
+      .select("id, email, group_id, status, created_at")
+      .eq("status", "pending"),
+    supabase.from("platform_admins").select("user_id").eq("user_id", userId).maybeSingle(),
+  ]);
+
+  const ownedGroup = ownedRes.data ?? null;
+  const group = groupRes.data ?? ownedGroup;
+
+  const pendingInvites = profile?.group_id
+    ? []
+    : await Promise.all(
+        (invitesRes.data ?? []).map(async (i) => {
+          const { data: g } = await supabase
+            .from("groups")
+            .select("id, name")
+            .eq("id", i.group_id)
+            .maybeSingle();
+          return { id: i.id, groupName: g?.name ?? "A group", email: i.email };
+        }),
+      );
+
   return {
-    profile: profileRes.data,
+    profile,
     roles,
-    isAdmin: roles.includes("ta_admin"),
+    isAdmin: Boolean(ownedGroup),
+    isPlatformAdmin: Boolean(platformRes.data),
+    group,
+    ownsGroup: Boolean(ownedGroup),
+    pendingInvites,
     settings: settingsRes.data,
     responses: responsesRes.data ?? [],
     earned: achRes.data ?? [],
     achievements: allAchRes.data ?? [],
-    departments: deptRes.data ?? [],
   };
 }
 
