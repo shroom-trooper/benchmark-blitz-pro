@@ -81,7 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Weekly hiring micro-simulations, gamified progress for managers and capability telemetry for Talent Acquisition.",
+          "Weekly hiring micro-simulations, gamified progress for managers and capability analytics for Talent Acquisition.",
       },
       { property: "og:title", content: "Benchmark" },
       {
