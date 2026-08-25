@@ -41,9 +41,14 @@ function Landing() {
           </span>
           <span className="font-display text-lg font-semibold">Benchmark</span>
         </div>
-        <Button asChild variant="outline">
-          <Link to={signedIn ? "/hub" : "/auth"}>{signedIn ? "Open hub" : "Sign in"}</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="ghost">
+            <Link to="/leaderboard">Leaderboard</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to={signedIn ? "/hub" : "/auth"}>{signedIn ? "Open hub" : "Sign in"}</Link>
+          </Button>
+        </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4">
@@ -54,14 +59,17 @@ function Landing() {
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
             Three realistic hiring scenarios every week. Four minutes. Instant
-            evidence-based feedback, XP, streaks and leaderboards — with organisational
-            telemetry that shows Talent Acquisition exactly where capability is thin.
+            evidence-based feedback, XP, streaks and a public leaderboard. Training your
+            managers? Create a group and watch their judgement improve week by week.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
               <Link to={signedIn ? "/hub" : "/auth"}>
-                {signedIn ? "Go to your hub" : "Get started"}
+                {signedIn ? "Go to your hub" : "Take this week's test"}
               </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/leaderboard">See the leaderboard</Link>
             </Button>
           </div>
         </section>
@@ -75,7 +83,7 @@ function Landing() {
           <Feature
             icon={<Target className="size-5 text-primary" />}
             title="Micro-simulations"
-            body="Realistic decision points with the reasoning behind the best answer, delivered the moment a manager responds."
+            body="Realistic decision points with the reasoning behind the best answer, delivered the moment you respond."
           />
           <Feature
             icon={<Flame className="size-5 text-warning" />}
@@ -84,18 +92,18 @@ function Landing() {
           />
           <Feature
             icon={<Trophy className="size-5 text-warning" />}
-            title="Team leaderboards"
-            body="Manager and department rankings that turn capability building into friendly competition."
+            title="Public leaderboard"
+            body="Every player ranked by XP. Share your rank, challenge your peers, and see who really knows hiring."
           />
           <Feature
             icon={<BarChart3 className="size-5 text-success" />}
-            title="Org telemetry"
-            body="Participation, decision accuracy and the weakest capability areas — by week and by department."
+            title="Group telemetry"
+            body="Create a group, invite your managers, and see participation, decision accuracy and their weakest areas."
           />
           <Feature
             icon={<Zap className="size-5 text-success" />}
-            title="TA in control"
-            body="Release weeks on your schedule, edit any scenario, and manage managers and departments in one console."
+            title="Free to start"
+            body="Solo training is free forever. Groups include 3 managers plus you — bigger teams are coming soon."
           />
         </section>
       </main>
