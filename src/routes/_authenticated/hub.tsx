@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   Flame,
   Lock,
@@ -16,9 +19,15 @@ import {
 } from "lucide-react";
 import { AppShell, useMe } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  acceptInvite,
+  createGroup,
+  updateDisplayName,
+} from "@/lib/benchmark.functions";
 import { levelProgress, QUARTER_THEMES, quarterForWeek } from "@/lib/gamification";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
