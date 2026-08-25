@@ -74,8 +74,8 @@ function Landing() {
           </div>
         </section>
 
-        <section className="grid auto-rows-[minmax(0,auto)] gap-4 pb-16 sm:grid-cols-2 lg:grid-cols-3">
-          <Card className="lg:col-span-2" accent="primary" title="52-week curriculum" body="Four quarterly themes: interview fundamentals, bias mitigation, candidate experience and strategic talent leadership.">
+        <section className="mb-16 grid grid-cols-1 border border-border sm:grid-cols-2 lg:grid-cols-3">
+          <Cell tag="52 weeks" accent="primary" title="Structured curriculum" body="Four quarterly themes: interview fundamentals, bias mitigation, candidate experience and strategic talent leadership." className="lg:col-span-2">
             <div className="grid gap-2 sm:grid-cols-2">
               {[
                 { q: "Q1", t: "Interview fundamentals", w: "1–13", pct: 100 },
@@ -83,48 +83,48 @@ function Landing() {
                 { q: "Q3", t: "Candidate experience", w: "27–39", pct: 34 },
                 { q: "Q4", t: "Talent leadership", w: "40–52", pct: 8 },
               ].map((row) => (
-                <div key={row.q} className="rounded-lg border border-border bg-surface-2/60 p-3">
+                <div key={row.q} className="border border-border p-3">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span className="font-medium text-foreground">{row.q} · {row.t}</span>
-                    <span>wk {row.w}</span>
+                    <span className="font-mono">wk {row.w}</span>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface">
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${row.pct}%` }} />
+                  <div className="mt-2 h-1 overflow-hidden bg-surface-2">
+                    <div className="h-full bg-primary" style={{ width: `${row.pct}%` }} />
                   </div>
                 </div>
               ))}
             </div>
-          </Card>
+          </Cell>
 
-          <Card accent="primary" title="Micro-simulations" body="Realistic decision points with the reasoning behind the best answer, delivered the moment you respond.">
+          <Cell tag="4 min" accent="primary" title="Micro-simulations" body="Realistic decision points with the reasoning behind the best answer, delivered the moment you respond.">
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Q2 · Structured scoring</p>
-              <div className="rounded-lg border border-success/40 bg-success/10 px-3 py-2 text-sm text-foreground">
+              <p className="font-mono text-xs text-muted-foreground">Q2 · STRUCTURED SCORING</p>
+              <div className="border border-success/40 bg-success/10 px-3 py-2 text-sm text-foreground">
                 <span className="mr-2 text-success">✓</span>Score against the rubric first
               </div>
-              <div className="rounded-lg border border-border bg-surface-2/60 px-3 py-2 text-sm text-muted-foreground">
+              <div className="border border-border px-3 py-2 text-sm text-muted-foreground">
                 Go with your gut read
               </div>
             </div>
-          </Card>
+          </Cell>
 
-          <Card accent="warning" title="Streaks that stick" body="Weekly streaks, XP bonuses and ten levels from Novice Interviewer to Master Bar Raiser.">
+          <Cell tag="streaks" accent="warning" title="Habits that stick" body="Weekly streaks, XP bonuses and ten levels from Novice Interviewer to Master Bar Raiser.">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 rounded-full bg-warning/15 px-3 py-1 font-display text-lg text-warning">
+              <div className="flex items-center gap-1 border border-warning/40 bg-warning/10 px-3 py-1 font-display text-lg text-warning">
                 <Flame className="size-4" /> 12
               </div>
               <div className="flex gap-1">
                 {[1, 1, 1, 1, 1, 0, 0].map((on, i) => (
                   <span
                     key={i}
-                    className={`size-6 rounded-md ${on ? "bg-warning/70" : "bg-surface-2 border border-border"}`}
+                    className={`size-6 ${on ? "bg-warning/70" : "border border-border"}`}
                   />
                 ))}
               </div>
             </div>
-          </Card>
+          </Cell>
 
-          <Card className="lg:col-span-2" accent="warning" title="Public leaderboard" body="Every player ranked by XP. Share your rank, challenge your peers, and see who really knows hiring.">
+          <Cell tag="public rank" accent="warning" title="Global leaderboard" body="Every player ranked by XP. Share your rank, challenge your peers, and see who really knows hiring." className="lg:col-span-2">
             <div className="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-end">
               <div className="flex items-end gap-2">
                 {[
@@ -134,12 +134,12 @@ function Landing() {
                 ].map((p) => (
                   <div key={p.n} className="flex w-12 flex-col items-center gap-1">
                     <Trophy className={`size-4 ${p.n === "1" ? "text-warning" : "text-muted-foreground"}`} />
-                    <div className={`w-full rounded-t-md border border-border ${p.h} ${p.c}`} />
-                    <span className="text-xs text-muted-foreground">{p.n}</span>
+                    <div className={`w-full border border-border ${p.h} ${p.c}`} />
+                    <span className="font-mono text-xs text-muted-foreground">{p.n}</span>
                   </div>
                 ))}
               </div>
-              <ul className="space-y-1.5 text-sm">
+              <ul className="space-y-px text-sm">
                 {[
                   ["Priya S.", "8,420"],
                   ["Marcus L.", "7,980"],
@@ -147,34 +147,34 @@ function Landing() {
                 ].map(([name, xp], i) => (
                   <li
                     key={name}
-                    className="flex items-center justify-between rounded-lg border border-border bg-surface-2/60 px-3 py-1.5"
+                    className="flex items-center justify-between border-b border-border px-1 py-1.5"
                   >
                     <span className="text-foreground">
-                      <span className="mr-2 text-muted-foreground">#{i + 1}</span>
+                      <span className="mr-2 font-mono text-muted-foreground">#{i + 1}</span>
                       {name}
                     </span>
-                    <span className="text-muted-foreground">{xp} XP</span>
+                    <span className="font-mono text-muted-foreground">{xp} XP</span>
                   </li>
                 ))}
               </ul>
             </div>
-          </Card>
+          </Cell>
 
-          <Card accent="success" title="Group analytics" body="Create a group, invite your managers, and see participation, decision accuracy and their weakest areas.">
+          <Cell tag="analytics" accent="success" title="Group analytics" body="Create a group, invite your managers, and see participation, decision accuracy and their weakest areas.">
             <div className="flex h-20 items-end gap-2">
               {[45, 70, 55, 88, 62, 94].map((h, i) => (
-                <div key={i} className="flex-1 rounded-t-sm bg-success/60" style={{ height: `${h}%` }} />
+                <div key={i} className="flex-1 bg-success/60" style={{ height: `${h}%` }} />
               ))}
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">Avg accuracy · last 6 weeks</p>
-          </Card>
+            <p className="mt-2 font-mono text-xs text-muted-foreground">AVG ACCURACY · LAST 6 WEEKS</p>
+          </Cell>
 
-          <Card accent="success" title="Free to start" body="Solo training is free forever. Groups include 3 managers plus you — bigger teams are coming soon.">
+          <Cell tag="free tier" accent="success" title="Free to start" body="Solo training is free forever. Groups include 3 managers plus you — bigger teams are coming soon.">
             <div className="flex items-center gap-2">
               {[0, 1, 2, 3].map((i) => (
                 <span
                   key={i}
-                  className={`grid size-8 place-items-center rounded-full border text-xs ${
+                  className={`grid size-8 place-items-center border text-xs ${
                     i === 3
                       ? "border-dashed border-border text-muted-foreground"
                       : "border-success/40 bg-success/15 text-success"
@@ -183,9 +183,9 @@ function Landing() {
                   {i === 3 ? "+" : "●"}
                 </span>
               ))}
-              <span className="ml-1 text-xs text-muted-foreground">3 seats + you</span>
+              <span className="ml-1 font-mono text-xs text-muted-foreground">3 SEATS + YOU</span>
             </div>
-          </Card>
+          </Cell>
         </section>
       </main>
 
@@ -196,33 +196,61 @@ function Landing() {
   );
 }
 
-const accentTop: Record<string, string> = {
-  primary: "before:bg-gradient-to-r before:from-transparent before:via-primary/40 before:to-transparent",
-  warning: "before:bg-gradient-to-r before:from-transparent before:via-warning/40 before:to-transparent",
-  success: "before:bg-gradient-to-r before:from-transparent before:via-success/40 before:to-transparent",
+const accentText: Record<string, string> = {
+  primary: "text-primary",
+  warning: "text-warning",
+  success: "text-success",
 };
 
-function Card({
+const accentGlow: Record<string, string> = {
+  primary: "var(--primary)",
+  warning: "var(--warning)",
+  success: "var(--success)",
+};
+
+function Cell({
   title,
   body,
+  tag,
   accent,
   className = "",
   children,
 }: {
   title: string;
   body: string;
+  tag: string;
   accent: "primary" | "warning" | "success";
   className?: string;
   children: React.ReactNode;
 }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface p-6 before:absolute before:inset-x-0 before:top-0 before:h-px before:content-[''] ${accentTop[accent]} ${className}`}
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+      }}
+      onMouseLeave={() => setPos(null)}
+      className={`group relative isolate -mb-px -mr-px flex flex-col overflow-hidden rounded-none border-b border-r border-border p-8 ${className}`}
     >
-      <h2 className="font-display text-lg">{title}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-body">{body}</p>
-      <div className="mt-5">{children}</div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background: pos
+            ? `radial-gradient(320px circle at ${pos.x}px ${pos.y}px, color-mix(in oklab, ${accentGlow[accent]} 14%, transparent), transparent 70%)`
+            : undefined,
+        }}
+      />
+      <p className={`font-mono text-[11px] uppercase tracking-[0.18em] ${accentText[accent]}`}>
+        [ {tag} ]
+      </p>
+      <h2 className="mt-3 text-lg">{title}</h2>
+      <p className="mt-2 max-w-prose text-sm leading-relaxed text-body">{body}</p>
+      <div className="mt-6">{children}</div>
     </div>
   );
 }
+
 
