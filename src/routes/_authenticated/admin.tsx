@@ -52,7 +52,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { property: "og:title", content: "Group console · Benchmark" },
       {
         property: "og:description",
-        content: "Manage your training group and see capability telemetry.",
+        content: "Manage your training group and see capability analytics.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -130,7 +130,7 @@ function AdminPage() {
         <Tabs defaultValue="team">
           <TabsList>
             <TabsTrigger value="team">Team</TabsTrigger>
-            <TabsTrigger value="telemetry">Telemetry</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             {t.isPlatformAdmin ? <TabsTrigger value="curriculum">Curriculum</TabsTrigger> : null}
             {t.isPlatformAdmin ? <TabsTrigger value="settings">Settings</TabsTrigger> : null}
           </TabsList>
@@ -139,8 +139,11 @@ function AdminPage() {
             <TeamTab data={t} />
           </TabsContent>
 
-          <TabsContent value="telemetry" className="mt-6 space-y-6">
+          <TabsContent value="analytics" className="mt-6 space-y-6">
+            <MemberAnalytics data={t} />
+
             <Panel title="Accuracy by released week">
+
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={t.weekStats}>
@@ -201,6 +204,85 @@ function AdminPage() {
     </AppShell>
   );
 }
+
+function timeAgo(iso: string | null) {
+  if (!iso) return "Never";
+  const diff = Date.now() - new Date(iso).getTime();
+  const day = 86_400_000;
+  if (diff < 3_600_000) return "Just now";
+  if (diff < day) return `${Math.floor(diff / 3_600_000)}h ago`;
+  const days = Math.floor(diff / day);
+  if (days === 1) return "Yesterday";
+  if (days < 30) return `${days} days ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months === 1 ? "" : "s"} ago`;
+}
+
+function MemberAnalytics({ data }: { data: Console }) {
+  const released = data.summary.releasedWeeks;
+  const rows = [...data.users].sort((a, b) => b.avgScore - a.avgScore);
+
+  return (
+    <Panel title="Member performance">
+      {rows.length ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <th className="py-2 pr-4 font-medium">Member</th>
+                <th className="py-2 pr-4 font-medium">Sessions</th>
+                <th className="py-2 pr-4 font-medium">Avg score</th>
+                <th className="py-2 pr-4 font-medium">Accuracy</th>
+                <th className="py-2 font-medium">Last training</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((u) => {
+                const dormant =
+                  u.completions === 0 || u.lastCompletedAt === null || u.streak === 0;
+                return (
+                  <tr key={u.id} className="border-b border-border/60 last:border-0">
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-heading">{u.name}</span>
+                        {u.isOwner ? (
+                          <span className="text-xs text-primary">· you</span>
+                        ) : null}
+                        {dormant ? (
+                          <span className="rounded-md bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-warning">
+                            Dormant
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                    </td>
+                    <td className="py-3 pr-4 whitespace-nowrap">
+                      {u.completions} of {released}
+                    </td>
+                    <td className="py-3 pr-4 whitespace-nowrap">
+                      {u.completions ? `${u.avgScore.toFixed(1)} / 3` : "—"}
+                    </td>
+                    <td className="py-3 pr-4 whitespace-nowrap">
+                      {u.completions ? `${u.accuracy}%` : "—"}
+                    </td>
+                    <td className="py-3 whitespace-nowrap text-muted-foreground">
+                      {timeAgo(u.lastCompletedAt)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-sm leading-relaxed text-body">
+          No members yet — invite managers from the Team tab to start tracking their progress.
+        </p>
+      )}
+    </Panel>
+  );
+}
+
 
 function TeamTab({ data }: { data: Console }) {
   const qc = useQueryClient();

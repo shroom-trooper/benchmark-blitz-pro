@@ -11,13 +11,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Benchmark turns hiring training into a weekly habit: three-question micro-simulations, XP, streaks and leaderboards, plus org-wide capability telemetry for TA teams.",
+          "Benchmark turns hiring training into a weekly habit: three-question micro-simulations, XP, streaks and leaderboards, plus org-wide capability analytics for TA teams.",
       },
       { property: "og:title", content: "Benchmark · Continuous hiring capability training" },
       {
         property: "og:description",
         content:
-          "Weekly hiring micro-simulations for managers, with gamified progress and TA telemetry.",
+          "Weekly hiring micro-simulations for managers, with gamified progress and TA analytics.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -97,7 +97,7 @@ function Landing() {
           />
           <Feature
             icon={<BarChart3 className="size-5 text-success" />}
-            title="Group telemetry"
+            title="Group analytics"
             body="Create a group, invite your managers, and see participation, decision accuracy and their weakest areas."
           />
           <Feature
