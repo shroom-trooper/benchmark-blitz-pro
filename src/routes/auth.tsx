@@ -178,7 +178,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          The first account created becomes the TA Admin for your organisation.
+          Train solo, or create a group and invite up to 3 managers — free.
         </p>
       </div>
     </div>
