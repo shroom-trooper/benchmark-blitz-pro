@@ -397,3 +397,59 @@ function GroupPanel({
     </section>
   );
 }
+
+function GroupAssessments() {
+  const listFn = useServerFn(listMemberAssessments);
+  const query = useQuery({
+    queryKey: ["member-assessments"],
+    queryFn: () => listFn({}),
+    retry: false,
+  });
+
+  const items = query.data?.assessments ?? [];
+  if (!items.length) return null;
+
+  return (
+    <section>
+      <h2 className="text-xl">Group assessments</h2>
+      <p className="mt-1 text-sm leading-relaxed text-body">
+        Custom tests built by your group lead. They earn XP but don't affect your weekly streak.
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {items.map((a) => (
+          <div
+            key={a.id}
+            className="flex flex-col justify-between rounded-xl border border-border bg-surface p-5"
+          >
+            <div>
+              <p className="font-medium text-heading">{a.title}</p>
+              {a.description ? (
+                <p className="mt-1 text-sm leading-relaxed text-body">{a.description}</p>
+              ) : null}
+              <p className="mt-2 text-xs text-muted-foreground">
+                {a.questionCount} question{a.questionCount === 1 ? "" : "s"} · approx{" "}
+                {a.estimatedMinutes} min
+              </p>
+            </div>
+            <div className="mt-4">
+              {a.completed ? (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/assessment/$id" params={{ id: a.id }}>
+                    <CheckCircle2 className="size-4" /> {a.completed.score}/{a.questionCount} —
+                    review
+                  </Link>
+                </Button>
+              ) : (
+                <Button asChild size="sm">
+                  <Link to="/assessment/$id" params={{ id: a.id }}>
+                    <Play className="size-4" /> Start assessment
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
