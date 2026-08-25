@@ -192,3 +192,153 @@ export const updateWeekContent = createServerFn({ method: "POST" })
       ...(data.fact !== undefined ? { fact: data.fact } : {}),
     }),
   );
+
+/* ------------------------------------------------- custom group assessments */
+
+import * as asv from "./assessments.server";
+
+const idSchema = z.object({ id: z.string().uuid() });
+
+export const listAssessments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(({ context }) => asv.listAssessments(context.supabase, context.userId));
+
+export const listMemberAssessments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(({ context }) => asv.listMemberAssessments(context.supabase, context.userId));
+
+export const getAssessment = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => idSchema.parse(d))
+  .handler(({ context, data }) =>
+    asv.loadAssessment(context.supabase, context.userId, data.id),
+  );
+
+export const submitAssessment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        answers: z.array(z.number().int().min(0).max(5)).min(1).max(25),
+      })
+      .parse(d),
+  )
+  .handler(({ context, data }) =>
+    asv.submitAssessment(context.supabase, context.userId, data.id, data.answers),
+  );
+
+export const loadAssessmentEditor = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => idSchema.parse(d))
+  .handler(({ context, data }) =>
+    asv.loadAssessmentEditor(context.supabase, context.userId, data.id),
+  );
+
+export const createAssessmentFromLibrary = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        title: z.string().min(2).max(120),
+        description: z.string().max(400).default(""),
+        quarters: z.array(z.number().int().min(1).max(4)).max(4),
+        targetQuestions: z.number().int().min(1).max(25),
+        minutesPerQuestion: z.number().min(0.5).max(10),
+      })
+      .parse(d),
+  )
+  .handler(({ context, data }) =>
+    asv.createFromLibrary(context.supabase, context.userId, data),
+  );
+
+export const createAssessmentWithAi = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        title: z.string().min(2).max(120),
+        description: z.string().max(400).default(""),
+        brief: z.string().max(2000).default(""),
+        text: z.string().max(200000).default(""),
+        files: z
+          .array(
+            z.object({
+              name: z.string().min(1).max(200),
+              mimeType: z.string().min(3).max(120),
+              dataBase64: z.string().min(1),
+            }),
+          )
+          .max(3)
+          .default([]),
+        targetQuestions: z.number().int().min(1).max(25),
+        minutesPerQuestion: z.number().min(0.5).max(10),
+      })
+      .parse(d),
+  )
+  .handler(({ context, data }) =>
+    asv.createWithAi(context.supabase, context.userId, data),
+  );
+
+export const updateAssessment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        title: z.string().min(2).max(120).optional(),
+        description: z.string().max(400).optional(),
+        estimatedMinutes: z.number().int().min(1).max(240).optional(),
+        status: z.enum(["draft", "published"]).optional(),
+      })
+      .parse(d),
+  )
+  .handler(({ context, data }) =>
+    asv.updateAssessment(context.supabase, context.userId, data.id, {
+      ...(data.title !== undefined ? { title: data.title } : {}),
+      ...(data.description !== undefined ? { description: data.description } : {}),
+      ...(data.estimatedMinutes !== undefined
+        ? { estimated_minutes: data.estimatedMinutes }
+        : {}),
+      ...(data.status !== undefined ? { status: data.status } : {}),
+    }),
+  );
+
+export const deleteAssessment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => idSchema.parse(d))
+  .handler(({ context, data }) =>
+    asv.deleteAssessment(context.supabase, context.userId, data.id),
+  );
+
+export const saveAssessmentQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        assessmentId: z.string().uuid(),
+        questionId: z.string().uuid().nullable(),
+        scenario: z.string().min(1),
+        options: z.array(z.string().min(1)).min(2).max(4),
+        correctIndex: z.number().int().min(0).max(3),
+        explanation: z.string().max(1000).default(""),
+      })
+      .parse(d),
+  )
+  .handler(({ context, data }) =>
+    asv.saveAssessmentQuestion(context.supabase, context.userId, data),
+  );
+
+export const deleteAssessmentQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ assessmentId: z.string().uuid(), questionId: z.string().uuid() }).parse(d),
+  )
+  .handler(({ context, data }) =>
+    asv.deleteAssessmentQuestion(
+      context.supabase,
+      context.userId,
+      data.assessmentId,
+      data.questionId,
+    ),
+  );
