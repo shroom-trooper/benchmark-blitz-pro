@@ -178,6 +178,10 @@ function Hub() {
           displayName={me.profile?.display_name ?? ""}
         />
 
+        <GroupAssessments />
+
+
+
         <section>
           <h2 className="text-xl">Achievements</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
