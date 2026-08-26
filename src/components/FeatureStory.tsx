@@ -37,7 +37,15 @@ const SECTIONS = [
       "Drive continuous practice with weekly streaks, XP bonuses, and group leaderboards. Watch interview quality improve week after week.",
     glow: "from-amber-600/20 via-orange-500/10 to-transparent",
   },
+  {
+    tag: "05 / GROUP TELEMETRY",
+    title: "Diagnostic.",
+    subtitle:
+      "Uncover exact skill gaps across your hiring teams. Measure interviewer preparedness, decision accuracy, and rubric alignment in real time before bad hires happen.",
+    glow: "from-cyan-500/20 via-blue-600/10 to-transparent",
+  },
 ];
+
 
 export function FeatureStory() {
   return (
