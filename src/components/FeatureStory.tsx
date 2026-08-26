@@ -98,6 +98,7 @@ function FeatureRow({
           {index === 1 && <StageSim />}
           {index === 2 && <StageRoadmap />}
           {index === 3 && <StageStreak />}
+          {index === 4 && <StageTelemetry />}
         </div>
       </motion.div>
     </section>
