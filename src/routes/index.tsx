@@ -259,7 +259,7 @@ function Cell({
         setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
       }}
       onMouseLeave={() => setPos(null)}
-      className={`group relative isolate -mb-px -mr-px flex flex-col overflow-hidden rounded-none border-b border-r border-border p-8 ${className}`}
+      className={`group relative isolate -mb-px -mr-px flex flex-col overflow-hidden rounded-none border-b border-r border-border p-8 md:p-10 ${className}`}
     >
       <div
         aria-hidden
@@ -274,8 +274,8 @@ function Cell({
         [ {tag} ]
       </p>
       <h2 className="mt-3 text-lg">{title}</h2>
-      <p className="mt-2 max-w-prose text-sm leading-relaxed text-body">{body}</p>
-      <div className="mt-6">{children}</div>
+      <p className="mb-8 mt-2 max-w-prose text-sm leading-relaxed text-body">{body}</p>
+      <div className="mt-8">{children}</div>
     </div>
   );
 }
