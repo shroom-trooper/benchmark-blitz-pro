@@ -34,7 +34,7 @@ function Landing() {
 
   return (
     <div className="min-h-dvh bg-void">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
+      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-8 sm:px-10">
         <div className="flex items-center gap-2">
           <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
             <Zap className="size-4" />
@@ -51,18 +51,20 @@ function Landing() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4">
-        <section className="py-16 sm:py-24">
-          <p className="font-medium text-primary">Continuous hiring capability training</p>
-          <h1 className="mt-4 max-w-3xl text-4xl sm:text-6xl">
+      <main className="mx-auto max-w-7xl px-6 sm:px-10">
+        <section className="py-28 sm:py-40 lg:py-48">
+          <p className="text-sm font-medium tracking-wide text-primary">
+            Continuous hiring capability training
+          </p>
+          <h1 className="mt-8 max-w-4xl text-4xl leading-[1.08] sm:text-6xl lg:text-7xl">
             Turn one-off interview training into a weekly habit.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-body">
+          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-dim">
             Three realistic hiring scenarios every week. Four minutes. Instant
             evidence-based feedback, XP, streaks and a public leaderboard. Training your
             managers? Create a group and watch their judgement improve week by week.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-12 flex flex-wrap gap-4">
             <Button asChild size="lg">
               <Link to={signedIn ? "/hub" : "/auth"}>
                 {signedIn ? "Go to your hub" : "Take this week's test"}
@@ -74,7 +76,16 @@ function Landing() {
           </div>
         </section>
 
-        <section className="grid gap-4 pb-20 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="pb-32 sm:pb-44">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl sm:text-4xl">There's a rep for every hiring moment.</h2>
+            <p className="mt-4 text-lg leading-relaxed text-dim">
+              A full year of structured practice, built to fit between meetings.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-6 sm:mt-20 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+
           <FeatureCard
             hotkey="⌘1"
             title="Structured."
