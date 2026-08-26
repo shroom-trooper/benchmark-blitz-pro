@@ -34,7 +34,7 @@ function Landing() {
 
   return (
     <div className="min-h-dvh bg-void">
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-8 sm:px-10">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
         <div className="flex items-center gap-2">
           <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
             <Zap className="size-4" />
@@ -51,20 +51,18 @@ function Landing() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-6 sm:px-10">
-        <section className="py-28 sm:py-40 lg:py-48">
-          <p className="text-sm font-medium tracking-wide text-primary">
-            Continuous hiring capability training
-          </p>
-          <h1 className="mt-8 max-w-4xl text-4xl leading-[1.08] sm:text-6xl lg:text-7xl">
+      <main className="mx-auto max-w-6xl px-4">
+        <section className="py-16 sm:py-24">
+          <p className="font-medium text-primary">Continuous hiring capability training</p>
+          <h1 className="mt-4 max-w-3xl text-4xl sm:text-6xl">
             Turn one-off interview training into a weekly habit.
           </h1>
-          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-dim">
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-body">
             Three realistic hiring scenarios every week. Four minutes. Instant
             evidence-based feedback, XP, streaks and a public leaderboard. Training your
             managers? Create a group and watch their judgement improve week by week.
           </p>
-          <div className="mt-12 flex flex-wrap gap-4">
+          <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
               <Link to={signedIn ? "/hub" : "/auth"}>
                 {signedIn ? "Go to your hub" : "Take this week's test"}
@@ -76,16 +74,7 @@ function Landing() {
           </div>
         </section>
 
-        <section className="pb-32 sm:pb-44">
-          <div className="max-w-2xl">
-            <h2 className="text-3xl sm:text-4xl">There's a rep for every hiring moment.</h2>
-            <p className="mt-4 text-lg leading-relaxed text-dim">
-              A full year of structured practice, built to fit between meetings.
-            </p>
-          </div>
-
-          <div className="mt-16 grid gap-6 sm:mt-20 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-
+        <section className="grid gap-4 pb-20 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
             hotkey="⌘1"
             title="Structured."
@@ -164,11 +153,10 @@ function Landing() {
               </span>
             }
           />
-          </div>
         </section>
       </main>
 
-      <footer className="mx-auto max-w-7xl border-t border-border px-6 py-12 text-center text-xs text-muted-foreground sm:px-10">
+      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
         Benchmark — continuous hiring capability training.
       </footer>
     </div>
@@ -192,14 +180,14 @@ function FeatureCard({
 }) {
   return (
     <div
-      className={`group relative rounded-2xl border border-keycap-border p-8 sm:p-10 keycard transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:border-primary/40 hover:shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent),0_18px_40px_-18px_oklch(0_0_0/90%)] ${className ?? ""}`}
+      className={`group relative rounded-2xl border border-keycap-border p-6 keycard transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:border-primary/40 hover:shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent),0_18px_40px_-18px_oklch(0_0_0/90%)] ${className ?? ""}`}
     >
-      <kbd className="absolute right-5 top-5 rounded-md px-2 py-1 font-mono text-[11px] leading-none text-dim keycap-badge transition-colors group-hover:text-heading">
+      <kbd className="absolute right-4 top-4 rounded-md px-2 py-1 font-mono text-[11px] leading-none text-dim keycap-badge transition-colors group-hover:text-heading">
         {hotkey}
       </kbd>
       {icon}
-      <h3 className="mt-8 text-xl font-bold tracking-tight text-heading">{title}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-dim">{body}</p>
+      <h2 className="mt-4 text-lg">{title}</h2>
+      <p className="mt-1.5 text-sm leading-relaxed text-dim">{body}</p>
       {children}
     </div>
   );
