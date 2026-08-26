@@ -240,3 +240,60 @@
     color: var(--color-heading);
   }
 }
+
+/* Raycast-style keycap surface tokens */
+:root, .dark {
+  --void: oklch(0.13 0.004 264);
+  --keycap: oklch(0.185 0.006 264);
+  --keycap-2: oklch(0.225 0.008 264);
+  --keycap-border: oklch(0.28 0.008 264);
+  --dim: oklch(0.63 0.008 264);
+}
+
+@theme inline {
+  --color-void: var(--void);
+  --color-keycap: var(--keycap);
+  --color-keycap-2: var(--keycap-2);
+  --color-keycap-border: var(--keycap-border);
+  --color-dim: var(--dim);
+}
+
+@keyframes tickspin { to { transform: rotate(360deg); } }
+@keyframes radar {
+  0% { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+@keyframes flicker {
+  0%, 100% { transform: rotate(-4deg) scale(1); }
+  25% { transform: rotate(5deg) scale(1.08); }
+  50% { transform: rotate(-3deg) scale(0.96); }
+  75% { transform: rotate(4deg) scale(1.05); }
+}
+@keyframes barrise {
+  0% { transform: scaleY(0.35); }
+  100% { transform: scaleY(1); }
+}
+@keyframes zap {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 0 transparent); }
+  40% { opacity: 0.55; filter: drop-shadow(0 0 6px var(--warning)); }
+  60% { opacity: 1; filter: drop-shadow(0 0 10px var(--warning)); }
+}
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@utility keycard {
+  background-image: linear-gradient(180deg, var(--keycap-2), var(--keycap));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 8%),
+    0 1px 0 oklch(0 0 0 / 60%),
+    0 10px 24px -12px oklch(0 0 0 / 90%);
+}
+
+@utility keycap-badge {
+  background-image: linear-gradient(180deg, oklch(1 0 0 / 10%), oklch(1 0 0 / 3%));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 14%),
+    0 1px 2px oklch(0 0 0 / 70%);
+}
