@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Flame, Trophy, Target, Zap, BarChart3, CalendarClock } from "lucide-react";
+import { Flame, Target, Zap, CalendarClock, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
@@ -33,7 +33,7 @@ function Landing() {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-dvh bg-void">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
         <div className="flex items-center gap-2">
           <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
