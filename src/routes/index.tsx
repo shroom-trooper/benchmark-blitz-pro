@@ -76,12 +76,12 @@ function Landing() {
           </div>
         </section>
 
-        <section className="mb-16 grid grid-cols-1 border border-border sm:grid-cols-2 lg:grid-cols-3">
+        <section className="mb-16 grid grid-cols-1 gap-8 border border-border sm:grid-cols-2 lg:grid-cols-3 lg:gap-10">
           <Cell tag="AI generator" accent="primary" title="Custom assessments from your documents" body="Upload your hiring principles, job descriptions or culture deck. Benchmark AI turns them into scored, multiple-choice scenarios your managers can practice in minutes." className="lg:col-span-2">
-            <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr]">
-              <div className="border border-border p-3">
-                <div className="flex items-center gap-2">
-                  <span className="grid size-8 place-items-center border border-border bg-surface-2">
+            <div className="grid gap-6 sm:grid-cols-[1fr_auto_1fr]">
+              <div className="border border-border p-4">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-10 place-items-center border border-border bg-surface-2">
                     <span className="font-mono text-xs text-primary">PDF</span>
                   </span>
                   <div className="min-w-0">
@@ -91,43 +91,43 @@ function Landing() {
                 </div>
               </div>
               <div className="hidden items-center justify-center sm:flex">
-                <Sparkles className="size-4 text-primary" />
+                <Sparkles className="size-5 text-primary" />
               </div>
-              <div className="space-y-2 border border-border p-3">
+              <div className="space-y-3 border border-border p-4">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-primary">Generated scenarios</p>
-                <div className="h-2 w-full bg-surface-2" />
-                <div className="h-2 w-5/6 bg-surface-2" />
-                <div className="h-2 w-4/6 bg-surface-2" />
+                <div className="h-2.5 w-full bg-surface-2" />
+                <div className="h-2.5 w-5/6 bg-surface-2" />
+                <div className="h-2.5 w-4/6 bg-surface-2" />
               </div>
             </div>
           </Cell>
 
           <Cell tag="4 min" accent="primary" title="Micro-simulations" body="Realistic decision points with the reasoning behind the best answer, delivered the moment you respond.">
-            <div className="space-y-2">
+            <div className="space-y-3">
               <p className="font-mono text-xs text-muted-foreground">Q2 · STRUCTURED SCORING</p>
-              <div className="border border-success/40 bg-success/10 px-3 py-2 text-sm text-foreground">
+              <div className="border border-success/40 bg-success/10 px-4 py-3.5 text-sm text-foreground">
                 <span className="mr-2 text-success">✓</span>Score against the rubric first
               </div>
-              <div className="border border-border px-3 py-2 text-sm text-muted-foreground">
+              <div className="border border-border px-4 py-3.5 text-sm text-muted-foreground">
                 Go with your gut read
               </div>
             </div>
           </Cell>
 
           <Cell tag="52 weeks" accent="primary" title="Structured curriculum" body="Four quarterly themes: interview fundamentals, bias mitigation, candidate experience and strategic talent leadership." className="lg:col-span-2">
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {[
                 { q: "Q1", t: "Interview fundamentals", w: "1–13", pct: 100 },
                 { q: "Q2", t: "Bias mitigation", w: "14–26", pct: 72 },
                 { q: "Q3", t: "Candidate experience", w: "27–39", pct: 34 },
                 { q: "Q4", t: "Talent leadership", w: "40–52", pct: 8 },
               ].map((row) => (
-                <div key={row.q} className="border border-border p-3">
+                <div key={row.q} className="border border-border p-4">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span className="font-medium text-foreground">{row.q} · {row.t}</span>
                     <span className="font-mono">wk {row.w}</span>
                   </div>
-                  <div className="mt-2 h-1 overflow-hidden bg-surface-2">
+                  <div className="mt-3 h-2 overflow-hidden bg-surface-2">
                     <div className="h-full bg-primary" style={{ width: `${row.pct}%` }} />
                   </div>
                 </div>
@@ -136,15 +136,15 @@ function Landing() {
           </Cell>
 
           <Cell tag="streaks" accent="warning" title="Habits that stick" body="Weekly streaks, XP bonuses and ten levels from Novice Interviewer to Master Bar Raiser.">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 border border-warning/40 bg-warning/10 px-3 py-1 font-display text-lg text-warning">
-                <Flame className="size-4 animate-flicker origin-bottom" /> 12
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 border border-warning/40 bg-warning/10 px-4 py-2 font-display text-xl text-warning">
+                <Flame className="size-5 animate-flicker origin-bottom" /> 12
               </div>
-              <div className="flex gap-1">
+              <div className="flex gap-1.5">
                 {[1, 1, 1, 1, 1, 0, 0].map((on, i) => (
                   <span
                     key={i}
-                    className={`size-6 ${on ? "bg-warning/70" : "border border-border"}`}
+                    className={`size-7 ${on ? "bg-warning/70" : "border border-border"}`}
                   />
                 ))}
               </div>
@@ -152,21 +152,21 @@ function Landing() {
           </Cell>
 
           <Cell tag="public rank" accent="warning" title="Global leaderboard" body="Every player ranked by XP. Share your rank, challenge your peers, and see who really knows hiring." className="lg:col-span-2">
-            <div className="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-end">
-              <div className="flex items-end gap-2">
+            <div className="grid gap-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-end">
+              <div className="flex items-end gap-3">
                 {[
-                  { n: "2", h: "h-12", c: "bg-surface-2" },
-                  { n: "1", h: "h-16", c: "bg-warning/70" },
-                  { n: "3", h: "h-9", c: "bg-surface-2" },
+                  { n: "2", h: "h-14", c: "bg-surface-2" },
+                  { n: "1", h: "h-20", c: "bg-warning/70" },
+                  { n: "3", h: "h-11", c: "bg-surface-2" },
                 ].map((p) => (
-                  <div key={p.n} className="flex w-12 flex-col items-center gap-1">
-                    <Trophy className={`size-4 ${p.n === "1" ? "text-warning" : "text-muted-foreground"}`} />
+                  <div key={p.n} className="flex w-14 flex-col items-center gap-1">
+                    <Trophy className={`size-5 ${p.n === "1" ? "text-warning" : "text-muted-foreground"}`} />
                     <div className={`w-full border border-border ${p.h} ${p.c}`} />
                     <span className="font-mono text-xs text-muted-foreground">{p.n}</span>
                   </div>
                 ))}
               </div>
-              <ul className="space-y-px text-sm">
+              <ul className="space-y-1 text-sm">
                 {[
                   ["Priya S.", "8,420"],
                   ["Marcus L.", "7,980"],
@@ -174,7 +174,7 @@ function Landing() {
                 ].map(([name, xp], i) => (
                   <li
                     key={name}
-                    className="flex items-center justify-between border-b border-border px-1 py-1.5"
+                    className="flex items-center justify-between border-b border-border px-2 py-2"
                   >
                     <span className="text-foreground">
                       <span className="mr-2 font-mono text-muted-foreground">#{i + 1}</span>
@@ -188,20 +188,20 @@ function Landing() {
           </Cell>
 
           <Cell tag="analytics" accent="success" title="Group analytics" body="Create a group, invite your managers, and see participation, decision accuracy and their weakest areas.">
-            <div className="flex h-20 items-end gap-2">
+            <div className="flex h-24 items-end gap-2">
               {[45, 70, 55, 88, 62, 94].map((h, i) => (
                 <div key={i} className="flex-1 bg-success/60" style={{ height: `${h}%` }} />
               ))}
             </div>
-            <p className="mt-2 font-mono text-xs text-muted-foreground">AVG ACCURACY · LAST 6 WEEKS</p>
+            <p className="mt-3 font-mono text-xs text-muted-foreground">AVG ACCURACY · LAST 6 WEEKS</p>
           </Cell>
 
           <Cell tag="free tier" accent="success" title="Free to start" body="Solo training is free forever. Groups include 3 managers plus you — bigger teams are coming soon.">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {[0, 1, 2, 3].map((i) => (
                 <span
                   key={i}
-                  className={`grid size-8 place-items-center border text-xs ${
+                  className={`grid size-10 place-items-center border text-xs ${
                     i === 3
                       ? "border-dashed border-border text-muted-foreground"
                       : "border-success/40 bg-success/15 text-success"
@@ -210,7 +210,7 @@ function Landing() {
                   {i === 3 ? "+" : "●"}
                 </span>
               ))}
-              <span className="ml-1 font-mono text-xs text-muted-foreground">3 SEATS + YOU</span>
+              <span className="ml-2 font-mono text-xs text-muted-foreground">3 SEATS + YOU</span>
             </div>
           </Cell>
         </section>
