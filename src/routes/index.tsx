@@ -164,10 +164,11 @@ function Landing() {
               </span>
             }
           />
+          </div>
         </section>
       </main>
 
-      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
+      <footer className="mx-auto max-w-7xl border-t border-border px-6 py-12 text-center text-xs text-muted-foreground sm:px-10">
         Benchmark — continuous hiring capability training.
       </footer>
     </div>
