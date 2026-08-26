@@ -94,10 +94,10 @@ function FeatureRow({
           className={`pointer-events-none absolute -inset-10 rounded-[3rem] bg-gradient-to-br blur-2xl ${glow}`}
         />
         <div className="relative rounded-3xl border border-white/10 bg-slate-900/50 p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
-          {index === 0 && <StageAI />}
+          {index === 0 && <StageRoadmap />}
           {index === 1 && <StageSim />}
-          {index === 2 && <StageRoadmap />}
-          {index === 3 && <StageStreak />}
+          {index === 2 && <StageStreak />}
+          {index === 3 && <StageAI />}
           {index === 4 && <StageTelemetry />}
         </div>
       </motion.div>
