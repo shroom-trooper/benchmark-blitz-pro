@@ -192,14 +192,14 @@ function FeatureCard({
 }) {
   return (
     <div
-      className={`group relative rounded-2xl border border-keycap-border p-6 keycard transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:border-primary/40 hover:shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent),0_18px_40px_-18px_oklch(0_0_0/90%)] ${className ?? ""}`}
+      className={`group relative rounded-2xl border border-keycap-border p-8 sm:p-10 keycard transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:border-primary/40 hover:shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent),0_18px_40px_-18px_oklch(0_0_0/90%)] ${className ?? ""}`}
     >
-      <kbd className="absolute right-4 top-4 rounded-md px-2 py-1 font-mono text-[11px] leading-none text-dim keycap-badge transition-colors group-hover:text-heading">
+      <kbd className="absolute right-5 top-5 rounded-md px-2 py-1 font-mono text-[11px] leading-none text-dim keycap-badge transition-colors group-hover:text-heading">
         {hotkey}
       </kbd>
       {icon}
-      <h2 className="mt-4 text-lg">{title}</h2>
-      <p className="mt-1.5 text-sm leading-relaxed text-dim">{body}</p>
+      <h3 className="mt-8 text-xl font-bold tracking-tight text-heading">{title}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-dim">{body}</p>
       {children}
     </div>
   );
