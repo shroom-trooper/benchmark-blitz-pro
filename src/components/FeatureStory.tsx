@@ -10,11 +10,11 @@ import {
 
 const SECTIONS = [
   {
-    tag: "01 / AI GENERATOR",
-    title: "Personalized.",
+    tag: "01 / ROADMAP",
+    title: "Structured.",
     subtitle:
-      "Turn your internal documents into scored scenarios in seconds. Upload your culture deck or rubrics, and let AI build custom assessments tailored to your team.",
-    glow: "from-purple-600/20 via-indigo-500/10 to-transparent",
+      "A 52-week progressive pathway built across four quarters. Master interview fundamentals, bias mitigation, candidate experience, and strategic talent leadership.",
+    glow: "from-cyan-600/20 via-blue-500/10 to-transparent",
   },
   {
     tag: "02 / REAL-TIME PRACTICE",
@@ -24,21 +24,21 @@ const SECTIONS = [
     glow: "from-emerald-600/20 via-teal-500/10 to-transparent",
   },
   {
-    tag: "03 / ROADMAP",
-    title: "Structured.",
-    subtitle:
-      "A 52-week progressive pathway built across four quarters. Master interview fundamentals, bias mitigation, candidate experience, and strategic talent leadership.",
-    glow: "from-cyan-600/20 via-blue-500/10 to-transparent",
-  },
-  {
-    tag: "04 / ENGAGEMENT",
+    tag: "03 / ENGAGEMENT",
     title: "Habit-forming.",
     subtitle:
       "Drive continuous practice with weekly streaks, XP bonuses, and group leaderboards. Watch interview quality improve week after week.",
     glow: "from-amber-600/20 via-orange-500/10 to-transparent",
   },
   {
-    tag: "05 / GROUP TELEMETRY",
+    tag: "04 / AI GENERATOR",
+    title: "Personalize.",
+    subtitle:
+      "Turn your internal documents into scored scenarios in seconds. Upload your culture deck or rubrics, and let AI build custom assessments tailored to your team.",
+    glow: "from-purple-600/20 via-indigo-500/10 to-transparent",
+  },
+  {
+    tag: "05 / GROUP ANALYTICS",
     title: "Diagnostic.",
     subtitle:
       "Uncover exact skill gaps across your hiring teams. Measure interviewer preparedness, decision accuracy, and rubric alignment in real time before bad hires happen.",
