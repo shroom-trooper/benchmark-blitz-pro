@@ -196,21 +196,38 @@ function Landing() {
             <p className="mt-3 font-mono text-xs text-muted-foreground">AVG ACCURACY · LAST 6 WEEKS</p>
           </Cell>
 
-          <Cell tag="free tier" accent="success" title="Free to start" body="Solo training is free forever. Groups include 3 managers plus you — bigger teams are coming soon.">
-            <div className="flex items-center gap-3">
-              {[0, 1, 2, 3].map((i) => (
-                <span
-                  key={i}
-                  className={`grid size-10 place-items-center border text-xs ${
-                    i === 3
-                      ? "border-dashed border-border text-muted-foreground"
-                      : "border-success/40 bg-success/15 text-success"
-                  }`}
-                >
-                  {i === 3 ? "+" : "●"}
-                </span>
-              ))}
-              <span className="ml-2 font-mono text-xs text-muted-foreground">3 SEATS + YOU</span>
+          <Cell tag="free tier" accent="success" title="Free to start" body="Solo training is free forever. Groups include 3 managers plus you — bigger teams are coming soon." className="col-span-full">
+            <div className="mt-8 flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
+              <div className="max-w-xl">
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-success">[ free tier ]</p>
+                <h2 className="mt-3 text-lg">Free to start</h2>
+                <p className="mb-0 mt-2 max-w-prose text-sm leading-relaxed text-body">
+                  Solo training is free forever. Groups include 3 managers plus you — bigger teams are coming soon.
+                </p>
+              </div>
+              <div className="flex w-full flex-col items-start gap-6 md:w-auto md:flex-row md:items-center">
+                <div className="flex items-center gap-3">
+                  {[0, 1, 2, 3].map((i) => (
+                    <span
+                      key={i}
+                      className={`grid size-10 place-items-center border text-xs ${
+                        i === 3
+                          ? "border-dashed border-border text-muted-foreground"
+                          : "border-success/40 bg-success/15 text-success"
+                      }`}
+                    >
+                      {i === 3 ? "+" : "●"}
+                    </span>
+                  ))}
+                  <span className="ml-2 font-mono text-xs text-muted-foreground">3 SEATS + YOU</span>
+                </div>
+                <Button asChild size="lg" className="group/btn relative overflow-hidden">
+                  <Link to="/auth">
+                    Create Free Account
+                    <span className="ml-2 transition-transform duration-200 group-hover/btn:translate-x-1">→</span>
+                  </Link>
+                </Button>
+              </div>
             </div>
           </Cell>
         </section>
