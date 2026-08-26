@@ -48,7 +48,11 @@ export const getPublicLeaderboard = createServerFn({ method: "GET" }).handler(as
       },
     },
   });
-  const { data, error } = await client.rpc("get_public_leaderboard");
+  const { data, error } = await client
+    .from("public_leaderboard")
+    .select("id, display_name, level, total_xp, current_streak")
+    .order("total_xp", { ascending: false })
+    .limit(100);
   if (error) return { players: [], totalPlayers: 0 };
   const players = (data ?? []).map((p, i) => ({
     id: p.id as string,
