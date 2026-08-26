@@ -48,20 +48,36 @@ export const getPublicLeaderboard = createServerFn({ method: "GET" }).handler(as
       },
     },
   });
-  const { data, error } = await client
+  type LeaderRow = {
+    id: string;
+    display_name: string | null;
+    level: number | null;
+    total_xp: number | null;
+    current_streak: number | null;
+  };
+  const { data, error } = await (client as unknown as {
+    from: (t: string) => {
+      select: (c: string) => {
+        order: (c: string, o: { ascending: boolean }) => {
+          limit: (n: number) => Promise<{ data: LeaderRow[] | null; error: unknown }>;
+        };
+      };
+    };
+  })
     .from("public_leaderboard")
     .select("id, display_name, level, total_xp, current_streak")
     .order("total_xp", { ascending: false })
     .limit(100);
   if (error) return { players: [], totalPlayers: 0 };
   const players = (data ?? []).map((p, i) => ({
-    id: p.id as string,
+    id: p.id,
     name: p.display_name ?? "Anonymous",
     level: p.level ?? 1,
     totalXp: p.total_xp ?? 0,
     streak: p.current_streak ?? 0,
     rank: i + 1,
   }));
+
   return { players, totalPlayers: players.length };
 });
 
