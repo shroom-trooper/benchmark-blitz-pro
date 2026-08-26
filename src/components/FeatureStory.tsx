@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   FileText,
@@ -37,7 +37,15 @@ const SECTIONS = [
       "Drive continuous practice with weekly streaks, XP bonuses, and group leaderboards. Watch interview quality improve week after week.",
     glow: "from-amber-600/20 via-orange-500/10 to-transparent",
   },
+  {
+    tag: "05 / GROUP TELEMETRY",
+    title: "Diagnostic.",
+    subtitle:
+      "Uncover exact skill gaps across your hiring teams. Measure interviewer preparedness, decision accuracy, and rubric alignment in real time before bad hires happen.",
+    glow: "from-cyan-500/20 via-blue-600/10 to-transparent",
+  },
 ];
+
 
 export function FeatureStory() {
   return (
@@ -90,6 +98,7 @@ function FeatureRow({
           {index === 1 && <StageSim />}
           {index === 2 && <StageRoadmap />}
           {index === 3 && <StageStreak />}
+          {index === 4 && <StageTelemetry />}
         </div>
       </motion.div>
     </section>
@@ -328,5 +337,130 @@ function StageStreak() {
         ))}
       </div>
     </div>
+  );
+}
+
+/* ---------- Stage 5: group telemetry ---------- */
+const GAPS = [
+  { name: "Bias Detection", pct: 42, label: "High Risk", tone: "amber" },
+  { name: "Structured Scoring", pct: 88, label: "Strong", tone: "emerald" },
+  { name: "Candidate Experience", pct: 64, label: "Improving", tone: "cyan" },
+];
+
+const TONE: Record<string, string> = {
+  amber: "border-amber-400/40 bg-amber-500/10 text-amber-300",
+  emerald: "border-emerald-400/40 bg-emerald-500/10 text-emerald-300",
+  cyan: "border-cyan-400/40 bg-cyan-500/10 text-cyan-300",
+};
+
+const WEEKS = [52, 58, 61, 70, 74, 78];
+
+function useCountUp(target: number, run: boolean) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!run) return;
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / 1400, 1);
+      setValue(Math.round(target * (1 - Math.pow(1 - t, 3))));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, run]);
+  return value;
+}
+
+function StageTelemetry() {
+  const [inView, setInView] = useState(false);
+  const readiness = useCountUp(78, inView);
+  const R = 52;
+  const C = 2 * Math.PI * R;
+
+  return (
+    <motion.div
+      onViewportEnter={() => setInView(true)}
+      viewport={{ once: true, margin: "-60px" }}
+      className="space-y-6"
+    >
+      <div className="font-mono text-[11px] tracking-widest text-dim">
+        GROUP · 12 INTERVIEWERS
+      </div>
+
+      {/* A: skill gap heatmap */}
+      <div className="space-y-2.5">
+        {GAPS.map((g, i) => (
+          <motion.div
+            key={g.name}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.12, duration: 0.45 }}
+            className="flex items-center justify-between gap-4 rounded-xl border border-keycap-border bg-keycap/80 px-4 py-3"
+          >
+            <span className="text-sm text-body">{g.name}</span>
+            <span
+              className={`shrink-0 rounded-full border px-2.5 py-1 font-mono text-[11px] ${TONE[g.tone]}`}
+            >
+              {g.pct}% · {g.label}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2">
+        {/* B: readiness ring */}
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-keycap-border bg-void/60 p-5">
+          <div className="relative grid place-items-center">
+            <svg width="132" height="132" className="-rotate-90">
+              <circle cx="66" cy="66" r={R} className="fill-none stroke-white/10" strokeWidth="10" />
+              <motion.circle
+                cx="66"
+                cy="66"
+                r={R}
+                className="fill-none stroke-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.7)]"
+                strokeWidth="10"
+                strokeLinecap="round"
+                strokeDasharray={C}
+                initial={{ strokeDashoffset: C }}
+                whileInView={{ strokeDashoffset: C * (1 - 0.78) }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.4, ease: "easeOut" }}
+              />
+            </svg>
+            <div className="absolute text-center">
+              <div className="font-display text-2xl text-heading">{readiness}%</div>
+              <div className="font-mono text-[10px] tracking-widest text-dim">READY</div>
+            </div>
+          </div>
+          <p className="mt-3 text-center text-xs text-dim">Interviewer readiness</p>
+        </div>
+
+        {/* C: accuracy bars */}
+        <div className="rounded-2xl border border-keycap-border bg-void/60 p-5">
+          <div className="font-mono text-[10px] tracking-widest text-dim">
+            DECISION ACCURACY · 6 WEEKS
+          </div>
+          <div className="mt-4 flex h-28 items-end justify-between gap-2">
+            {WEEKS.map((w, i) => (
+              <motion.div
+                key={i}
+                initial={{ height: 0 }}
+                whileInView={{ height: `${w}%` }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.09, duration: 0.6, ease: "easeOut" }}
+                className="w-full rounded-t-md bg-gradient-to-t from-blue-600/60 to-cyan-400 shadow-[0_0_14px_rgba(34,211,238,0.35)]"
+              />
+            ))}
+          </div>
+          <div className="mt-2 flex justify-between font-mono text-[10px] text-dim">
+            {WEEKS.map((_, i) => (
+              <span key={i}>W{i + 1}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }
