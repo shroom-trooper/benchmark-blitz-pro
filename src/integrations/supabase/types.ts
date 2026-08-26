@@ -517,33 +517,7 @@ export type Database = {
       }
     }
     Views: {
-      public_leaderboard: {
-        Row: {
-          current_streak: number | null
-          display_name: string | null
-          id: string | null
-          last_completed_week: number | null
-          level: number | null
-          total_xp: number | null
-        }
-        Insert: {
-          current_streak?: number | null
-          display_name?: never
-          id?: string | null
-          last_completed_week?: number | null
-          level?: number | null
-          total_xp?: number | null
-        }
-        Update: {
-          current_streak?: number | null
-          display_name?: never
-          id?: string | null
-          last_completed_week?: number | null
-          level?: number | null
-          total_xp?: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       accept_invite: { Args: { _invite_id: string }; Returns: string }
