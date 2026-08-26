@@ -6,7 +6,6 @@ import {
   Check,
   Flame,
   Upload,
-  Trophy,
 } from "lucide-react";
 
 const SECTIONS = [
@@ -84,7 +83,7 @@ function FeatureRow({
       >
         <div
           aria-hidden
-          className={`pointer-events-none absolute -inset-10 rounded-[3rem] bg-gradient-radial bg-gradient-to-br blur-2xl ${glow}`}
+          className={`pointer-events-none absolute -inset-10 rounded-[3rem] bg-gradient-to-br blur-2xl ${glow}`}
         />
         <div className="relative rounded-3xl border border-white/10 bg-slate-900/50 p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
           {index === 0 && <StageAI />}
