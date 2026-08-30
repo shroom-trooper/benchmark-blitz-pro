@@ -68,8 +68,8 @@ function SessionPage() {
       setResult(data);
       track("session_completed", {
         week: weekNumber,
-        score: data.score,
-        xp_earned: data.xpEarned,
+        score: data.correctCount,
+        xp_earned: data.xp.total,
         leveled_up: data.leveledUp,
       });
       queryClient.invalidateQueries({ queryKey: ["me"] });

@@ -58,8 +58,8 @@ function AssessmentPage() {
       setResult(data);
       track("assessment_completed", {
         assessment_id: id,
-        score: data.score,
-        xp_earned: data.xpEarned,
+        score: data.correctCount,
+        xp_earned: data.xp.total,
         leveled_up: data.leveledUp,
       });
       void queryClient.invalidateQueries({ queryKey: ["me"] });
