@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { getWeek, submitWeek } from "@/lib/benchmark.functions";
+import { track } from "@/lib/analytics";
 import { QUARTER_THEMES, quarterForWeek } from "@/lib/gamification";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +66,12 @@ function SessionPage() {
       submitFn({ data: { week: weekNumber, answers: finalAnswers } }),
     onSuccess: (data) => {
       setResult(data);
+      track("session_completed", {
+        week: weekNumber,
+        score: data.score,
+        xp_earned: data.xpEarned,
+        leveled_up: data.leveledUp,
+      });
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.invalidateQueries({ queryKey: ["week", weekNumber] });
       if (data.leveledUp) toast.success(`Level up! You reached level ${data.level}.`);
