@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Zap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +35,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -75,16 +75,19 @@ function AuthPage() {
     router.navigate({ to: "/onboarding" });
   }
 
-  async function google() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+  async function forgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
     });
-    if (result.error) {
-      toast.error("Google sign-in failed. Please try again.");
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
       return;
     }
-    if (result.redirected) return;
-    router.navigate({ to: "/hub" });
+    toast.success("Reset link sent — check your inbox.");
+    setForgotMode(false);
   }
 
   return (
@@ -98,83 +101,111 @@ function AuthPage() {
         </Link>
 
         <div className="rounded-xl border border-border bg-surface p-6">
-          <Tabs defaultValue="signin">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Create account</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="signin">
-              <form onSubmit={signIn} className="mt-4 space-y-4">
-                <Field id="si-email" label="Work email">
+          {forgotMode ? (
+            <div>
+              <h2 className="text-lg font-bold tracking-tight">Reset your password</h2>
+              <p className="mt-1 text-sm text-body">
+                Enter your work email and we'll send you a reset link.
+              </p>
+              <form onSubmit={forgotPassword} className="mt-4 space-y-4">
+                <Field id="fp-email" label="Work email">
                   <Input
-                    id="si-email"
+                    id="fp-email"
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </Field>
-                <Field id="si-pw" label="Password">
-                  <Input
-                    id="si-pw"
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </Field>
                 <Button className="w-full" disabled={loading}>
-                  {loading ? "Signing in…" : "Sign in"}
+                  {loading ? "Sending link…" : "Send reset link"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setForgotMode(false)}
+                >
+                  Back to sign in
                 </Button>
               </form>
-            </TabsContent>
+            </div>
+          ) : (
+            <Tabs defaultValue="signin">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign in</TabsTrigger>
+                <TabsTrigger value="signup">Create account</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="signup">
-              <form onSubmit={signUp} className="mt-4 space-y-4">
-                <Field id="su-name" label="Full name">
-                  <Input
-                    id="su-name"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                  />
-                </Field>
-                <Field id="su-email" label="Work email">
-                  <Input
-                    id="su-email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </Field>
-                <Field id="su-pw" label="Password">
-                  <Input
-                    id="su-pw"
-                    type="password"
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </Field>
-                <Button className="w-full" disabled={loading}>
-                  {loading ? "Creating account…" : "Create account"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="signin">
+                <form onSubmit={signIn} className="mt-4 space-y-4">
+                  <Field id="si-email" label="Work email">
+                    <Input
+                      id="si-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Field>
+                  <Field id="si-pw" label="Password">
+                    <Input
+                      id="si-pw"
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </Field>
+                  <Button className="w-full" disabled={loading}>
+                    {loading ? "Signing in…" : "Sign in"}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setForgotMode(true)}
+                    className="w-full text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    Forgot password?
+                  </button>
+                </form>
+              </TabsContent>
 
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            or
-            <span className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button variant="outline" className="w-full" onClick={google}>
-            Continue with Google
-          </Button>
+              <TabsContent value="signup">
+                <form onSubmit={signUp} className="mt-4 space-y-4">
+                  <Field id="su-name" label="Full name">
+                    <Input
+                      id="su-name"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
+                  </Field>
+                  <Field id="su-email" label="Work email">
+                    <Input
+                      id="su-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Field>
+                  <Field id="su-pw" label="Password">
+                    <Input
+                      id="su-pw"
+                      type="password"
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </Field>
+                  <Button className="w-full" disabled={loading}>
+                    {loading ? "Creating account…" : "Create account"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          )}
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
