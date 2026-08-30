@@ -2,12 +2,13 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Flame, Trophy, LayoutDashboard, Shield, LogOut, Zap } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMe } from "@/lib/benchmark.functions";
 import { levelProgress } from "@/lib/gamification";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { identifyUser, resetAnalytics } from "@/lib/analytics";
 
 export function useMe() {
   const fn = useServerFn(getMe);
@@ -20,7 +21,20 @@ export function AppShell({ children }: { children: ReactNode }) {
   const xp = me?.profile?.total_xp ?? 0;
   const lp = levelProgress(xp);
 
+  useEffect(() => {
+    const profile = me?.profile;
+    if (profile?.id) {
+      identifyUser(profile.id, {
+        display_name: profile.display_name,
+        level: profile.level,
+        total_xp: profile.total_xp,
+        owns_group: me?.ownsGroup ?? false,
+      });
+    }
+  }, [me?.profile?.id, me?.profile?.level, me?.profile?.total_xp, me?.ownsGroup]);
+
   async function signOut() {
+    resetAnalytics();
     await supabase.auth.signOut();
     router.navigate({ to: "/auth" });
   }
