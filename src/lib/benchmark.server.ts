@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 import { getQuestionsForWeek } from "./curriculum";
 import { computeXp, levelForXp, quarterForWeek } from "./gamification";
 
@@ -473,8 +474,30 @@ export async function inviteToGroup(supabase: DB, userId: string, email: string)
     .select()
     .single();
   if (error) fail(friendly(error.message));
+
+  const { data: inviter } = await supabase
+    .from("profiles")
+    .select("display_name, full_name, email")
+    .eq("id", userId)
+    .maybeSingle();
+
+  try {
+    await sendTemplateEmail("group-invite", data.email, {
+      templateData: {
+        groupName: group.name,
+        inviterName:
+          inviter?.display_name || inviter?.full_name || inviter?.email?.split("@")[0] || null,
+        joinUrl: "https://usebenchmark.app/auth",
+      },
+      idempotencyKey: `group-invite-${data.id}`,
+    });
+  } catch (e) {
+    console.error("[invite] email send failed", e);
+  }
+
   return data;
 }
+
 
 export async function revokeInvite(supabase: DB, userId: string, inviteId: string) {
   const group = await requireGroupOwner(supabase, userId);
