@@ -4,15 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Fragment, useState } from "react";
 import { AlertTriangle, Users, Activity, CalendarClock, Lock } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { AppShell } from "@/components/AppShell";
 import { AssessmentsTab } from "@/components/AssessmentsTab";
 
@@ -149,51 +141,7 @@ function AdminPage() {
           <TabsContent value="analytics" className="mt-6 space-y-6">
             <MemberAnalytics data={t} />
 
-
-            <Panel title="Accuracy by released week">
-
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={t.weekStats}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="week" stroke="var(--muted-foreground)" fontSize={12} />
-                    <YAxis stroke="var(--muted-foreground)" fontSize={12} domain={[0, 100]} />
-                    <Tooltip
-                      contentStyle={{
-                        background: "var(--surface)",
-                        border: "1px solid var(--border)",
-                        borderRadius: 8,
-                        color: "var(--foreground)",
-                      }}
-                    />
-                    <Bar dataKey="accuracy" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Panel>
-
-            <Panel title="Weakest capability areas">
-              <ul className="space-y-3">
-                {t.riskiest.map((w) => (
-                  <li key={w.week} className="flex items-start gap-3 text-sm">
-                    <span className="rounded-md bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive">
-                      {w.accuracy}%
-                    </span>
-                    <span>
-                      <span className="font-medium">Week {w.week}</span> · {w.topic}
-                      <span className="block text-xs text-muted-foreground">
-                        {w.completions} completion{w.completions === 1 ? "" : "s"}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-                {!t.riskiest.length ? (
-                  <li className="text-sm text-muted-foreground">
-                    No completed sessions in your group yet.
-                  </li>
-                ) : null}
-              </ul>
-            </Panel>
+            <ReadinessDonut data={t} />
           </TabsContent>
 
           {t.isPlatformAdmin ? (
@@ -240,6 +188,120 @@ const READINESS: Record<string, { label: string; className: string }> = {
     className: "bg-destructive/15 text-destructive",
   },
 };
+
+const DONUT_SEGMENTS = [
+  {
+    key: "ready",
+    label: "Ready",
+    hint: ">80% accuracy & active in the last 14 days",
+    color: "var(--success)",
+    textClass: "text-success",
+  },
+  {
+    key: "practice",
+    label: "Needs practice",
+    hint: "<80% accuracy or missed the latest weekly test",
+    color: "var(--warning)",
+    textClass: "text-warning",
+  },
+  {
+    key: "inactive",
+    label: "Inactive",
+    hint: "No completed tests in 14+ days",
+    color: "var(--destructive)",
+    textClass: "text-destructive",
+  },
+] as const;
+
+function ReadinessDonut({ data }: { data: Console }) {
+  const counts = { ready: 0, practice: 0, inactive: 0 };
+  for (const u of data.users) {
+    const days = u.lastActiveAt
+      ? Math.floor((Date.now() - new Date(u.lastActiveAt).getTime()) / 86_400_000)
+      : null;
+    if (days === null || days >= 14) {
+      counts.inactive += 1;
+    } else if (u.combinedAccuracy > 80 && !u.missedRecentWeekly) {
+      counts.ready += 1;
+    } else {
+      counts.practice += 1;
+    }
+  }
+  const total = data.users.length;
+  const chartData = DONUT_SEGMENTS.map((s) => ({
+    name: s.label,
+    value: counts[s.key],
+    color: s.color,
+  })).filter((d) => d.value > 0);
+
+  return (
+    <Panel title="Hiring readiness distribution">
+      {total ? (
+        <div className="grid items-center gap-6 sm:grid-cols-[1fr_1fr]">
+          <div className="relative h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  innerRadius="70%"
+                  outerRadius="95%"
+                  paddingAngle={3}
+                  strokeWidth={0}
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {chartData.map((d) => (
+                    <Cell key={d.name} fill={d.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 8,
+                    color: "var(--foreground)",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-4xl font-bold tracking-tight">{total}</span>
+              <span className="text-xs text-muted-foreground">
+                manager{total === 1 ? "" : "s"} ·{" "}
+                {Math.round((counts.ready / total) * 100)}% ready
+              </span>
+            </div>
+          </div>
+          <ul className="space-y-4">
+            {DONUT_SEGMENTS.map((s) => (
+              <li key={s.key} className="flex items-start gap-3 text-sm">
+                <span
+                  className="mt-1 size-3 shrink-0 rounded-full"
+                  style={{ background: s.color }}
+                />
+                <span>
+                  <span className={`font-semibold ${s.textClass}`}>
+                    {counts[s.key]} {s.label}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    · {Math.round((counts[s.key] / total) * 100)}%
+                  </span>
+                  <span className="block text-xs text-muted-foreground">{s.hint}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          No members in your group yet — invite your managers to see readiness.
+        </p>
+      )}
+    </Panel>
+  );
+}
 
 function MemberAnalytics({ data }: { data: Console }) {
   const released = data.summary.releasedWeeks;

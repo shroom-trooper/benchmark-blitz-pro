@@ -536,6 +536,7 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         assignedCustom,
         completionRate,
         readiness,
+        missedRecentWeekly,
         overallAccuracy,
         topicsCompleted: Array.from(new Set(sessions.map((s) => s.topic))),
         sessions,
