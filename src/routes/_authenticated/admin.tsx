@@ -228,7 +228,9 @@ function timeAgo(iso: string | null) {
 
 function MemberAnalytics({ data }: { data: Console }) {
   const released = data.summary.releasedWeeks;
-  const rows = [...data.users].sort((a, b) => b.avgScore - a.avgScore);
+  const customTotal = data.summary.publishedAssessments;
+  const rows = data.users;
+  const [open, setOpen] = useState<string | null>(null);
 
   return (
     <Panel title="Member performance">
@@ -237,50 +239,136 @@ function MemberAnalytics({ data }: { data: Console }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <th className="py-2 pr-3 font-medium">#</th>
                 <th className="py-2 pr-4 font-medium">Member</th>
-                <th className="py-2 pr-4 font-medium">Sessions</th>
+                <th className="py-2 pr-4 font-medium">Weekly</th>
+                <th className="py-2 pr-4 font-medium">Custom</th>
                 <th className="py-2 pr-4 font-medium">Avg score</th>
                 <th className="py-2 pr-4 font-medium">Accuracy</th>
+                <th className="py-2 pr-4 font-medium">Topics</th>
                 <th className="py-2 font-medium">Last training</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((u) => {
+              {rows.map((u, i) => {
                 const dormant =
                   u.completions === 0 || u.lastCompletedAt === null || u.streak === 0;
+                const totalSessions = u.sessions.length;
+                const isOpen = open === u.id;
                 return (
-                  <tr key={u.id} className="border-b border-border/60 last:border-0">
-                    <td className="py-3 pr-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-heading">{u.name}</span>
-                        {u.isOwner ? (
-                          <span className="text-xs text-primary">· you</span>
-                        ) : null}
-                        {dormant ? (
-                          <span className="rounded-md bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-warning">
-                            Dormant
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="truncate text-xs text-muted-foreground">{u.email}</p>
-                    </td>
-                    <td className="py-3 pr-4 whitespace-nowrap">
-                      {u.completions} of {released}
-                    </td>
-                    <td className="py-3 pr-4 whitespace-nowrap">
-                      {u.completions ? `${u.avgScore.toFixed(1)} / 3` : "—"}
-                    </td>
-                    <td className="py-3 pr-4 whitespace-nowrap">
-                      {u.completions ? `${u.accuracy}%` : "—"}
-                    </td>
-                    <td className="py-3 whitespace-nowrap text-muted-foreground">
-                      {timeAgo(u.lastCompletedAt)}
-                    </td>
-                  </tr>
+                  <>
+                    <tr
+                      key={u.id}
+                      onClick={() => setOpen(isOpen ? null : u.id)}
+                      className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/30"
+                    >
+                      <td className="py-3 pr-3 text-muted-foreground">{i + 1}</td>
+                      <td className="py-3 pr-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-heading">{u.name}</span>
+                          {u.isOwner ? (
+                            <span className="text-xs text-primary">· you</span>
+                          ) : null}
+                          {dormant ? (
+                            <span className="rounded-md bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-warning">
+                              Dormant
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                      </td>
+                      <td className="py-3 pr-4 whitespace-nowrap">
+                        {u.completions} of {released}
+                      </td>
+                      <td className="py-3 pr-4 whitespace-nowrap">
+                        {u.customCompletions} of {customTotal}
+                      </td>
+                      <td className="py-3 pr-4 whitespace-nowrap">
+                        {u.completions ? `${u.avgScore.toFixed(1)} / 3` : "—"}
+                      </td>
+                      <td className="py-3 pr-4 whitespace-nowrap">
+                        {totalSessions ? `${u.overallAccuracy}%` : "—"}
+                      </td>
+                      <td className="py-3 pr-4 whitespace-nowrap">
+                        {u.topicsCompleted.length}
+                      </td>
+                      <td className="py-3 whitespace-nowrap text-muted-foreground">
+                        {timeAgo(u.lastCompletedAt)}
+                      </td>
+                    </tr>
+                    {isOpen ? (
+                      <tr key={`${u.id}-detail`} className="border-b border-border/60 last:border-0">
+                        <td colSpan={8} className="bg-muted/20 px-3 py-4">
+                          {totalSessions ? (
+                            <div className="grid gap-6 md:grid-cols-2">
+                              <div>
+                                <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                                  Score by session
+                                </p>
+                                <ul className="space-y-2">
+                                  {u.sessions.map((s, idx) => (
+                                    <li
+                                      key={idx}
+                                      className="flex items-center justify-between gap-3 text-sm"
+                                    >
+                                      <span className="truncate">
+                                        <span className="text-xs text-muted-foreground">
+                                          {s.label}
+                                        </span>{" "}
+                                        {s.topic}
+                                      </span>
+                                      <span className="whitespace-nowrap text-muted-foreground">
+                                        {s.score}/{s.total} · {s.accuracy}%
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div>
+                                <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                                  Suggested focus
+                                </p>
+                                {u.weakTopics.length ? (
+                                  <ul className="space-y-2 text-sm">
+                                    {u.weakTopics.map((w, idx) => (
+                                      <li key={idx} className="leading-relaxed">
+                                        <span className="rounded-md bg-destructive/15 px-1.5 py-0.5 text-xs font-semibold text-destructive">
+                                          {w.accuracy}%
+                                        </span>{" "}
+                                        Revisit <span className="font-medium">{w.topic}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="text-sm leading-relaxed text-body">
+                                    Full marks everywhere so far — keep the streak going.
+                                  </p>
+                                )}
+                                {u.completions < released ? (
+                                  <p className="mt-3 text-sm leading-relaxed text-body">
+                                    {released - u.completions} released weekly session
+                                    {released - u.completions === 1 ? "" : "s"} still outstanding.
+                                  </p>
+                                ) : null}
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-sm leading-relaxed text-body">
+                              No sessions completed yet — nudge them to start this week's training.
+                            </p>
+                          )}
+                        </td>
+                      </tr>
+                    ) : null}
+                  </>
                 );
               })}
             </tbody>
           </table>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Ranked by overall accuracy across weekly and custom sessions. Select a row for the
+            full breakdown.
+          </p>
         </div>
       ) : (
         <p className="text-sm leading-relaxed text-body">
@@ -290,6 +378,7 @@ function MemberAnalytics({ data }: { data: Console }) {
     </Panel>
   );
 }
+
 
 
 function TeamTab({ data }: { data: Console }) {
