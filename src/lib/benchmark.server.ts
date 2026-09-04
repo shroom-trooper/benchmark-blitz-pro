@@ -3,6 +3,11 @@ import type { Database } from "@/integrations/supabase/types";
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 import { getQuestionsForWeek } from "./curriculum";
 import { computeXp, levelForXp, quarterForWeek } from "./gamification";
+import {
+  ELECTIVE_MODULES,
+  getLesson as getElectiveLesson,
+  getModule as getElectiveModule,
+} from "./electives";
 
 type DB = SupabaseClient<Database>;
 
