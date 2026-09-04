@@ -482,9 +482,13 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         return s + (a?.target_questions || 1);
       }, 0);
       const customCorrect = myAssessments.reduce((s, r) => s + r.score, 0);
-      const totalQuestions = weeklyQuestions + customQuestions;
+      const electiveQuestions = myElectives.length * 3;
+      const electiveCorrect = myElectives.reduce((s, r) => s + r.score, 0);
+      const totalQuestions = weeklyQuestions + customQuestions + electiveQuestions;
       const combinedAccuracy = totalQuestions
-        ? Math.round(((weeklyCorrect + customCorrect) / totalQuestions) * 100)
+        ? Math.round(
+            ((weeklyCorrect + customCorrect + electiveCorrect) / totalQuestions) * 100,
+          )
         : 0;
       const overallAccuracy = combinedAccuracy;
 
@@ -506,16 +510,29 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
             null,
           )
         : null;
+      const lastElectiveAt = myElectives.length
+        ? myElectives.reduce<string | null>(
+            (acc, r) =>
+              !acc || new Date(r.completed_at).getTime() > new Date(acc).getTime()
+                ? r.completed_at
+                : acc,
+            null,
+          )
+        : null;
       const lastActiveAt =
-        [lastWeeklyAt, lastCustomAt]
+        [lastWeeklyAt, lastCustomAt, lastElectiveAt]
           .filter((x): x is string => Boolean(x))
           .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
 
       const assignedWeekly = weeks.filter((w) => w.week_number <= currentWeek).length;
       const assignedCustom = publishedAssessments.length;
-      const assignedTotal = assignedWeekly + assignedCustom;
+      const assignedElective = assignedElectiveLessons;
+      const assignedTotal = assignedWeekly + assignedCustom + assignedElective;
       const completionRate = assignedTotal
-        ? Math.round(((mine.length + myAssessments.length) / assignedTotal) * 100)
+        ? Math.round(
+            ((mine.length + myAssessments.length + myElectives.length) / assignedTotal) *
+              100,
+          )
         : 0;
       const daysSinceActive = lastActiveAt
         ? Math.floor((Date.now() - new Date(lastActiveAt).getTime()) / 86_400_000)
