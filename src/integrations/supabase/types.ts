@@ -580,6 +580,27 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_unlock_emails: {
+        Row: {
+          id: string
+          sent_at: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          id?: string
+          sent_at?: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          id?: string
+          sent_at?: string
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
