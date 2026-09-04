@@ -86,7 +86,7 @@ function Hub() {
     );
   }
 
-  const currentWeek = me.settings?.current_week ?? 1;
+  const currentWeek = me.unlockedWeek ?? 1;
   const completedWeeks = new Set(me.responses.map((r) => r.week_number));
   const weeks = weeksQuery.data ?? [];
   const current = weeks.find((w) => w.week_number === currentWeek);
