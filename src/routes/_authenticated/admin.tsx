@@ -245,11 +245,11 @@ function ReadinessDonut({ data }: { data: Console }) {
                 />
               </PieChart>
             </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-4xl font-bold tracking-tight">
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+              <span className="text-4xl font-bold tracking-tight text-foreground">
                 {Math.round((counts.ready / total) * 100)}%
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="mt-1 max-w-[9rem] text-sm font-medium leading-snug text-foreground/70">
                 of {total} manager{total === 1 ? "" : "s"} ready to interview
               </span>
             </div>
