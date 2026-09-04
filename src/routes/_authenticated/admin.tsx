@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { AlertTriangle, Users, Activity, CalendarClock, Lock } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -256,9 +256,8 @@ function MemberAnalytics({ data }: { data: Console }) {
                 const totalSessions = u.sessions.length;
                 const isOpen = open === u.id;
                 return (
-                  <>
+                  <Fragment key={u.id}>
                     <tr
-                      key={u.id}
                       onClick={() => setOpen(isOpen ? null : u.id)}
                       className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/30"
                     >
@@ -297,7 +296,7 @@ function MemberAnalytics({ data }: { data: Console }) {
                       </td>
                     </tr>
                     {isOpen ? (
-                      <tr key={`${u.id}-detail`} className="border-b border-border/60 last:border-0">
+                      <tr className="border-b border-border/60 last:border-0">
                         <td colSpan={8} className="bg-muted/20 px-3 py-4">
                           {totalSessions ? (
                             <div className="grid gap-6 md:grid-cols-2">
@@ -360,7 +359,7 @@ function MemberAnalytics({ data }: { data: Console }) {
                         </td>
                       </tr>
                     ) : null}
-                  </>
+                  </Fragment>
                 );
               })}
             </tbody>
