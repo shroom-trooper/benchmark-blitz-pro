@@ -439,13 +439,67 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         (a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime(),
       );
 
-      const overallAccuracy = sessions.length
-        ? Math.round(
-            (sessions.reduce((s, x) => s + x.score, 0) /
-              sessions.reduce((s, x) => s + x.total, 0)) *
-              100,
-          )
+      const weeklyQuestions = mine.length * 3;
+      const weeklyCorrect = mine.reduce((s, r) => s + r.score, 0);
+      const customQuestions = myAssessments.reduce((s, r) => {
+        const a = assessments.find((x) => x.id === r.assessment_id);
+        return s + (a?.target_questions || 1);
+      }, 0);
+      const customCorrect = myAssessments.reduce((s, r) => s + r.score, 0);
+      const totalQuestions = weeklyQuestions + customQuestions;
+      const combinedAccuracy = totalQuestions
+        ? Math.round(((weeklyCorrect + customCorrect) / totalQuestions) * 100)
         : 0;
+      const overallAccuracy = combinedAccuracy;
+
+      const lastWeeklyAt = mine.length
+        ? mine.reduce<string | null>(
+            (acc, r) =>
+              !acc || new Date(r.completed_at).getTime() > new Date(acc).getTime()
+                ? r.completed_at
+                : acc,
+            null,
+          )
+        : null;
+      const lastCustomAt = myAssessments.length
+        ? myAssessments.reduce<string | null>(
+            (acc, r) =>
+              !acc || new Date(r.completed_at).getTime() > new Date(acc).getTime()
+                ? r.completed_at
+                : acc,
+            null,
+          )
+        : null;
+      const lastActiveAt =
+        [lastWeeklyAt, lastCustomAt]
+          .filter((x): x is string => Boolean(x))
+          .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
+
+      const assignedWeekly = weeks.filter((w) => w.week_number <= currentWeek).length;
+      const assignedCustom = publishedAssessments.length;
+      const assignedTotal = assignedWeekly + assignedCustom;
+      const completionRate = assignedTotal
+        ? Math.round(((mine.length + myAssessments.length) / assignedTotal) * 100)
+        : 0;
+      const daysSinceActive = lastActiveAt
+        ? Math.floor((Date.now() - new Date(lastActiveAt).getTime()) / 86_400_000)
+        : null;
+      const missedRecentWeekly = !mine.some((r) => r.week_number === currentWeek);
+
+      let readiness: "high" | "practice" | "risk";
+      if (
+        totalQuestions === 0 ||
+        combinedAccuracy < 50 ||
+        daysSinceActive === null ||
+        daysSinceActive >= 14
+      ) {
+        readiness = "risk";
+      } else if (combinedAccuracy > 80 && completionRate > 80) {
+        readiness = "high";
+      } else {
+        readiness = "practice";
+      }
+      if (readiness === "high" && missedRecentWeekly) readiness = "practice";
 
       const weakTopics = sessions
         .filter((s) => s.accuracy < 100)
@@ -465,24 +519,33 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         avgScore: Math.round(avgScore * 100) / 100,
         accuracy: Math.round((avgScore / 3) * 100),
         customCompletions: myAssessments.length,
-        customAvgAccuracy: myAssessments.length
-          ? Math.round(
-              (myAssessments.reduce((s, r) => {
-                const a = assessments.find((x) => x.id === r.assessment_id);
-                return s + r.score / (a?.target_questions || 1);
-              }, 0) /
-                myAssessments.length) *
-                100,
-            )
+        customAvgAccuracy: customQuestions
+          ? Math.round((customCorrect / customQuestions) * 100)
           : 0,
+        weeklyAccuracy: weeklyQuestions
+          ? Math.round((weeklyCorrect / weeklyQuestions) * 100)
+          : 0,
+        weeklyCorrect,
+        weeklyQuestions,
+        customCorrect,
+        customQuestions,
+        totalCorrect: weeklyCorrect + customCorrect,
+        totalQuestions,
+        combinedAccuracy,
+        assignedWeekly,
+        assignedCustom,
+        completionRate,
+        readiness,
         overallAccuracy,
         topicsCompleted: Array.from(new Set(sessions.map((s) => s.topic))),
         sessions,
         weakTopics,
-        lastCompletedAt: p.last_completed_at,
+        lastActiveAt,
+        lastCompletedAt: lastActiveAt,
       };
     })
-    .sort((a, b) => b.overallAccuracy - a.overallAccuracy || b.totalXp - a.totalXp);
+    .sort((a, b) => b.combinedAccuracy - a.combinedAccuracy || b.totalXp - a.totalXp);
+
 
 
 

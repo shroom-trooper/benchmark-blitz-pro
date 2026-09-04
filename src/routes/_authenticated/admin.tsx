@@ -226,9 +226,23 @@ function timeAgo(iso: string | null) {
   return `${months} month${months === 1 ? "" : "s"} ago`;
 }
 
+const READINESS: Record<string, { label: string; className: string }> = {
+  high: {
+    label: "High",
+    className: "bg-success/15 text-success",
+  },
+  practice: {
+    label: "Needs practice",
+    className: "bg-warning/15 text-warning",
+  },
+  risk: {
+    label: "At risk",
+    className: "bg-destructive/15 text-destructive",
+  },
+};
+
 function MemberAnalytics({ data }: { data: Console }) {
   const released = data.summary.releasedWeeks;
-  const customTotal = data.summary.publishedAssessments;
   const rows = data.users;
   const [open, setOpen] = useState<string | null>(null);
 
@@ -241,20 +255,18 @@ function MemberAnalytics({ data }: { data: Console }) {
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="py-2 pr-3 font-medium">#</th>
                 <th className="py-2 pr-4 font-medium">Member</th>
-                <th className="py-2 pr-4 font-medium">Weekly</th>
-                <th className="py-2 pr-4 font-medium">Custom</th>
-                <th className="py-2 pr-4 font-medium">Avg score</th>
-                <th className="py-2 pr-4 font-medium">Accuracy</th>
-                <th className="py-2 pr-4 font-medium">Topics</th>
-                <th className="py-2 font-medium">Last training</th>
+                <th className="py-2 pr-4 font-medium">Readiness</th>
+                <th className="py-2 pr-4 font-medium">Combined accuracy</th>
+                <th className="py-2 pr-4 font-medium">Weekly tests</th>
+                <th className="py-2 pr-4 font-medium">Custom tests</th>
+                <th className="py-2 font-medium">Last active</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((u, i) => {
-                const dormant =
-                  u.completions === 0 || u.lastCompletedAt === null || u.streak === 0;
                 const totalSessions = u.sessions.length;
                 const isOpen = open === u.id;
+                const badge = READINESS[u.readiness] ?? READINESS['risk']!;
                 return (
                   <Fragment key={u.id}>
                     <tr
@@ -268,36 +280,50 @@ function MemberAnalytics({ data }: { data: Console }) {
                           {u.isOwner ? (
                             <span className="text-xs text-primary">· you</span>
                           ) : null}
-                          {dormant ? (
-                            <span className="rounded-md bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-warning">
-                              Dormant
-                            </span>
-                          ) : null}
                         </div>
                         <p className="truncate text-xs text-muted-foreground">{u.email}</p>
                       </td>
                       <td className="py-3 pr-4 whitespace-nowrap">
-                        {u.completions} of {released}
+                        <span
+                          className={`rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase ${badge.className}`}
+                        >
+                          {badge.label}
+                        </span>
                       </td>
                       <td className="py-3 pr-4 whitespace-nowrap">
-                        {u.customCompletions} of {customTotal}
+                        {u.totalQuestions ? (
+                          <>
+                            <span className="font-semibold text-heading">
+                              {u.combinedAccuracy}%
+                            </span>{" "}
+                            <span className="text-xs text-muted-foreground">
+                              ({u.totalCorrect}/{u.totalQuestions})
+                            </span>
+                          </>
+                        ) : (
+                          "—"
+                        )}
                       </td>
                       <td className="py-3 pr-4 whitespace-nowrap">
-                        {u.completions ? `${u.avgScore.toFixed(1)} / 3` : "—"}
+                        {u.completions} / {u.assignedWeekly}{" "}
+                        <span className="text-xs text-muted-foreground">
+                          ({u.weeklyAccuracy}%)
+                        </span>
                       </td>
                       <td className="py-3 pr-4 whitespace-nowrap">
-                        {totalSessions ? `${u.overallAccuracy}%` : "—"}
-                      </td>
-                      <td className="py-3 pr-4 whitespace-nowrap">
-                        {u.topicsCompleted.length}
+                        {u.customCompletions} / {u.assignedCustom}{" "}
+                        <span className="text-xs text-muted-foreground">
+                          ({u.customAvgAccuracy}%)
+                        </span>
                       </td>
                       <td className="py-3 whitespace-nowrap text-muted-foreground">
-                        {timeAgo(u.lastCompletedAt)}
+                        {timeAgo(u.lastActiveAt)}
                       </td>
                     </tr>
                     {isOpen ? (
                       <tr className="border-b border-border/60 last:border-0">
-                        <td colSpan={8} className="bg-muted/20 px-3 py-4">
+                        <td colSpan={7} className="bg-muted/20 px-3 py-4">
+
                           {totalSessions ? (
                             <div className="grid gap-6 md:grid-cols-2">
                               <div>
