@@ -459,6 +459,18 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
             completedAt: r.completed_at,
           };
         }),
+        ...myElectives.map((r) => {
+          const found = getElectiveLesson(r.module_slug, r.lesson_slug);
+          return {
+            kind: "elective" as const,
+            label: found?.module.title ?? "Elective",
+            topic: found?.lesson.title ?? r.lesson_slug,
+            score: r.score,
+            total: 3,
+            accuracy: Math.round((r.score / 3) * 100),
+            completedAt: r.completed_at,
+          };
+        }),
       ].sort(
         (a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime(),
       );
