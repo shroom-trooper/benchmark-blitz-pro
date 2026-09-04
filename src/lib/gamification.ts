@@ -84,3 +84,24 @@ export function quarterForWeek(week: number): number {
   if (week <= 39) return 3;
   return 4;
 }
+
+export const TOTAL_WEEKS = 52;
+
+/** Rolling per-user release: week 1 at signup, a new week every 7 days. */
+export function unlockedWeekFor(createdAt: string | null | undefined): number {
+  if (!createdAt) return 1;
+  const start = new Date(createdAt).getTime();
+  if (Number.isNaN(start)) return 1;
+  const days = Math.floor((Date.now() - start) / 86_400_000);
+  return Math.min(TOTAL_WEEKS, Math.max(1, Math.floor(days / 7) + 1));
+}
+
+/** ISO timestamp when the next week unlocks, or null once week 52 is open. */
+export function nextUnlockAt(createdAt: string | null | undefined): string | null {
+  if (!createdAt) return null;
+  const start = new Date(createdAt).getTime();
+  if (Number.isNaN(start)) return null;
+  const week = unlockedWeekFor(createdAt);
+  if (week >= TOTAL_WEEKS) return null;
+  return new Date(start + week * 7 * 86_400_000).toISOString();
+}

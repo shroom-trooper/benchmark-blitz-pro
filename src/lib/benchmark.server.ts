@@ -2,7 +2,13 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 import { getQuestionsForWeek } from "./curriculum";
-import { computeXp, levelForXp, quarterForWeek } from "./gamification";
+import {
+  computeXp,
+  levelForXp,
+  nextUnlockAt,
+  quarterForWeek,
+  unlockedWeekFor,
+} from "./gamification";
 import {
   ELECTIVE_MODULES,
   getLesson as getElectiveLesson,
@@ -19,19 +25,6 @@ export type PublicQuestion = {
 
 function fail(message: string): never {
   throw new Error(message);
-}
-
-export const TOTAL_WEEKS = 52;
-
-/**
- * Rolling per-user release: week 1 unlocks at signup, a new week every 7 days.
- */
-export function unlockedWeekFor(createdAt: string | null | undefined): number {
-  if (!createdAt) return 1;
-  const start = new Date(createdAt).getTime();
-  if (Number.isNaN(start)) return 1;
-  const days = Math.floor((Date.now() - start) / 86_400_000);
-  return Math.min(TOTAL_WEEKS, Math.max(1, Math.floor(days / 7) + 1));
 }
 
 async function unlockedWeekForUser(supabase: DB, userId: string) {
@@ -157,6 +150,7 @@ export async function loadMe(supabase: DB, userId: string) {
     pendingInvites,
     settings: settingsRes.data,
     unlockedWeek: unlockedWeekFor(profile?.created_at),
+    nextUnlockAt: nextUnlockAt(profile?.created_at),
     responses: responsesRes.data ?? [],
     earned: achRes.data ?? [],
     achievements: allAchRes.data ?? [],

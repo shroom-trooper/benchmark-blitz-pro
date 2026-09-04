@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { authenticateCronRequest } from '@/integrations/supabase/cron-auth'
-import { unlockedWeekFor } from '@/lib/benchmark.server'
+import { unlockedWeekFor } from '@/lib/gamification'
 import { sendTemplateEmail } from '@/lib/email-templates/send-email'
 
 const SITE_URL = 'https://usebenchmark.app'
