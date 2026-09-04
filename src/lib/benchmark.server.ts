@@ -486,6 +486,10 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         : null;
       const missedRecentWeekly = !mine.some((r) => r.week_number === currentWeek);
 
+      // Standardized tiers (mutually exclusive):
+      // risk     = accuracy < 50% OR no test completed in the last 14 days
+      // high     = accuracy >= 80% AND active within 14 days
+      // practice = accuracy 50–79% (active within 14 days)
       let readiness: "high" | "practice" | "risk";
       if (
         totalQuestions === 0 ||
@@ -494,12 +498,11 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         daysSinceActive >= 14
       ) {
         readiness = "risk";
-      } else if (combinedAccuracy > 80 && completionRate > 80) {
+      } else if (combinedAccuracy >= 80) {
         readiness = "high";
       } else {
         readiness = "practice";
       }
-      if (readiness === "high" && missedRecentWeekly) readiness = "practice";
 
       const weakTopics = sessions
         .filter((s) => s.accuracy < 100)
