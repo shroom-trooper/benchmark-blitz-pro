@@ -383,10 +383,76 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
     .sort((a, b) => a.accuracy - b.accuracy)
     .slice(0, 5);
 
+  // Custom group assessments
+  const { data: groupAssessments } = await supabase
+    .from("assessments")
+    .select("id, title, target_questions, status")
+    .eq("group_id", group.id);
+  const assessments = groupAssessments ?? [];
+  const publishedAssessments = assessments.filter((a) => a.status === "published");
+  const assessmentIds = assessments.map((a) => a.id);
+
+  const { data: aResponses } = assessmentIds.length && memberIds.length
+    ? await supabase
+        .from("assessment_responses")
+        .select("*")
+        .in("assessment_id", assessmentIds)
+        .in("user_id", memberIds)
+    : { data: [] as never[] };
+  const aRows = aResponses ?? [];
+
+  const topicForWeek = new Map(weeks.map((w) => [w.week_number, w.topic]));
+
   const users = members
     .map((p) => {
       const mine = rows.filter((r) => r.user_id === p.id);
       const avgScore = mine.length ? mine.reduce((s, r) => s + r.score, 0) / mine.length : 0;
+
+      const myAssessments = aRows.filter((r) => r.user_id === p.id);
+      const sessions = [
+        ...mine
+          .slice()
+          .sort((a, b) => a.week_number - b.week_number)
+          .map((r) => ({
+            kind: "weekly" as const,
+            label: `Week ${r.week_number}`,
+            topic: topicForWeek.get(r.week_number) ?? `Week ${r.week_number}`,
+            score: r.score,
+            total: 3,
+            accuracy: Math.round((r.score / 3) * 100),
+            completedAt: r.completed_at,
+          })),
+        ...myAssessments.map((r) => {
+          const a = assessments.find((x) => x.id === r.assessment_id);
+          const total = a?.target_questions || 1;
+          return {
+            kind: "custom" as const,
+            label: "Custom",
+            topic: a?.title ?? "Custom assessment",
+            score: r.score,
+            total,
+            accuracy: Math.round((r.score / total) * 100),
+            completedAt: r.completed_at,
+          };
+        }),
+      ].sort(
+        (a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime(),
+      );
+
+      const overallAccuracy = sessions.length
+        ? Math.round(
+            (sessions.reduce((s, x) => s + x.score, 0) /
+              sessions.reduce((s, x) => s + x.total, 0)) *
+              100,
+          )
+        : 0;
+
+      const weakTopics = sessions
+        .filter((s) => s.accuracy < 100)
+        .sort((a, b) => a.accuracy - b.accuracy)
+        .slice(0, 3)
+        .map((s) => ({ topic: s.topic, accuracy: s.accuracy }));
+
       return {
         id: p.id,
         name: p.display_name || p.full_name || p.email.split("@")[0]!,
@@ -398,10 +464,26 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         completions: mine.length,
         avgScore: Math.round(avgScore * 100) / 100,
         accuracy: Math.round((avgScore / 3) * 100),
+        customCompletions: myAssessments.length,
+        customAvgAccuracy: myAssessments.length
+          ? Math.round(
+              (myAssessments.reduce((s, r) => {
+                const a = assessments.find((x) => x.id === r.assessment_id);
+                return s + r.score / (a?.target_questions || 1);
+              }, 0) /
+                myAssessments.length) *
+                100,
+            )
+          : 0,
+        overallAccuracy,
+        topicsCompleted: Array.from(new Set(sessions.map((s) => s.topic))),
+        sessions,
+        weakTopics,
         lastCompletedAt: p.last_completed_at,
       };
     })
-    .sort((a, b) => b.totalXp - a.totalXp);
+    .sort((a, b) => b.overallAccuracy - a.overallAccuracy || b.totalXp - a.totalXp);
+
 
 
   const invites = invitesRes.data ?? [];
@@ -420,6 +502,8 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       members: members.length,
       currentWeek,
       releasedWeeks: weeks.filter((w) => w.week_number <= currentWeek).length,
+      publishedAssessments: publishedAssessments.length,
+
 
       participation,
       completedCurrent,
