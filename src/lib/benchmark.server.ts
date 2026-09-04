@@ -21,6 +21,28 @@ function fail(message: string): never {
   throw new Error(message);
 }
 
+export const TOTAL_WEEKS = 52;
+
+/**
+ * Rolling per-user release: week 1 unlocks at signup, a new week every 7 days.
+ */
+export function unlockedWeekFor(createdAt: string | null | undefined): number {
+  if (!createdAt) return 1;
+  const start = new Date(createdAt).getTime();
+  if (Number.isNaN(start)) return 1;
+  const days = Math.floor((Date.now() - start) / 86_400_000);
+  return Math.min(TOTAL_WEEKS, Math.max(1, Math.floor(days / 7) + 1));
+}
+
+async function unlockedWeekForUser(supabase: DB, userId: string) {
+  const { data } = await supabase
+    .from("profiles")
+    .select("created_at")
+    .eq("id", userId)
+    .maybeSingle();
+  return unlockedWeekFor(data?.created_at);
+}
+
 async function resolveQuestions(supabase: DB, week: number) {
   const base = getQuestionsForWeek(week).map((q, index) => ({ ...q, index }));
   const { data: overrides } = await supabase
@@ -134,6 +156,7 @@ export async function loadMe(supabase: DB, userId: string) {
     ownsGroup: Boolean(ownedGroup),
     pendingInvites,
     settings: settingsRes.data,
+    unlockedWeek: unlockedWeekFor(profile?.created_at),
     responses: responsesRes.data ?? [],
     earned: achRes.data ?? [],
     achievements: allAchRes.data ?? [],
@@ -148,14 +171,10 @@ export async function loadWeek(supabase: DB, userId: string, week: number) {
     .maybeSingle();
   if (!weekRow) fail("That week is not in the curriculum yet.");
 
-  const { data: settings } = await supabase
-    .from("org_settings")
-    .select("current_week")
-    .eq("id", 1)
-    .maybeSingle();
-  const currentWeek = settings?.current_week ?? 1;
+  const currentWeek = await unlockedWeekForUser(supabase, userId);
   const admin = await isPlatformAdmin(supabase, userId);
-  if (!admin && week > currentWeek) fail("This session has not been released yet.");
+  if (!admin && week > currentWeek)
+    fail("This session unlocks later — a new week opens every 7 days.");
 
   const { data: existing } = await supabase
     .from("responses")
@@ -197,14 +216,9 @@ export async function submitWeek(
   week: number,
   answers: number[],
 ) {
-  const { data: settings } = await supabase
-    .from("org_settings")
-    .select("current_week")
-    .eq("id", 1)
-    .maybeSingle();
   const admin = await isPlatformAdmin(supabase, userId);
-  if (!admin && week > (settings?.current_week ?? 1))
-    fail("This session has not been released yet.");
+  if (!admin && week > (await unlockedWeekForUser(supabase, userId)))
+    fail("This session unlocks later — a new week opens every 7 days.");
 
   const { data: existing } = await supabase
     .from("responses")
@@ -356,7 +370,10 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
 
   const members = membersRes.data ?? [];
   const weeks = weeksRes.data ?? [];
-  const currentWeek = settingsRes.data?.current_week ?? 1;
+  const unlockedByMember = new Map(
+    members.map((m) => [m.id, unlockedWeekFor(m.created_at)] as const),
+  );
+  const currentWeek = Math.max(1, ...members.map((m) => unlockedByMember.get(m.id) ?? 1));
   const memberIds = members.map((m) => m.id);
 
   const { data: responses } = memberIds.length
@@ -382,7 +399,11 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       : []
   ).reduce((s, m) => s + m.lessons.length, 0);
 
-  const completedCurrent = rows.filter((r) => r.week_number === currentWeek).length;
+  const completedCurrent = members.filter((m) =>
+    rows.some(
+      (r) => r.user_id === m.id && r.week_number === (unlockedByMember.get(m.id) ?? 1),
+    ),
+  ).length;
   const participation = members.length
     ? Math.round((completedCurrent / members.length) * 100)
     : 0;
@@ -524,7 +545,8 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
           .filter((x): x is string => Boolean(x))
           .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
 
-      const assignedWeekly = weeks.filter((w) => w.week_number <= currentWeek).length;
+      const memberWeek = unlockedByMember.get(p.id) ?? 1;
+      const assignedWeekly = weeks.filter((w) => w.week_number <= memberWeek).length;
       const assignedCustom = publishedAssessments.length;
       const assignedElective = assignedElectiveLessons;
       const assignedTotal = assignedWeekly + assignedCustom + assignedElective;
@@ -537,7 +559,7 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       const daysSinceActive = lastActiveAt
         ? Math.floor((Date.now() - new Date(lastActiveAt).getTime()) / 86_400_000)
         : null;
-      const missedRecentWeekly = !mine.some((r) => r.week_number === currentWeek);
+      const missedRecentWeekly = !mine.some((r) => r.week_number === memberWeek);
 
       // Standardized tiers (mutually exclusive):
       // risk     = accuracy < 50% OR no test completed in the last 14 days
