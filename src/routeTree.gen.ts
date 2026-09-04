@@ -15,10 +15,12 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAssessmentIdRouteImport } from './routes/_authenticated/assessment.$id'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
+import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -52,6 +54,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedElectivesRoute = AuthenticatedElectivesRouteImport.update({
+  id: '/electives',
+  path: '/electives',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHubRoute = AuthenticatedHubRouteImport.update({
   id: '/hub',
   path: '/hub',
@@ -73,6 +80,12 @@ const AuthenticatedSessionWeekRoute =
     id: '/session/$week',
     path: '/session/$week',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedElectivesModuleLessonRoute =
+  AuthenticatedElectivesModuleLessonRouteImport.update({
+    id: '/$module/$lesson',
+    path: '/$module/$lesson',
+    getParentRoute: () => AuthenticatedElectivesRoute,
   } as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
@@ -97,10 +110,12 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -111,10 +126,12 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -127,10 +144,12 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -143,10 +162,12 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/admin'
+    | '/electives'
     | '/hub'
     | '/onboarding'
     | '/assessment/$id'
     | '/session/$week'
+    | '/electives/$module/$lesson'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -157,10 +178,12 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/admin'
+    | '/electives'
     | '/hub'
     | '/onboarding'
     | '/assessment/$id'
     | '/session/$week'
+    | '/electives/$module/$lesson'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -172,10 +195,12 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/_authenticated/admin'
+    | '/_authenticated/electives'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
     | '/_authenticated/assessment/$id'
     | '/_authenticated/session/$week'
+    | '/_authenticated/electives/$module/$lesson'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -236,6 +261,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/electives': {
+      id: '/_authenticated/electives'
+      path: '/electives'
+      fullPath: '/electives'
+      preLoaderRoute: typeof AuthenticatedElectivesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/hub': {
       id: '/_authenticated/hub'
       path: '/hub'
@@ -264,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSessionWeekRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/electives/$module/$lesson': {
+      id: '/_authenticated/electives/$module/$lesson'
+      path: '/$module/$lesson'
+      fullPath: '/electives/$module/$lesson'
+      preLoaderRoute: typeof AuthenticatedElectivesModuleLessonRouteImport
+      parentRoute: typeof AuthenticatedElectivesRoute
+    }
     '/lovable/email/auth/preview': {
       id: '/lovable/email/auth/preview'
       path: '/lovable/email/auth/preview'
@@ -288,8 +327,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedElectivesRouteChildren {
+  AuthenticatedElectivesModuleLessonRoute: typeof AuthenticatedElectivesModuleLessonRoute
+}
+
+const AuthenticatedElectivesRouteChildren: AuthenticatedElectivesRouteChildren =
+  {
+    AuthenticatedElectivesModuleLessonRoute:
+      AuthenticatedElectivesModuleLessonRoute,
+  }
+
+const AuthenticatedElectivesRouteWithChildren =
+  AuthenticatedElectivesRoute._addFileChildren(
+    AuthenticatedElectivesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedElectivesRoute: typeof AuthenticatedElectivesRouteWithChildren
   AuthenticatedHubRoute: typeof AuthenticatedHubRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedAssessmentIdRoute: typeof AuthenticatedAssessmentIdRoute
@@ -298,6 +353,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedElectivesRoute: AuthenticatedElectivesRouteWithChildren,
   AuthenticatedHubRoute: AuthenticatedHubRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedAssessmentIdRoute: AuthenticatedAssessmentIdRoute,

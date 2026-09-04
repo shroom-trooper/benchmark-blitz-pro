@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { AppShell } from "@/components/AppShell";
 import { AssessmentsTab } from "@/components/AssessmentsTab";
+import { ElectivesTab } from "@/components/ElectivesTab";
 
 import {
   getGroupConsole,
@@ -125,6 +126,7 @@ function AdminPage() {
           <TabsList>
             <TabsTrigger value="team">Team</TabsTrigger>
             <TabsTrigger value="assessments">Assessments</TabsTrigger>
+            <TabsTrigger value="electives">Electives</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             {t.isPlatformAdmin ? <TabsTrigger value="curriculum">Curriculum</TabsTrigger> : null}
             {t.isPlatformAdmin ? <TabsTrigger value="settings">Settings</TabsTrigger> : null}
@@ -136,6 +138,10 @@ function AdminPage() {
 
           <TabsContent value="assessments" className="mt-6 space-y-6">
             <AssessmentsTab />
+          </TabsContent>
+
+          <TabsContent value="electives" className="mt-6 space-y-6">
+            <ElectivesTab />
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-6 space-y-6">
