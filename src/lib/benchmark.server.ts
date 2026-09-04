@@ -502,6 +502,8 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       members: members.length,
       currentWeek,
       releasedWeeks: weeks.filter((w) => w.week_number <= currentWeek).length,
+      publishedAssessments: publishedAssessments.length,
+
 
       participation,
       completedCurrent,
