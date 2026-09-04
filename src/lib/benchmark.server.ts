@@ -432,6 +432,7 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       const avgScore = mine.length ? mine.reduce((s, r) => s + r.score, 0) / mine.length : 0;
 
       const myAssessments = aRows.filter((r) => r.user_id === p.id);
+      const myElectives = eRows.filter((r) => r.user_id === p.id);
       const sessions = [
         ...mine
           .slice()
