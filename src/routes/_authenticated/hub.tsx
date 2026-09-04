@@ -133,6 +133,11 @@ function Hub() {
                     </Link>
                   </Button>
                 )}
+                <div className="mt-3">
+                  <Button asChild variant="ghost" size="sm">
+                    <Link to="/electives">Browse elective tracks</Link>
+                  </Button>
+                </div>
               </div>
             </div>
 
