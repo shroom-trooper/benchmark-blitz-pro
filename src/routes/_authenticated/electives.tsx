@@ -75,7 +75,7 @@ function ElectivesPage() {
           return (
             <section key={category} className="space-y-4">
               <div>
-                <h2 className="text-lg">{meta.label}</h2>
+                <h2 className="text-lg">{meta.name}</h2>
                 <p className="text-sm text-body">{meta.blurb}</p>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
