@@ -364,6 +364,24 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
     : { data: [] as never[] };
   const rows = responses ?? [];
 
+  const { data: electiveRows } = memberIds.length
+    ? await supabase
+        .from("elective_responses")
+        .select("*")
+        .in("user_id", memberIds)
+    : { data: [] as never[] };
+  const eRows = electiveRows ?? [];
+  const enabledElectivesRes = await supabase
+    .from("group_electives")
+    .select("module_slug")
+    .eq("group_id", group.id);
+  const enabledElectives = (enabledElectivesRes.data ?? []).map((r) => r.module_slug);
+  const assignedElectiveLessons = (
+    enabledElectives.length
+      ? ELECTIVE_MODULES.filter((m) => enabledElectives.includes(m.slug))
+      : []
+  ).reduce((s, m) => s + m.lessons.length, 0);
+
   const completedCurrent = rows.filter((r) => r.week_number === currentWeek).length;
   const participation = members.length
     ? Math.round((completedCurrent / members.length) * 100)
