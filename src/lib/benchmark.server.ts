@@ -791,3 +791,259 @@ export async function adminUpdateWeekContent(
   if (error) fail(error.message);
   return { ok: true };
 }
+
+/* ------------------------------------------------------------------ */
+/* Elective extension library                                          */
+/* ------------------------------------------------------------------ */
+
+async function electiveAvailability(supabase: DB, userId: string) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("group_id")
+    .eq("id", userId)
+    .maybeSingle();
+  const groupId = profile?.group_id ?? null;
+  if (!groupId) return { groupId: null, enabled: null as string[] | null };
+  const { data } = await supabase
+    .from("group_electives")
+    .select("module_slug")
+    .eq("group_id", groupId);
+  const enabled = (data ?? []).map((r) => r.module_slug);
+  // A group that has not curated a shortlist leaves the whole library open.
+  return { groupId, enabled: enabled.length ? enabled : null };
+}
+
+export async function loadElectives(supabase: DB, userId: string) {
+  const [{ groupId, enabled }, doneRes] = await Promise.all([
+    electiveAvailability(supabase, userId),
+    supabase
+      .from("elective_responses")
+      .select("module_slug, lesson_slug, score, xp_earned, completed_at")
+      .eq("user_id", userId),
+  ]);
+  const completions = doneRes.data ?? [];
+  const doneSlugs = new Set(completions.map((c) => c.lesson_slug));
+
+  const modules = ELECTIVE_MODULES.filter(
+    (m) => !enabled || enabled.includes(m.slug),
+  ).map((m) => ({
+    slug: m.slug,
+    title: m.title,
+    category: m.category,
+    audience: m.audience,
+    summary: m.summary,
+    objectives: m.objectives,
+    artifact: m.artifact,
+    lessons: m.lessons.map((l) => ({
+      slug: l.slug,
+      title: l.title,
+      focus: l.focus,
+      completed: doneSlugs.has(l.slug),
+    })),
+    completed: m.lessons.filter((l) => doneSlugs.has(l.slug)).length,
+    total: m.lessons.length,
+  }));
+
+  return {
+    modules,
+    groupId,
+    curated: Boolean(enabled),
+    completions,
+  };
+}
+
+export async function loadElectiveLesson(
+  supabase: DB,
+  userId: string,
+  moduleSlug: string,
+  lessonSlug: string,
+) {
+  const found = getElectiveLesson(moduleSlug, lessonSlug);
+  if (!found) fail("That elective lesson does not exist.");
+  const { module, lesson } = found;
+
+  const { enabled } = await electiveAvailability(supabase, userId);
+  if (enabled && !enabled.includes(module.slug))
+    fail("Your group lead has not switched on this elective module.");
+
+  const { data: existing } = await supabase
+    .from("elective_responses")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("lesson_slug", lesson.slug)
+    .maybeSingle();
+
+  return {
+    module: {
+      slug: module.slug,
+      title: module.title,
+      category: module.category,
+      audience: module.audience,
+      artifact: module.artifact,
+    },
+    lesson: {
+      slug: lesson.slug,
+      title: lesson.title,
+      focus: lesson.focus,
+    },
+    questions: lesson.questions.map((q, index) => ({
+      index,
+      scenario: q.scenario,
+      options: q.options,
+    })),
+    completed: existing
+      ? {
+          score: existing.score,
+          xpEarned: existing.xp_earned,
+          completedAt: existing.completed_at,
+          answers: existing.answers as number[],
+          review: lesson.questions.map((q, index) => ({
+            index,
+            correctIndex: q.correctIndex,
+            explanation: q.explanation,
+          })),
+        }
+      : null,
+  };
+}
+
+export async function submitElective(
+  supabase: DB,
+  userId: string,
+  moduleSlug: string,
+  lessonSlug: string,
+  answers: number[],
+) {
+  const found = getElectiveLesson(moduleSlug, lessonSlug);
+  if (!found) fail("That elective lesson does not exist.");
+  const { module, lesson } = found;
+
+  const { enabled } = await electiveAvailability(supabase, userId);
+  if (enabled && !enabled.includes(module.slug))
+    fail("Your group lead has not switched on this elective module.");
+
+  const { data: existing } = await supabase
+    .from("elective_responses")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("lesson_slug", lesson.slug)
+    .maybeSingle();
+  if (existing) fail("You have already completed this elective lesson.");
+
+  if (answers.length !== lesson.questions.length) fail("Please answer every question.");
+
+  const results = lesson.questions.map((q, i) => ({
+    index: i,
+    chosen: answers[i]!,
+    correctIndex: q.correctIndex,
+    correct: answers[i] === q.correctIndex,
+    explanation: q.explanation,
+  }));
+  const correctCount = results.filter((r) => r.correct).length;
+
+  // Electives build depth, not the weekly habit: XP and level only, no streak.
+  const xp = computeXp(correctCount, 0);
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!profile) fail("Profile not found.");
+
+  const totalXp = profile.total_xp + xp.total;
+  const newLevel = levelForXp(totalXp).level;
+  const leveledUp = newLevel > profile.level;
+
+  const { error: insErr } = await supabase.from("elective_responses").insert({
+    user_id: userId,
+    module_slug: module.slug,
+    lesson_slug: lesson.slug,
+    answers,
+    score: correctCount,
+    xp_earned: xp.total,
+  });
+  if (insErr) fail(insErr.message);
+
+  const { error: profErr } = await supabase
+    .from("profiles")
+    .update({ total_xp: totalXp, level: newLevel })
+    .eq("id", userId);
+  if (profErr) fail(profErr.message);
+
+  return {
+    results,
+    correctCount,
+    total: lesson.questions.length,
+    xp,
+    totalXp,
+    level: newLevel,
+    leveledUp,
+  };
+}
+
+export async function loadGroupElectives(supabase: DB, userId: string) {
+  const group = await requireGroupOwner(supabase, userId);
+  const { data } = await supabase
+    .from("group_electives")
+    .select("module_slug")
+    .eq("group_id", group.id);
+  const enabled = (data ?? []).map((r) => r.module_slug);
+
+  const memberRes = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("group_id", group.id);
+  const memberIds = (memberRes.data ?? []).map((m) => m.id);
+  const { data: responses } = memberIds.length
+    ? await supabase
+        .from("elective_responses")
+        .select("module_slug, user_id")
+        .in("user_id", memberIds)
+    : { data: [] as { module_slug: string; user_id: string }[] };
+
+  return {
+    enabled,
+    curated: enabled.length > 0,
+    modules: ELECTIVE_MODULES.map((m) => ({
+      slug: m.slug,
+      title: m.title,
+      category: m.category,
+      audience: m.audience,
+      summary: m.summary,
+      objectives: m.objectives,
+      artifact: m.artifact,
+      lessons: m.lessons.map((l) => ({ slug: l.slug, title: l.title, focus: l.focus })),
+      enabled: enabled.includes(m.slug),
+      completions: (responses ?? []).filter((r) => r.module_slug === m.slug).length,
+    })),
+  };
+}
+
+export async function setGroupElective(
+  supabase: DB,
+  userId: string,
+  moduleSlug: string,
+  on: boolean,
+) {
+  const group = await requireGroupOwner(supabase, userId);
+  if (!getElectiveModule(moduleSlug)) fail("Unknown elective module.");
+
+  if (on) {
+    const { error } = await supabase
+      .from("group_electives")
+      .upsert(
+        { group_id: group.id, module_slug: moduleSlug, enabled_by: userId },
+        { onConflict: "group_id,module_slug" },
+      );
+    if (error) fail(error.message);
+  } else {
+    const { error } = await supabase
+      .from("group_electives")
+      .delete()
+      .eq("group_id", group.id)
+      .eq("module_slug", moduleSlug);
+    if (error) fail(error.message);
+  }
+  return { ok: true };
+}
