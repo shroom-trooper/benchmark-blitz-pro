@@ -349,3 +349,56 @@ export const deleteAssessmentQuestion = createServerFn({ method: "POST" })
       data.questionId,
     ),
   );
+
+/* ----------------------- Elective extension library ---------------------- */
+
+const lessonSchema = z.object({
+  moduleSlug: z.string().min(1).max(80),
+  lessonSlug: z.string().min(1).max(80),
+});
+
+export const getElectives = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(({ context }) => svc.loadElectives(context.supabase, context.userId));
+
+export const getElectiveLesson = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => lessonSchema.parse(d))
+  .handler(({ context, data }) =>
+    svc.loadElectiveLesson(
+      context.supabase,
+      context.userId,
+      data.moduleSlug,
+      data.lessonSlug,
+    ),
+  );
+
+export const submitElective = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    lessonSchema
+      .extend({ answers: z.array(z.number().int().min(0).max(5)).min(1).max(10) })
+      .parse(d),
+  )
+  .handler(({ context, data }) =>
+    svc.submitElective(
+      context.supabase,
+      context.userId,
+      data.moduleSlug,
+      data.lessonSlug,
+      data.answers,
+    ),
+  );
+
+export const getGroupElectives = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(({ context }) => svc.loadGroupElectives(context.supabase, context.userId));
+
+export const setGroupElective = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ moduleSlug: z.string().min(1).max(80), on: z.boolean() }).parse(d),
+  )
+  .handler(({ context, data }) =>
+    svc.setGroupElective(context.supabase, context.userId, data.moduleSlug, data.on),
+  );
