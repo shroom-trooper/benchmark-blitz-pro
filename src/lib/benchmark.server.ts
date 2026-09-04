@@ -782,6 +782,22 @@ function friendly(message: string) {
   return message;
 }
 
+async function electiveAvailability(supabase: DB, userId: string) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("group_id")
+    .eq("id", userId)
+    .maybeSingle();
+  const groupId = profile?.group_id ?? null;
+  if (!groupId) return { groupId: null, enabled: null as string[] | null };
+  const { data } = await supabase
+    .from("group_electives")
+    .select("module_slug")
+    .eq("group_id", groupId);
+  const slugs = (data ?? []).map((r) => r.module_slug);
+  return { groupId, enabled: slugs.length ? slugs : null };
+}
+
 export async function loadElectives(supabase: DB, userId: string) {
   const [{ groupId, enabled }, doneRes] = await Promise.all([
     electiveAvailability(supabase, userId),

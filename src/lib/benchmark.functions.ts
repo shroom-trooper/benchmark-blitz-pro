@@ -4,8 +4,10 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 import * as svc from "./benchmark.server";
+import * as asv from "./assessments.server";
 
 const weekSchema = z.object({ week: z.number().int().min(1).max(52) });
+const idSchema = z.object({ id: z.string().uuid() });
 
 export const getMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
