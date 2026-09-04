@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAssessmentIdRouteImport } from './routes/_authenticated/assessment.$id'
@@ -50,6 +51,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedElectivesRoute = AuthenticatedElectivesRouteImport.update({
+  id: '/electives',
+  path: '/electives',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHubRoute = AuthenticatedHubRouteImport.update({
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/electives': typeof AuthenticatedElectivesRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/electives': typeof AuthenticatedElectivesRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/electives': typeof AuthenticatedElectivesRoute
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/assessment/$id': typeof AuthenticatedAssessmentIdRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/admin'
+    | '/electives'
     | '/hub'
     | '/onboarding'
     | '/assessment/$id'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/admin'
+    | '/electives'
     | '/hub'
     | '/onboarding'
     | '/assessment/$id'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/_authenticated/admin'
+    | '/_authenticated/electives'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
     | '/_authenticated/assessment/$id'
@@ -236,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/electives': {
+      id: '/_authenticated/electives'
+      path: '/electives'
+      fullPath: '/electives'
+      preLoaderRoute: typeof AuthenticatedElectivesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/hub': {
       id: '/_authenticated/hub'
       path: '/hub'
@@ -290,6 +309,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedElectivesRoute: typeof AuthenticatedElectivesRoute
   AuthenticatedHubRoute: typeof AuthenticatedHubRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedAssessmentIdRoute: typeof AuthenticatedAssessmentIdRoute
@@ -298,6 +318,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedElectivesRoute: AuthenticatedElectivesRoute,
   AuthenticatedHubRoute: AuthenticatedHubRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedAssessmentIdRoute: AuthenticatedAssessmentIdRoute,
