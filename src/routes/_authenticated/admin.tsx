@@ -4,15 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Fragment, useState } from "react";
 import { AlertTriangle, Users, Activity, CalendarClock, Lock } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { AppShell } from "@/components/AppShell";
 import { AssessmentsTab } from "@/components/AssessmentsTab";
 
