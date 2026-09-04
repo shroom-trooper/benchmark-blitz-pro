@@ -141,51 +141,7 @@ function AdminPage() {
           <TabsContent value="analytics" className="mt-6 space-y-6">
             <MemberAnalytics data={t} />
 
-
-            <Panel title="Accuracy by released week">
-
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={t.weekStats}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis dataKey="week" stroke="var(--muted-foreground)" fontSize={12} />
-                    <YAxis stroke="var(--muted-foreground)" fontSize={12} domain={[0, 100]} />
-                    <Tooltip
-                      contentStyle={{
-                        background: "var(--surface)",
-                        border: "1px solid var(--border)",
-                        borderRadius: 8,
-                        color: "var(--foreground)",
-                      }}
-                    />
-                    <Bar dataKey="accuracy" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Panel>
-
-            <Panel title="Weakest capability areas">
-              <ul className="space-y-3">
-                {t.riskiest.map((w) => (
-                  <li key={w.week} className="flex items-start gap-3 text-sm">
-                    <span className="rounded-md bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive">
-                      {w.accuracy}%
-                    </span>
-                    <span>
-                      <span className="font-medium">Week {w.week}</span> · {w.topic}
-                      <span className="block text-xs text-muted-foreground">
-                        {w.completions} completion{w.completions === 1 ? "" : "s"}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-                {!t.riskiest.length ? (
-                  <li className="text-sm text-muted-foreground">
-                    No completed sessions in your group yet.
-                  </li>
-                ) : null}
-              </ul>
-            </Panel>
+            <ReadinessDonut data={t} />
           </TabsContent>
 
           {t.isPlatformAdmin ? (
