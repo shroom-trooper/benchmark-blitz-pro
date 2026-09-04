@@ -216,16 +216,9 @@ const DONUT_SEGMENTS = [
 function ReadinessDonut({ data }: { data: Console }) {
   const counts = { ready: 0, practice: 0, inactive: 0 };
   for (const u of data.users) {
-    const days = u.lastActiveAt
-      ? Math.floor((Date.now() - new Date(u.lastActiveAt).getTime()) / 86_400_000)
-      : null;
-    if (days === null || days >= 14) {
-      counts.inactive += 1;
-    } else if (u.combinedAccuracy > 80 && !u.missedRecentWeekly) {
-      counts.ready += 1;
-    } else {
-      counts.practice += 1;
-    }
+    if (u.readiness === "risk") counts.inactive += 1;
+    else if (u.readiness === "high") counts.ready += 1;
+    else counts.practice += 1;
   }
   const total = data.users.length;
   const chartData = DONUT_SEGMENTS.map((s) => ({
