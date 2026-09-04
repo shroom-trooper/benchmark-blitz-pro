@@ -5,6 +5,19 @@ import { sendTemplateEmail } from '@/lib/email-templates/send-email'
 
 const SITE_URL = 'https://usebenchmark.app'
 
+async function hasDbCronToken(request: Request) {
+  const match = /^Bearer ([^\s,]+)$/.exec(request.headers.get('authorization') ?? '')
+  const token = match?.[1]
+  if (!token) return false
+  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+  const { data } = await supabaseAdmin
+    .from('cron_tokens')
+    .select('token')
+    .eq('name', 'weekly-unlock')
+    .maybeSingle()
+  return Boolean(data?.token) && data!.token === token
+}
+
 async function run() {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
 
@@ -65,7 +78,7 @@ export const Route = createFileRoute('/api/public/cron/weekly-unlock')({
     handlers: {
       POST: async ({ request }) => {
         const denied = await authenticateCronRequest(request)
-        if (denied) return denied
+        if (denied && !(await hasDbCronToken(request))) return denied
         return Response.json(await run())
       },
     },
