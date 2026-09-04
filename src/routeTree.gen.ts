@@ -19,6 +19,7 @@ import { Route as AuthenticatedElectivesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAssessmentIdRouteImport } from './routes/_authenticated/assessment.$id'
+import { Route as AuthenticatedElectivesIndexRouteImport } from './routes/_authenticated/electives.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -75,6 +76,12 @@ const AuthenticatedAssessmentIdRoute =
     path: '/assessment/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedElectivesIndexRoute =
+  AuthenticatedElectivesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedElectivesRoute,
+  } as any)
 const AuthenticatedSessionWeekRoute =
   AuthenticatedSessionWeekRouteImport.update({
     id: '/session/$week',
@@ -115,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/electives/': typeof AuthenticatedElectivesIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -126,11 +134,11 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/electives': typeof AuthenticatedElectivesIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
   '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/assessment/$id'
     | '/session/$week'
+    | '/electives/'
     | '/electives/$module/$lesson'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -178,11 +188,11 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/reset-password'
     | '/admin'
-    | '/electives'
     | '/hub'
     | '/onboarding'
     | '/assessment/$id'
     | '/session/$week'
+    | '/electives'
     | '/electives/$module/$lesson'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/assessment/$id'
     | '/_authenticated/session/$week'
+    | '/_authenticated/electives/'
     | '/_authenticated/electives/$module/$lesson'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -289,6 +300,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssessmentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/electives/': {
+      id: '/_authenticated/electives/'
+      path: '/'
+      fullPath: '/electives/'
+      preLoaderRoute: typeof AuthenticatedElectivesIndexRouteImport
+      parentRoute: typeof AuthenticatedElectivesRoute
+    }
     '/_authenticated/session/$week': {
       id: '/_authenticated/session/$week'
       path: '/session/$week'
@@ -328,11 +346,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedElectivesRouteChildren {
+  AuthenticatedElectivesIndexRoute: typeof AuthenticatedElectivesIndexRoute
   AuthenticatedElectivesModuleLessonRoute: typeof AuthenticatedElectivesModuleLessonRoute
 }
 
 const AuthenticatedElectivesRouteChildren: AuthenticatedElectivesRouteChildren =
   {
+    AuthenticatedElectivesIndexRoute: AuthenticatedElectivesIndexRoute,
     AuthenticatedElectivesModuleLessonRoute:
       AuthenticatedElectivesModuleLessonRoute,
   }
