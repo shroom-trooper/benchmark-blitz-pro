@@ -167,6 +167,24 @@ export type Database = {
           },
         ]
       }
+      cron_tokens: {
+        Row: {
+          created_at: string
+          name: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          name: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          name?: string
+          token?: string
+        }
+        Relationships: []
+      }
       curriculum_weeks: {
         Row: {
           created_at: string
@@ -577,6 +595,27 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_unlock_emails: {
+        Row: {
+          id: string
+          sent_at: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          id?: string
+          sent_at?: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          id?: string
+          sent_at?: string
+          user_id?: string
+          week_number?: number
         }
         Relationships: []
       }

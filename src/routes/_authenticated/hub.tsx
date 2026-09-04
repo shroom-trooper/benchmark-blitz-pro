@@ -86,7 +86,7 @@ function Hub() {
     );
   }
 
-  const currentWeek = me.settings?.current_week ?? 1;
+  const currentWeek = me.unlockedWeek ?? 1;
   const completedWeeks = new Set(me.responses.map((r) => r.week_number));
   const weeks = weeksQuery.data ?? [];
   const current = weeks.find((w) => w.week_number === currentWeek);
@@ -133,11 +133,23 @@ function Hub() {
                     </Link>
                   </Button>
                 )}
+                {me.nextUnlockAt ? (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Week {currentWeek + 1} unlocks{" "}
+                    {new Date(me.nextUnlockAt).toLocaleDateString(undefined, {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "short",
+                    })}{" "}
+                    — we'll email you when it opens.
+                  </p>
+                ) : null}
                 <div className="mt-3">
                   <Button asChild variant="ghost" size="sm">
                     <Link to="/electives">Browse elective tracks</Link>
                   </Button>
                 </div>
+
               </div>
             </div>
 
