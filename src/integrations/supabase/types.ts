@@ -171,6 +171,7 @@ export type Database = {
         Row: {
           created_at: string
           fact: string
+          focus: string
           quarter: number
           status: string
           topic: string
@@ -179,6 +180,7 @@ export type Database = {
         Insert: {
           created_at?: string
           fact: string
+          focus?: string
           quarter: number
           status?: string
           topic: string
@@ -187,12 +189,75 @@ export type Database = {
         Update: {
           created_at?: string
           fact?: string
+          focus?: string
           quarter?: number
           status?: string
           topic?: string
           week_number?: number
         }
         Relationships: []
+      }
+      elective_responses: {
+        Row: {
+          answers: Json
+          completed_at: string
+          id: string
+          lesson_slug: string
+          module_slug: string
+          score: number
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          answers: Json
+          completed_at?: string
+          id?: string
+          lesson_slug: string
+          module_slug: string
+          score: number
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          id?: string
+          lesson_slug?: string
+          module_slug?: string
+          score?: number
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
+      }
+      group_electives: {
+        Row: {
+          created_at: string
+          enabled_by: string | null
+          group_id: string
+          module_slug: string
+        }
+        Insert: {
+          created_at?: string
+          enabled_by?: string | null
+          group_id: string
+          module_slug: string
+        }
+        Update: {
+          created_at?: string
+          enabled_by?: string | null
+          group_id?: string
+          module_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_electives_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       groups: {
         Row: {
