@@ -114,8 +114,11 @@ function LeaderboardPage() {
                   sub={`Lvl ${p.level} ${levelForXp(p.totalXp).title}`}
                   streak={p.streak}
                   xp={p.totalXp}
+                  highlight={p.id === myId}
+                  onShare={p.id === myId ? () => setShareOpen(true) : undefined}
                 />
               ))}
+
               {!publicBoard.data?.players.length ? (
                 <p className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-body">
                   No one has completed a simulation yet. Be first.
