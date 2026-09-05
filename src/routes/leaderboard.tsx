@@ -156,6 +156,8 @@ function LeaderboardPage() {
           </div>
         ) : null}
       </main>
+
+      {shareOpen ? <ShareAchievementModal onClose={() => setShareOpen(false)} /> : null}
     </div>
   );
 }
@@ -167,6 +169,7 @@ function Row({
   streak,
   xp,
   highlight,
+  onShare,
 }: {
   rank: number;
   name: string;
@@ -174,10 +177,11 @@ function Row({
   streak: number;
   xp: number;
   highlight?: boolean;
+  onShare?: () => void;
 }) {
   return (
     <div
-      className={`flex items-center gap-4 rounded-xl border p-4 ${
+      className={`flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border p-4 ${
         highlight ? "border-primary/50 bg-primary/10" : "border-border bg-surface"
       }`}
     >
@@ -186,6 +190,11 @@ function Row({
         <p className="truncate font-medium">{name}</p>
         <p className="text-xs text-muted-foreground">{sub}</p>
       </div>
+      {onShare ? (
+        <Button size="sm" variant="outline" className="order-last sm:order-none" onClick={onShare}>
+          <Share2 className="size-3.5" /> Share rank
+        </Button>
+      ) : null}
       <div className="ml-auto flex items-center gap-5 text-sm">
         <span className="flex items-center gap-1 text-warning">
           <Flame className="size-4" />
@@ -198,6 +207,7 @@ function Row({
       </div>
     </div>
   );
+
 }
 
 function RankBadge({ rank }: { rank: number }) {
