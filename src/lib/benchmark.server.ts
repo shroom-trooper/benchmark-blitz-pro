@@ -786,17 +786,23 @@ async function electiveAvailability(supabase: DB, userId: string) {
     .eq("id", userId)
     .maybeSingle();
   const groupId = profile?.group_id ?? null;
-  if (!groupId) return { groupId: null, enabled: null as string[] | null };
+  if (!groupId) return { groupId: null, enabled: null as string[] | null, isLeader: false };
+  const { data: owned } = await supabase
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (owned) return { groupId, enabled: null as string[] | null, isLeader: true };
   const { data } = await supabase
     .from("group_electives")
     .select("module_slug")
     .eq("group_id", groupId);
   const slugs = (data ?? []).map((r) => r.module_slug);
-  return { groupId, enabled: slugs.length ? slugs : null };
+  return { groupId, enabled: slugs.length ? slugs : null, isLeader: false };
 }
 
 export async function loadElectives(supabase: DB, userId: string) {
-  const [{ groupId, enabled }, doneRes] = await Promise.all([
+  const [{ groupId, enabled, isLeader }, doneRes] = await Promise.all([
     electiveAvailability(supabase, userId),
     supabase
       .from("elective_responses")
@@ -827,9 +833,10 @@ export async function loadElectives(supabase: DB, userId: string) {
   }));
 
   return {
-    modules,
+    modules: isLeader ? [] : modules,
     groupId,
     curated: Boolean(enabled),
+    isLeader,
     completions,
   };
 }
@@ -844,7 +851,9 @@ export async function loadElectiveLesson(
   if (!found) fail("That elective lesson does not exist.");
   const { module, lesson } = found;
 
-  const { enabled } = await electiveAvailability(supabase, userId);
+  const { enabled, isLeader } = await electiveAvailability(supabase, userId);
+  if (isLeader)
+    fail("Elective tracks are for your group members, not group leads.");
   if (enabled && !enabled.includes(module.slug))
     fail("Your group lead has not switched on this elective module.");
 
@@ -900,7 +909,9 @@ export async function submitElective(
   if (!found) fail("That elective lesson does not exist.");
   const { module, lesson } = found;
 
-  const { enabled } = await electiveAvailability(supabase, userId);
+  const { enabled, isLeader } = await electiveAvailability(supabase, userId);
+  if (isLeader)
+    fail("Elective tracks are for your group members, not group leads.");
   if (enabled && !enabled.includes(module.slug))
     fail("Your group lead has not switched on this elective module.");
 
