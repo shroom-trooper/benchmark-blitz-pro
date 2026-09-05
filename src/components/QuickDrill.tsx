@@ -257,7 +257,7 @@ function SprintOverlay({ onClose }: { onClose: () => void }) {
           <p className="py-10 text-center text-sm text-muted-foreground">
             Shuffling your question deck…
           </p>
-        ) : summary && feedback === null ? null : summary ? (
+        ) : summary && !feedback ? (
           <SprintResult summary={summary} onClose={onClose} />
         ) : question ? (
           <div>
