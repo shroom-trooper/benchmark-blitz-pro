@@ -182,8 +182,6 @@ function Hub() {
           <QuickDrillCard />
         </div>
 
-        {done ? <SprintBanner /> : null}
-
         {current ? (
           <section className="flex gap-4 rounded-xl border border-warning/30 bg-warning/10 p-5">
             <Lightbulb className="mt-0.5 size-5 shrink-0 text-warning" />
