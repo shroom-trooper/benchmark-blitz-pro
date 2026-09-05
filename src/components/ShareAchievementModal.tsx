@@ -45,7 +45,7 @@ export function ShareAchievementModal({ onClose }: { onClose: () => void }) {
     if (!data || png || !cardRef.current) return;
     let cancelled = false;
     const node = cardRef.current;
-    void toPng(node, { width: CARD_W, height: CARD_H, pixelRatio: 1, cacheBust: true })
+    void toPng(node, { width: CARD_W, height: CARD_H, pixelRatio: 1, cacheBust: true, skipFonts: true })
       .then((url) => {
         if (cancelled) return;
         setPng(url);
