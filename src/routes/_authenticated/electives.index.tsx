@@ -78,7 +78,13 @@ function ElectivesPage() {
                 <h2 className="text-xl font-semibold text-foreground">{meta.name}</h2>
                 <p className="text-sm text-body">{meta.blurb}</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+              <div
+                className={
+                  modules.length === 1
+                    ? "mx-auto grid w-full max-w-2xl grid-cols-1 gap-6"
+                    : "grid grid-cols-1 gap-6 md:grid-cols-2"
+                }
+              >
                 {modules.map((m) => (
                   <article
                     key={m.slug}
