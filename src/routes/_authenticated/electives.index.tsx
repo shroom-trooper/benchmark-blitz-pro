@@ -75,10 +75,10 @@ function ElectivesPage() {
           return (
             <section key={category} className="space-y-4">
               <div>
-                <h2 className="text-lg">{meta.name}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{meta.name}</h2>
                 <p className="text-sm text-body">{meta.blurb}</p>
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 {modules.map((m) => (
                   <article
                     key={m.slug}
