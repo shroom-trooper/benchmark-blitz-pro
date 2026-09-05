@@ -18,7 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppShell, useMe } from "@/components/AppShell";
-import { QuickDrillCard, SprintBanner, useSprintStats } from "@/components/QuickDrill";
+import { QuickDrillCard, useSprintStats } from "@/components/QuickDrill";
 import { supabase } from "@/integrations/supabase/client";
 import {
   acceptInvite,
