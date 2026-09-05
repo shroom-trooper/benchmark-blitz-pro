@@ -53,18 +53,18 @@ function ElectivesPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-5xl space-y-10">
-        <header>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <header className="space-y-2">
           <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
             Elective library
           </Badge>
-          <h1 className="mt-3 text-2xl">Go deeper than the weekly habit</h1>
-          <p className="mt-2 max-w-2xl text-body">
+          <h1 className="text-3xl font-bold text-foreground">Go deeper than the weekly habit</h1>
+          <p className="max-w-2xl text-body">
             Specialist tracks that layer on top of your 52-week core pathway. Each lesson
             is three scenarios and earns XP without affecting your weekly streak.
           </p>
           {data.curated ? (
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Your group lead has selected the tracks below for your team.
             </p>
           ) : null}
@@ -75,10 +75,10 @@ function ElectivesPage() {
           return (
             <section key={category} className="space-y-4">
               <div>
-                <h2 className="text-lg">{meta.name}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{meta.name}</h2>
                 <p className="text-sm text-body">{meta.blurb}</p>
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 {modules.map((m) => (
                   <article
                     key={m.slug}
