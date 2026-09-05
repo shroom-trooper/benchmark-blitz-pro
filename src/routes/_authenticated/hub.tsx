@@ -18,7 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppShell, useMe } from "@/components/AppShell";
-import { QuickDrillCard, SprintBanner, useSprintStats } from "@/components/QuickDrill";
+import { QuickDrillCard, useSprintStats } from "@/components/QuickDrill";
 import { supabase } from "@/integrations/supabase/client";
 import {
   acceptInvite,
@@ -181,8 +181,6 @@ function Hub() {
 
           <QuickDrillCard />
         </div>
-
-        {done ? <SprintBanner /> : null}
 
         {current ? (
           <section className="flex gap-4 rounded-xl border border-warning/30 bg-warning/10 p-5">
