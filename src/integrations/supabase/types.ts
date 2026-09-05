@@ -395,8 +395,11 @@ export type Database = {
           id: string
           last_completed_at: string | null
           last_completed_week: number | null
+          last_sprint_date: string | null
           level: number
+          longest_sprint_streak: number
           longest_streak: number
+          sprint_streak: number
           total_xp: number
         }
         Insert: {
@@ -409,8 +412,11 @@ export type Database = {
           id: string
           last_completed_at?: string | null
           last_completed_week?: number | null
+          last_sprint_date?: string | null
           level?: number
+          longest_sprint_streak?: number
           longest_streak?: number
+          sprint_streak?: number
           total_xp?: number
         }
         Update: {
@@ -423,8 +429,11 @@ export type Database = {
           id?: string
           last_completed_at?: string | null
           last_completed_week?: number | null
+          last_sprint_date?: string | null
           level?: number
+          longest_sprint_streak?: number
           longest_streak?: number
+          sprint_streak?: number
           total_xp?: number
         }
         Relationships: [
@@ -518,6 +527,48 @@ export type Database = {
             referencedColumns: ["week_number"]
           },
         ]
+      }
+      sprint_sessions: {
+        Row: {
+          answers: Json
+          completed_at: string | null
+          difficulty: string
+          id: string
+          questions: Json
+          score: number
+          started_at: string
+          status: string
+          total: number
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string | null
+          difficulty?: string
+          id?: string
+          questions: Json
+          score?: number
+          started_at?: string
+          status?: string
+          total: number
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string | null
+          difficulty?: string
+          id?: string
+          questions?: Json
+          score?: number
+          started_at?: string
+          status?: string
+          total?: number
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
       }
       upgrade_interest: {
         Row: {
