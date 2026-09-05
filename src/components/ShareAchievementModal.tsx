@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toPng } from "html-to-image";
-import { Check, Copy, Download, Linkedin, Loader2, Share2, X } from "lucide-react";
+import { Check, Copy, Download, Facebook, Linkedin, Loader2, Share2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -127,34 +127,36 @@ export function ShareAchievementModal({ onClose }: { onClose: () => void }) {
           </div>
         ) : null}
 
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <Button
-            variant="default"
-            disabled={!shareUrl}
-            onClick={() => {
-              window.open(
-                `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-                "_blank",
-                "noopener,noreferrer",
-              );
-              afterShare("linkedin");
-            }}
-          >
-            <Linkedin className="size-4" /> LinkedIn
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          <Button asChild variant="default" disabled={!shareUrl}>
+            <a
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => afterShare("linkedin")}
+            >
+              <Linkedin className="size-4" /> LinkedIn
+            </a>
           </Button>
-          <Button
-            variant="outline"
-            disabled={!shareUrl}
-            onClick={() => {
-              window.open(
-                `https://twitter.com/intent/tweet?text=${encodeURIComponent(HOOK)}&url=${encodeURIComponent(shareUrl)}`,
-                "_blank",
-                "noopener,noreferrer",
-              );
-              afterShare("twitter");
-            }}
-          >
-            <Share2 className="size-4" /> Twitter/X
+          <Button asChild variant="outline" disabled={!shareUrl}>
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(HOOK)}&url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => afterShare("twitter")}
+            >
+              <Share2 className="size-4" /> Twitter/X
+            </a>
+          </Button>
+          <Button asChild variant="outline" disabled={!shareUrl}>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => afterShare("facebook")}
+            >
+              <Facebook className="size-4" /> Facebook
+            </a>
           </Button>
           <Button
             variant="outline"
