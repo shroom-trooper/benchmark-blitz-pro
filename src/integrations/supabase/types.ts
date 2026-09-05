@@ -399,6 +399,9 @@ export type Database = {
           level: number
           longest_sprint_streak: number
           longest_streak: number
+          share_bonus_awarded: boolean
+          share_card_url: string | null
+          share_slug: string | null
           sprint_streak: number
           total_xp: number
         }
@@ -416,6 +419,9 @@ export type Database = {
           level?: number
           longest_sprint_streak?: number
           longest_streak?: number
+          share_bonus_awarded?: boolean
+          share_card_url?: string | null
+          share_slug?: string | null
           sprint_streak?: number
           total_xp?: number
         }
@@ -433,6 +439,9 @@ export type Database = {
           level?: number
           longest_sprint_streak?: number
           longest_streak?: number
+          share_bonus_awarded?: boolean
+          share_card_url?: string | null
+          share_slug?: string | null
           sprint_streak?: number
           total_xp?: number
         }
@@ -688,6 +697,19 @@ export type Database = {
           total_xp: number
         }[]
       }
+      get_public_profile: {
+        Args: { p_slug: string }
+        Returns: {
+          current_streak: number
+          display_name: string
+          level: number
+          longest_streak: number
+          rank: number
+          share_card_url: string
+          total_players: number
+          total_xp: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -701,6 +723,7 @@ export type Database = {
       }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
       leave_group: { Args: never; Returns: undefined }
+      make_share_slug: { Args: { _seed: string }; Returns: string }
     }
     Enums: {
       app_role: "ta_admin" | "hiring_manager"
