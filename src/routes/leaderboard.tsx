@@ -2,13 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Flame, Medal, Trophy, Zap } from "lucide-react";
+import { Flame, Medal, Share2, Trophy, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getGroupLeaderboard, getPublicLeaderboard } from "@/lib/benchmark.functions";
 import { levelForXp } from "@/lib/gamification";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { ShareAchievementModal } from "@/components/ShareAchievementModal";
+
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
