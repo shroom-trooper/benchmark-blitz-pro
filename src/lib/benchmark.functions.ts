@@ -333,3 +333,41 @@ export const setGroupElective = createServerFn({ method: "POST" })
   .handler(({ context, data }) =>
     svc.setGroupElective(context.supabase, context.userId, data.moduleSlug, data.on),
   );
+
+/* ---------- Quick Drill / Random Sprint ---------- */
+
+export const getSprintStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sp = await import("./sprints.server");
+    return sp.loadSprintStats(context.supabase, context.userId);
+  });
+
+export const startSprint = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sp = await import("./sprints.server");
+    return sp.startSprint(context.supabase, context.userId);
+  });
+
+export const answerSprint = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        sessionId: z.string().uuid(),
+        index: z.number().int().min(0).max(9),
+        choice: z.number().int().min(0).max(5).nullable(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const sp = await import("./sprints.server");
+    return sp.answerSprint(
+      context.supabase,
+      context.userId,
+      data.sessionId,
+      data.index,
+      data.choice,
+    );
+  });

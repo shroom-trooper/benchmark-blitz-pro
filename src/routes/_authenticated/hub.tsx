@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppShell, useMe } from "@/components/AppShell";
+import { QuickDrillCard, SprintBanner, useSprintStats } from "@/components/QuickDrill";
 import { supabase } from "@/integrations/supabase/client";
 import {
   acceptInvite,
@@ -66,6 +67,7 @@ const ICONS: Record<string, LucideIcon> = {
 
 function Hub() {
   const { data: me, isLoading } = useMe();
+  const { data: sprintStats } = useSprintStats();
   const weeksQuery = useQuery({
     queryKey: ["weeks"],
     queryFn: async () => {
@@ -103,7 +105,9 @@ function Hub() {
   return (
     <AppShell>
       <div className="space-y-8">
-        <section className="rounded-2xl border border-border bg-gradient-to-br from-surface to-surface-2 p-6 sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-3">
+        <section className="rounded-2xl border border-border bg-gradient-to-br from-surface to-surface-2 p-6 sm:p-8 lg:col-span-2">
+
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div className="max-w-xl">
               <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
@@ -175,6 +179,11 @@ function Hub() {
           </div>
         </section>
 
+          <QuickDrillCard />
+        </div>
+
+        {done ? <SprintBanner /> : null}
+
         {current ? (
           <section className="flex gap-4 rounded-xl border border-warning/30 bg-warning/10 p-5">
             <Lightbulb className="mt-0.5 size-5 shrink-0 text-warning" />
@@ -185,12 +194,16 @@ function Hub() {
           </section>
         ) : null}
 
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <Stat label="Current streak" value={`${me.profile?.current_streak ?? 0} wks`} />
           <Stat label="Longest streak" value={`${me.profile?.longest_streak ?? 0} wks`} />
           <Stat label="Sessions completed" value={String(me.responses.length)} />
           <Stat label="Decision accuracy" value={`${accuracy}%`} />
+          <Stat label="Sprints completed" value={String(sprintStats?.totalSprints ?? 0)} />
+          <Stat label="Daily practice streak" value={`${sprintStats?.dailyStreak ?? 0} d`} />
         </section>
+
+
 
         <GroupPanel
           group={me.group}

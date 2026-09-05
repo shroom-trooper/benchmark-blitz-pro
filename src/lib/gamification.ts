@@ -105,3 +105,16 @@ export function nextUnlockAt(createdAt: string | null | undefined): string | nul
   if (week >= TOTAL_WEEKS) return null;
   return new Date(start + week * 7 * 86_400_000).toISOString();
 }
+
+/* ---------- Quick Drill / Random Sprint scoring ---------- */
+
+export const SPRINT_XP_PER_CORRECT = 20;
+export const SPRINT_PERFECT_BONUS = 10;
+export const SPRINT_SECONDS_PER_QUESTION = 45;
+
+/** Daily practice streak multiplier: 3 days = 1.25x, 7 days = 1.5x. */
+export function sprintMultiplier(dailyStreak: number): number {
+  if (dailyStreak >= 7) return 1.5;
+  if (dailyStreak >= 3) return 1.25;
+  return 1;
+}
