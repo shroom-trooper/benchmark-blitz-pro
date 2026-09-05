@@ -34,7 +34,7 @@ function Landing() {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-void">
+    <div className="min-h-dvh overflow-x-clip bg-void">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
         <div className="flex items-center gap-2">
           <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
