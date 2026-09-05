@@ -500,7 +500,9 @@ export async function listMemberAssessments(supabase: DB, userId: string) {
     .select("id")
     .eq("owner_id", userId)
     .maybeSingle();
-  const groupId = profile?.group_id ?? owned?.id ?? null;
+  // Group leads administer assessments; they do not take them.
+  if (owned) return { assessments: [] };
+  const groupId = profile?.group_id ?? null;
   if (!groupId) return { assessments: [] };
 
   const { data: rows } = await supabase
