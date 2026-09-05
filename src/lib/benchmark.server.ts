@@ -364,7 +364,8 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       .order("created_at", { ascending: false }),
   ]);
 
-  const members = membersRes.data ?? [];
+  // The lead administers the group; their own training is not part of group analytics.
+  const members = (membersRes.data ?? []).filter((m) => m.id !== group.owner_id);
   const weeks = weeksRes.data ?? [];
   const unlockedByMember = new Map(
     members.map((m) => [m.id, unlockedWeekFor(m.created_at)] as const),
