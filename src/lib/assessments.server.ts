@@ -500,7 +500,9 @@ export async function listMemberAssessments(supabase: DB, userId: string) {
     .select("id")
     .eq("owner_id", userId)
     .maybeSingle();
-  const groupId = profile?.group_id ?? owned?.id ?? null;
+  // Group leads administer assessments; they do not take them.
+  if (owned) return { assessments: [] };
+  const groupId = profile?.group_id ?? null;
   if (!groupId) return { assessments: [] };
 
   const { data: rows } = await supabase
@@ -545,6 +547,13 @@ export async function loadAssessment(supabase: DB, userId: string, id: string) {
     .maybeSingle();
   if (!assessment || assessment.status !== "published")
     fail("That assessment is not available.");
+
+  const { data: leadsGroup } = await supabase
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (leadsGroup) fail("Group leads administer assessments and don't take them.");
 
   const { data: questions } = await supabase
     .from("assessment_questions")
@@ -601,6 +610,13 @@ export async function submitAssessment(
     .maybeSingle();
   if (!assessment || assessment.status !== "published")
     fail("That assessment is not available.");
+
+  const { data: ownedGroup } = await supabase
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (ownedGroup) fail("Group leads administer assessments and don't take them.");
 
   const { data: existing } = await supabase
     .from("assessment_responses")

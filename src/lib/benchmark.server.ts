@@ -330,6 +330,8 @@ export async function loadGroupLeaderboard(supabase: DB, userId: string) {
     .eq("group_id", profile.group_id);
 
   const ranked = (members ?? [])
+    // The group lead administers the group and is not ranked with members.
+    .filter((p) => p.id !== group?.owner_id)
     .map((p) => ({
       id: p.id,
       name: p.display_name || p.full_name || p.email.split("@")[0]!,
@@ -362,7 +364,8 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       .order("created_at", { ascending: false }),
   ]);
 
-  const members = membersRes.data ?? [];
+  // The lead administers the group; their own training is not part of group analytics.
+  const members = (membersRes.data ?? []).filter((m) => m.id !== group.owner_id);
   const weeks = weeksRes.data ?? [];
   const unlockedByMember = new Map(
     members.map((m) => [m.id, unlockedWeekFor(m.created_at)] as const),
