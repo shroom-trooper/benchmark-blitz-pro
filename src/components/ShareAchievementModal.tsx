@@ -60,10 +60,11 @@ export function ShareAchievementModal({ onClose }: { onClose: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, png]);
 
-  const shareUrl =
-    typeof window !== "undefined" && data?.slug
-      ? `${window.location.origin}/p/${data.slug}`
-      : "";
+  // Always share the public production URL — the preview origin is login-gated,
+  // so LinkedIn/Twitter crawlers (and recipients) get a blocked page.
+  const SHARE_BASE =
+    (import.meta.env["VITE_SITE_URL"] as string | undefined) ?? "https://usebenchmark.app";
+  const shareUrl = data?.slug ? `${SHARE_BASE}/p/${data.slug}` : "";
 
   const afterShare = useCallback(
     (channel: string) => {
