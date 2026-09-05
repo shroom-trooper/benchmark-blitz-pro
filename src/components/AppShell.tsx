@@ -64,13 +64,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <div className="ml-auto flex items-center gap-4">
             <div className="hidden min-w-44 sm:block">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">
+              <div className="mb-1.5 flex items-center justify-between gap-3 text-sm font-medium">
+                <span className="truncate text-foreground">
                   Lvl {lp.current.level} · {lp.current.title}
                 </span>
-                <span>{xp} XP</span>
+                <span className="shrink-0 text-muted-foreground">{xp} XP</span>
               </div>
-              <Progress value={lp.pct} className="mt-1 h-1.5" />
+              <Progress value={lp.pct} className="h-2 w-full" />
             </div>
             <div className="flex items-center gap-1 rounded-full bg-warning/15 px-3 py-1 text-sm font-semibold text-warning">
               <Flame className="size-4" />
