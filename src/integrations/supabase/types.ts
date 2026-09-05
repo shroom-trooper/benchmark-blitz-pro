@@ -537,6 +537,24 @@ export type Database = {
           },
         ]
       }
+      share_cards: {
+        Row: {
+          png_base64: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          png_base64: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          png_base64?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sprint_sessions: {
         Row: {
           answers: Json
@@ -710,6 +728,7 @@ export type Database = {
           total_xp: number
         }[]
       }
+      get_share_card: { Args: { p_slug: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
