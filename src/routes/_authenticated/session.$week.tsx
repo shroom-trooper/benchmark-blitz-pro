@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
 import { getWeek, submitWeek } from "@/lib/benchmark.functions";
 import { track } from "@/lib/analytics";
 import { QUARTER_THEMES, quarterForWeek } from "@/lib/gamification";
@@ -238,6 +239,16 @@ function ResultView({
   result: SubmitResult;
   data: Awaited<ReturnType<typeof getWeek>>;
 }) {
+  const catalogQuery = useQuery({
+    queryKey: ["achievements-catalog"],
+    queryFn: async () => {
+      const { data } = await supabase.from("achievements").select("code, name");
+      return data ?? [];
+    },
+    staleTime: Infinity,
+  });
+  const nameFor = (code: string) =>
+    catalogQuery.data?.find((a) => a.code === code)?.name ?? code;
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl space-y-6">
