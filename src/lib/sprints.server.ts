@@ -237,10 +237,11 @@ export async function answerSprint(
   answers.push(choice);
 
   const correct = choice === q.correctIndex;
-  const score = answers.reduce(
+  const score = answers.reduce<number>(
     (s, a, i) => s + (a !== null && a === questions[i]!.correctIndex ? 1 : 0),
     0,
   );
+
   const finished = answers.length === questions.length;
 
   if (!finished) {
