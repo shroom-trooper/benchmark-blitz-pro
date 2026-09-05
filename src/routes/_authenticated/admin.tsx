@@ -302,6 +302,7 @@ function MemberAnalytics({ data }: { data: Console }) {
                 <th className="py-2 pr-4 font-medium">Combined accuracy</th>
                 <th className="py-2 pr-4 font-medium">Weekly tests</th>
                 <th className="py-2 pr-4 font-medium">Custom tests</th>
+                <th className="py-2 pr-4 font-medium">Quick Drills</th>
                 <th className="py-2 font-medium">Last active</th>
               </tr>
             </thead>
@@ -359,13 +360,19 @@ function MemberAnalytics({ data }: { data: Console }) {
                           ({u.customAvgAccuracy}%)
                         </span>
                       </td>
+                      <td className="py-3 pr-4 whitespace-nowrap">
+                        {u.sprintCompletions}{" "}
+                        <span className="text-xs text-muted-foreground">
+                          ({u.sprintAccuracy}%)
+                        </span>
+                      </td>
                       <td className="py-3 whitespace-nowrap text-muted-foreground">
                         {timeAgo(u.lastActiveAt)}
                       </td>
                     </tr>
                     {isOpen ? (
                       <tr className="border-b border-border/60 last:border-0">
-                        <td colSpan={7} className="bg-muted/20 px-3 py-4">
+                        <td colSpan={8} className="bg-muted/20 px-3 py-4">
 
                           {totalSessions ? (
                             <div className="grid gap-6 md:grid-cols-2">
