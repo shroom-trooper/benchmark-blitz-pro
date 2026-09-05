@@ -385,6 +385,15 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         .in("user_id", memberIds)
     : { data: [] as never[] };
   const eRows = electiveRows ?? [];
+
+  const { data: sprintRows } = memberIds.length
+    ? await supabase
+        .from("sprint_sessions")
+        .select("user_id, score, total, completed_at")
+        .in("user_id", memberIds)
+        .eq("status", "completed")
+    : { data: [] as never[] };
+  const sRows = sprintRows ?? [];
   const enabledElectivesRes = await supabase
     .from("group_electives")
     .select("module_slug")
@@ -451,6 +460,7 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
 
       const myAssessments = aRows.filter((r) => r.user_id === p.id);
       const myElectives = eRows.filter((r) => r.user_id === p.id);
+      const mySprints = sRows.filter((r) => r.user_id === p.id);
       const sessions = [
         ...mine
           .slice()
@@ -489,6 +499,15 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
             completedAt: r.completed_at,
           };
         }),
+        ...mySprints.map((r) => ({
+          kind: "sprint" as const,
+          label: "Quick Drill",
+          topic: "Random practice sprint",
+          score: r.score,
+          total: r.total,
+          accuracy: r.total ? Math.round((r.score / r.total) * 100) : 0,
+          completedAt: r.completed_at ?? new Date().toISOString(),
+        })),
       ].sort(
         (a, b) => new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime(),
       );
@@ -502,10 +521,15 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       const customCorrect = myAssessments.reduce((s, r) => s + r.score, 0);
       const electiveQuestions = myElectives.length * 3;
       const electiveCorrect = myElectives.reduce((s, r) => s + r.score, 0);
-      const totalQuestions = weeklyQuestions + customQuestions + electiveQuestions;
+      const sprintQuestions = mySprints.reduce((s2, r) => s2 + r.total, 0);
+      const sprintCorrect = mySprints.reduce((s2, r) => s2 + r.score, 0);
+      const totalQuestions =
+        weeklyQuestions + customQuestions + electiveQuestions + sprintQuestions;
       const combinedAccuracy = totalQuestions
         ? Math.round(
-            ((weeklyCorrect + customCorrect + electiveCorrect) / totalQuestions) * 100,
+            ((weeklyCorrect + customCorrect + electiveCorrect + sprintCorrect) /
+              totalQuestions) *
+              100,
           )
         : 0;
       const overallAccuracy = combinedAccuracy;
@@ -537,8 +561,18 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
             null,
           )
         : null;
+      const lastSprintAt = mySprints.length
+        ? mySprints.reduce<string | null>(
+            (acc, r) =>
+              r.completed_at &&
+              (!acc || new Date(r.completed_at).getTime() > new Date(acc).getTime())
+                ? r.completed_at
+                : acc,
+            null,
+          )
+        : null;
       const lastActiveAt =
-        [lastWeeklyAt, lastCustomAt, lastElectiveAt]
+        [lastWeeklyAt, lastCustomAt, lastElectiveAt, lastSprintAt]
           .filter((x): x is string => Boolean(x))
           .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
 
@@ -604,7 +638,13 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
         weeklyQuestions,
         customCorrect,
         customQuestions,
-        totalCorrect: weeklyCorrect + customCorrect + electiveCorrect,
+        sprintCompletions: mySprints.length,
+        sprintCorrect,
+        sprintQuestions,
+        sprintAccuracy: sprintQuestions
+          ? Math.round((sprintCorrect / sprintQuestions) * 100)
+          : 0,
+        totalCorrect: weeklyCorrect + customCorrect + electiveCorrect + sprintCorrect,
         totalQuestions,
         combinedAccuracy,
         electiveCompletions: myElectives.length,
