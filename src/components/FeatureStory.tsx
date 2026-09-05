@@ -65,7 +65,7 @@ function FeatureRow({
   index,
 }: (typeof SECTIONS)[number] & { index: number }) {
   return (
-    <section className="grid min-h-[85vh] grid-cols-1 items-center gap-12 py-24 lg:grid-cols-12 lg:gap-16 md:py-36">
+    <section className="grid min-h-[85vh] grid-cols-1 items-center gap-8 py-24 md:py-36 lg:grid-cols-12 lg:gap-16">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -91,9 +91,9 @@ function FeatureRow({
       >
         <div
           aria-hidden
-          className={`pointer-events-none absolute -inset-10 rounded-[3rem] bg-gradient-to-br blur-2xl ${glow}`}
+          className={`pointer-events-none absolute -inset-3 rounded-[3rem] bg-gradient-to-br blur-2xl sm:-inset-10 ${glow}`}
         />
-        <div className="relative rounded-3xl border border-white/10 bg-slate-900/50 p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
+        <div className="relative rounded-3xl border border-white/10 bg-slate-900/50 p-5 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl sm:p-8">
           {index === 0 && <StageRoadmap />}
           {index === 1 && <StageSim />}
           {index === 2 && <StageStreak />}
