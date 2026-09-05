@@ -604,6 +604,13 @@ export async function submitAssessment(
   if (!assessment || assessment.status !== "published")
     fail("That assessment is not available.");
 
+  const { data: ownedGroup } = await supabase
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (ownedGroup) fail("Group leads administer assessments and don't take them.");
+
   const { data: existing } = await supabase
     .from("assessment_responses")
     .select("id")
