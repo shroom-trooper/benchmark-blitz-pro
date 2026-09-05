@@ -18,11 +18,13 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as AuthenticatedAssessmentIdRouteImport } from './routes/_authenticated/assessment.$id'
 import { Route as AuthenticatedElectivesIndexRouteImport } from './routes/_authenticated/electives.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
 import { Route as ApiPublicCronWeeklyUnlockRouteImport } from './routes/api/public/cron/weekly-unlock'
+import { Route as ApiPublicOgSlugRouteImport } from './routes/api/public/og/$slug'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -71,6 +73,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAssessmentIdRoute =
   AuthenticatedAssessmentIdRouteImport.update({
     id: '/assessment/$id',
@@ -101,6 +108,11 @@ const ApiPublicCronWeeklyUnlockRoute =
     path: '/api/public/cron/weekly-unlock',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicOgSlugRoute = ApiPublicOgSlugRouteImport.update({
+  id: '/api/public/og/$slug',
+  path: '/api/public/og/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -127,11 +139,13 @@ export interface FileRoutesByFullPath {
   '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/p/$slug': typeof PSlugRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/electives/': typeof AuthenticatedElectivesIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
+  '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -144,11 +158,13 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/p/$slug': typeof PSlugRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/electives': typeof AuthenticatedElectivesIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
+  '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -164,11 +180,13 @@ export interface FileRoutesById {
   '/_authenticated/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/p/$slug': typeof PSlugRoute
   '/_authenticated/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
   '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
+  '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -184,11 +202,13 @@ export interface FileRouteTypes {
     | '/electives'
     | '/hub'
     | '/onboarding'
+    | '/p/$slug'
     | '/assessment/$id'
     | '/session/$week'
     | '/electives/'
     | '/electives/$module/$lesson'
     | '/api/public/cron/weekly-unlock'
+    | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -201,11 +221,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/hub'
     | '/onboarding'
+    | '/p/$slug'
     | '/assessment/$id'
     | '/session/$week'
     | '/electives'
     | '/electives/$module/$lesson'
     | '/api/public/cron/weekly-unlock'
+    | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -220,11 +242,13 @@ export interface FileRouteTypes {
     | '/_authenticated/electives'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
+    | '/p/$slug'
     | '/_authenticated/assessment/$id'
     | '/_authenticated/session/$week'
     | '/_authenticated/electives/'
     | '/_authenticated/electives/$module/$lesson'
     | '/api/public/cron/weekly-unlock'
+    | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -236,7 +260,9 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   LeaderboardRoute: typeof LeaderboardRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  PSlugRoute: typeof PSlugRoute
   ApiPublicCronWeeklyUnlockRoute: typeof ApiPublicCronWeeklyUnlockRoute
+  ApiPublicOgSlugRoute: typeof ApiPublicOgSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -307,6 +333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/assessment/$id': {
       id: '/_authenticated/assessment/$id'
       path: '/assessment/$id'
@@ -340,6 +373,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/cron/weekly-unlock'
       fullPath: '/api/public/cron/weekly-unlock'
       preLoaderRoute: typeof ApiPublicCronWeeklyUnlockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/og/$slug': {
+      id: '/api/public/og/$slug'
+      path: '/api/public/og/$slug'
+      fullPath: '/api/public/og/$slug'
+      preLoaderRoute: typeof ApiPublicOgSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -410,7 +450,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   LeaderboardRoute: LeaderboardRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  PSlugRoute: PSlugRoute,
   ApiPublicCronWeeklyUnlockRoute: ApiPublicCronWeeklyUnlockRoute,
+  ApiPublicOgSlugRoute: ApiPublicOgSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

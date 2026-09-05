@@ -2,13 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Flame, Medal, Trophy, Zap } from "lucide-react";
+import { Flame, Medal, Share2, Trophy, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getGroupLeaderboard, getPublicLeaderboard } from "@/lib/benchmark.functions";
 import { levelForXp } from "@/lib/gamification";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { ShareAchievementModal } from "@/components/ShareAchievementModal";
+
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -35,10 +37,16 @@ function LeaderboardPage() {
   const publicFn = useServerFn(getPublicLeaderboard);
   const groupFn = useServerFn(getGroupLeaderboard);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [myId, setMyId] = useState<string | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedIn(Boolean(data.session));
+      setMyId(data.session?.user.id ?? null);
+    });
   }, []);
+
 
   const publicBoard = useQuery({
     queryKey: ["public-leaderboard"],
@@ -106,8 +114,11 @@ function LeaderboardPage() {
                   sub={`Lvl ${p.level} ${levelForXp(p.totalXp).title}`}
                   streak={p.streak}
                   xp={p.totalXp}
+                  highlight={p.id === myId}
+                  onShare={p.id === myId ? () => setShareOpen(true) : undefined}
                 />
               ))}
+
               {!publicBoard.data?.players.length ? (
                 <p className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-body">
                   No one has completed a simulation yet. Be first.
@@ -145,6 +156,8 @@ function LeaderboardPage() {
           </div>
         ) : null}
       </main>
+
+      {shareOpen ? <ShareAchievementModal onClose={() => setShareOpen(false)} /> : null}
     </div>
   );
 }
@@ -156,6 +169,7 @@ function Row({
   streak,
   xp,
   highlight,
+  onShare,
 }: {
   rank: number;
   name: string;
@@ -163,10 +177,11 @@ function Row({
   streak: number;
   xp: number;
   highlight?: boolean;
+  onShare?: (() => void) | undefined;
 }) {
   return (
     <div
-      className={`flex items-center gap-4 rounded-xl border p-4 ${
+      className={`flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border p-4 ${
         highlight ? "border-primary/50 bg-primary/10" : "border-border bg-surface"
       }`}
     >
@@ -175,6 +190,11 @@ function Row({
         <p className="truncate font-medium">{name}</p>
         <p className="text-xs text-muted-foreground">{sub}</p>
       </div>
+      {onShare ? (
+        <Button size="sm" variant="outline" className="order-last sm:order-none" onClick={onShare}>
+          <Share2 className="size-3.5" /> Share rank
+        </Button>
+      ) : null}
       <div className="ml-auto flex items-center gap-5 text-sm">
         <span className="flex items-center gap-1 text-warning">
           <Flame className="size-4" />
@@ -187,6 +207,7 @@ function Row({
       </div>
     </div>
   );
+
 }
 
 function RankBadge({ rank }: { rank: number }) {
