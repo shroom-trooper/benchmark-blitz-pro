@@ -103,7 +103,9 @@ function Hub() {
   return (
     <AppShell>
       <div className="space-y-8">
-        <section className="rounded-2xl border border-border bg-gradient-to-br from-surface to-surface-2 p-6 sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-3">
+        <section className="rounded-2xl border border-border bg-gradient-to-br from-surface to-surface-2 p-6 sm:p-8 lg:col-span-2">
+
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div className="max-w-xl">
               <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
