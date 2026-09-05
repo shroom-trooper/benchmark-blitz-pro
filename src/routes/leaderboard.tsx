@@ -37,10 +37,16 @@ function LeaderboardPage() {
   const publicFn = useServerFn(getPublicLeaderboard);
   const groupFn = useServerFn(getGroupLeaderboard);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [myId, setMyId] = useState<string | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedIn(Boolean(data.session));
+      setMyId(data.session?.user.id ?? null);
+    });
   }, []);
+
 
   const publicBoard = useQuery({
     queryKey: ["public-leaderboard"],
