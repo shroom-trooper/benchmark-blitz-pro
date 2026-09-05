@@ -548,6 +548,13 @@ export async function loadAssessment(supabase: DB, userId: string, id: string) {
   if (!assessment || assessment.status !== "published")
     fail("That assessment is not available.");
 
+  const { data: leadsGroup } = await supabase
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (leadsGroup) fail("Group leads administer assessments and don't take them.");
+
   const { data: questions } = await supabase
     .from("assessment_questions")
     .select("*")
