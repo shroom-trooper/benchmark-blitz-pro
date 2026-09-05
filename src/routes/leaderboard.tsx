@@ -177,7 +177,7 @@ function Row({
   streak: number;
   xp: number;
   highlight?: boolean;
-  onShare?: () => void;
+  onShare?: (() => void) | undefined;
 }) {
   return (
     <div
