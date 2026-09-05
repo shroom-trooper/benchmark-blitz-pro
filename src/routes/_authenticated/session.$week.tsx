@@ -274,7 +274,7 @@ function ResultView({
           </div>
           {result.newAchievements.length ? (
             <p className="mt-4 text-sm text-success">
-              Unlocked: {result.newAchievements.join(", ")}
+              Unlocked: {result.newAchievements.map(nameFor).join(", ")}
             </p>
           ) : null}
         </div>
