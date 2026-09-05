@@ -330,6 +330,8 @@ export async function loadGroupLeaderboard(supabase: DB, userId: string) {
     .eq("group_id", profile.group_id);
 
   const ranked = (members ?? [])
+    // The group lead administers the group and is not ranked with members.
+    .filter((p) => p.id !== group?.owner_id)
     .map((p) => ({
       id: p.id,
       name: p.display_name || p.full_name || p.email.split("@")[0]!,
