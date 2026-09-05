@@ -802,7 +802,7 @@ async function electiveAvailability(supabase: DB, userId: string) {
 }
 
 export async function loadElectives(supabase: DB, userId: string) {
-  const [{ groupId, enabled }, doneRes] = await Promise.all([
+  const [{ groupId, enabled, isLeader }, doneRes] = await Promise.all([
     electiveAvailability(supabase, userId),
     supabase
       .from("elective_responses")
@@ -833,9 +833,10 @@ export async function loadElectives(supabase: DB, userId: string) {
   }));
 
   return {
-    modules,
+    modules: isLeader ? [] : modules,
     groupId,
     curated: Boolean(enabled),
+    isLeader,
     completions,
   };
 }
@@ -850,7 +851,9 @@ export async function loadElectiveLesson(
   if (!found) fail("That elective lesson does not exist.");
   const { module, lesson } = found;
 
-  const { enabled } = await electiveAvailability(supabase, userId);
+  const { enabled, isLeader } = await electiveAvailability(supabase, userId);
+  if (isLeader)
+    fail("Elective tracks are for your group members, not group leads.");
   if (enabled && !enabled.includes(module.slug))
     fail("Your group lead has not switched on this elective module.");
 
@@ -906,7 +909,9 @@ export async function submitElective(
   if (!found) fail("That elective lesson does not exist.");
   const { module, lesson } = found;
 
-  const { enabled } = await electiveAvailability(supabase, userId);
+  const { enabled, isLeader } = await electiveAvailability(supabase, userId);
+  if (isLeader)
+    fail("Elective tracks are for your group members, not group leads.");
   if (enabled && !enabled.includes(module.slug))
     fail("Your group lead has not switched on this elective module.");
 
