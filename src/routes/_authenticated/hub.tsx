@@ -177,6 +177,11 @@ function Hub() {
           </div>
         </section>
 
+          <QuickDrillCard />
+        </div>
+
+        {done ? <SprintBanner /> : null}
+
         {current ? (
           <section className="flex gap-4 rounded-xl border border-warning/30 bg-warning/10 p-5">
             <Lightbulb className="mt-0.5 size-5 shrink-0 text-warning" />
@@ -187,12 +192,16 @@ function Hub() {
           </section>
         ) : null}
 
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <Stat label="Current streak" value={`${me.profile?.current_streak ?? 0} wks`} />
           <Stat label="Longest streak" value={`${me.profile?.longest_streak ?? 0} wks`} />
           <Stat label="Sessions completed" value={String(me.responses.length)} />
           <Stat label="Decision accuracy" value={`${accuracy}%`} />
+          <Stat label="Sprints completed" value={String(sprintStats?.totalSprints ?? 0)} />
+          <Stat label="Daily practice streak" value={`${sprintStats?.dailyStreak ?? 0} d`} />
         </section>
+
+
 
         <GroupPanel
           group={me.group}
