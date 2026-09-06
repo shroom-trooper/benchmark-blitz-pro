@@ -42,15 +42,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-3">
-          <Link to="/hub" className="flex items-center gap-2">
+        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:flex sm:gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+          <Link to="/hub" className="flex shrink-0 items-center gap-2">
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <Zap className="size-4" />
             </span>
-            <span className="font-display text-lg">Benchmark</span>
+            <span className="hidden font-display text-lg sm:inline">Benchmark</span>
           </Link>
 
-          <nav className="flex items-center gap-1 text-sm">
+          <nav className="flex min-w-0 items-center gap-1 text-sm">
             <NavLink to="/hub" icon={<LayoutDashboard className="size-4" />} label="Hub" />
             <NavLink
               to="/leaderboard"
@@ -61,8 +62,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <NavLink to="/admin" icon={<Shield className="size-4" />} label="Group" />
             ) : null}
           </nav>
+          </div>
 
-          <div className="ml-auto flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-4 sm:ml-auto">
             <div className="hidden min-w-44 sm:block">
               <div className="mb-1.5 flex items-center justify-between gap-3 text-sm font-medium">
                 <span className="truncate text-foreground">
