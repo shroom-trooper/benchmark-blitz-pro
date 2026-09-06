@@ -95,12 +95,21 @@ function AdminPage() {
   return (
     <AppShell>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl">{t.group.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Week {t.summary.currentWeek} of 52 · {t.group.seatsUsed}/{t.group.memberLimit}{" "}
-            seats used
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-3xl">{t.group.name}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Week {t.summary.currentWeek} of 52 · {t.group.seatsUsed}/{t.group.memberLimit}{" "}
+              seats used
+            </p>
+          </div>
+          <Button
+            onClick={() => setProOpen(true)}
+            className="gap-2 shadow-lg shadow-primary/25"
+          >
+            <Sparkles className="size-4" />
+            Upgrade to Pro
+          </Button>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
