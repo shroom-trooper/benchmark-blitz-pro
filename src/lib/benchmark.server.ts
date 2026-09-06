@@ -351,7 +351,13 @@ export async function loadGroupLeaderboard(supabase: DB, userId: string) {
 }
 
 export async function loadGroupConsole(supabase: DB, userId: string) {
-  const group = await requireGroupOwner(supabase, userId);
+  // Owning no group is a normal state (solo users), not an error.
+  const { data: group } = await supabase
+    .from("groups")
+    .select("*")
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (!group) return null;
 
   const [membersRes, weeksRes, settingsRes, invitesRes] = await Promise.all([
     supabase.from("profiles").select("*").eq("group_id", group.id),
