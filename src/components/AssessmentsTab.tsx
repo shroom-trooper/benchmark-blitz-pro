@@ -392,6 +392,23 @@ function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
   );
 
   async function generate() {
+    if (busy) return; // guard against double submits
+    if (title.trim().length < 2) {
+      toast.error("Give the test a title first.");
+      return;
+    }
+    if (!brief.trim() && !text.trim() && !files.length) {
+      toast.error("Add a brief, some pasted notes, or a PDF to generate from.");
+      return;
+    }
+    if (tooBig) {
+      toast.error("Those files are too large — keep the total under 12 MB.");
+      return;
+    }
+    if (text.length > 200_000) {
+      toast.error("That's a lot of text — trim it to roughly 200,000 characters.");
+      return;
+    }
     setBusy(true);
     try {
       const encoded = await Promise.all(
@@ -403,10 +420,10 @@ function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
       );
       const r = await fn({
         data: {
-          title,
+          title: title.trim(),
           description: brief.slice(0, 200),
           brief,
-          text,
+          text: text.slice(0, 200_000),
           files: encoded,
           targetQuestions: count,
           minutesPerQuestion: minutes,
@@ -420,9 +437,15 @@ function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
       void qc.invalidateQueries({ queryKey: ["assessments"] });
       onCreated(r.id);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Generation failed");
+      const msg = e instanceof Error ? e.message : "Generation failed";
+      toast.error(
+        typeof navigator !== "undefined" && navigator.onLine === false
+          ? "You're offline — reconnect and try generating again."
+          : msg,
+      );
     } finally {
       setBusy(false);
+
     }
   }
 
