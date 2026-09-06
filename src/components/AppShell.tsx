@@ -62,8 +62,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <NavLink to="/admin" icon={<Shield className="size-4" />} label="Group" />
             ) : null}
           </nav>
+          </div>
 
-          <div className="ml-auto flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-4 sm:ml-auto">
             <div className="hidden min-w-44 sm:block">
               <div className="mb-1.5 flex items-center justify-between gap-3 text-sm font-medium">
                 <span className="truncate text-foreground">
