@@ -242,7 +242,7 @@ function UpgradeProModal({
       aria-label="Upgrade to Benchmark Pro"
     >
       <div
-        className="w-full max-w-lg rounded-2xl border border-border bg-surface/95 p-6 shadow-2xl backdrop-blur-md sm:p-8"
+        className="relative w-full max-w-lg rounded-2xl border border-border bg-surface/95 p-6 shadow-2xl backdrop-blur-md sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
