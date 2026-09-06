@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/electives/$module/$lesson")({
   head: () => ({
@@ -30,7 +31,9 @@ export const Route = createFileRoute("/_authenticated/electives/$module/$lesson"
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ElectiveLessonPage,
+  component: ElectiveLessonPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 type SubmitResult = Awaited<ReturnType<typeof submitElective>>;

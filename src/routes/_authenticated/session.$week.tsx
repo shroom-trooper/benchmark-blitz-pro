@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/session/$week")({
   head: () => ({
@@ -39,7 +40,9 @@ export const Route = createFileRoute("/_authenticated/session/$week")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SessionPage,
+  component: SessionPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 type SubmitResult = Awaited<ReturnType<typeof submitWeek>>;

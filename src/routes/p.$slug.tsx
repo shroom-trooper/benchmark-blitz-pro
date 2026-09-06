@@ -3,6 +3,7 @@ import { Flame, Trophy, Zap } from "lucide-react";
 import { getPublicProfile } from "@/lib/share.functions";
 import { Button } from "@/components/ui/button";
 import { rankBadgeLabel } from "@/components/ShareCard";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 const SITE = "https://usebenchmark.app";
 
@@ -37,7 +38,9 @@ export const Route = createFileRoute("/p/$slug")({
       links: [{ rel: "canonical", href: `${SITE}/p/${params.slug}` }],
     };
   },
-  component: PublicProfilePage,
+  component: PublicProfilePage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 function PublicProfilePage() {

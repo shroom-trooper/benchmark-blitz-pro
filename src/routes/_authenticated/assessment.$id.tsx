@@ -10,6 +10,7 @@ import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/assessment/$id")({
   head: () => ({
@@ -29,7 +30,9 @@ export const Route = createFileRoute("/_authenticated/assessment/$id")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AssessmentPage,
+  component: AssessmentPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 type Result = Awaited<ReturnType<typeof submitAssessment>>;

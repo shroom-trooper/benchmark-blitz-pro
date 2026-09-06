@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+import { RouteError, RouteNotFound } from "@/components/RouteError";
   Select,
   SelectContent,
   SelectItem,
@@ -48,7 +49,9 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AdminPage,
+  component: AdminPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 type Console = NonNullable<Awaited<ReturnType<typeof getGroupConsole>>>;

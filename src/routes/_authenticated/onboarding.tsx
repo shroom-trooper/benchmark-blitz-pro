@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -32,7 +33,9 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Onboarding,
+  component: Onboarding,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 function Onboarding() {

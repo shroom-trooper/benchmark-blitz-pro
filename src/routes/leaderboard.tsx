@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ShareAchievementModal } from "@/components/ShareAchievementModal";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 
 export const Route = createFileRoute("/leaderboard")({
@@ -30,7 +31,9 @@ export const Route = createFileRoute("/leaderboard")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: LeaderboardPage,
+  component: LeaderboardPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 function LeaderboardPage() {
