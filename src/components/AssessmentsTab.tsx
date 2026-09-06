@@ -353,15 +353,26 @@ function LibraryBuilder({ onCreated }: { onCreated: (id: string) => void }) {
 }
 
 async function fileToBase64(file: File) {
-  const buf = await file.arrayBuffer();
+  let buf: ArrayBuffer;
+  try {
+    buf = await file.arrayBuffer();
+  } catch {
+    throw new Error(`"${file.name}" could not be read — the file may be corrupt.`);
+  }
+  if (buf.byteLength === 0) throw new Error(`"${file.name}" is empty.`);
   let binary = "";
   const bytes = new Uint8Array(buf);
+  // A valid PDF always starts with "%PDF".
+  const header = String.fromCharCode(...bytes.subarray(0, 4));
+  if (header !== "%PDF")
+    throw new Error(`"${file.name}" doesn't look like a valid PDF file.`);
   const chunk = 0x8000;
   for (let i = 0; i < bytes.length; i += chunk) {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
   }
   return btoa(binary);
 }
+
 
 function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
   const [title, setTitle] = useState("");
