@@ -488,9 +488,29 @@ function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
               className="hidden"
               onChange={(e) => {
                 const picked = Array.from(e.target.files ?? []);
-                setFiles((prev) => [...prev, ...picked].slice(0, 3));
                 e.target.value = "";
+                const valid = picked.filter(
+                  (f) =>
+                    f.type === "application/pdf" ||
+                    f.name.toLowerCase().endsWith(".pdf"),
+                );
+                const empty = valid.filter((f) => f.size === 0);
+                if (valid.length < picked.length)
+                  toast.error("Only PDF files can be used as source material.");
+                if (empty.length) toast.error("That PDF is empty — pick another file.");
+                const usable = valid.filter((f) => f.size > 0);
+                if (!usable.length) return;
+                setFiles((prev) => {
+                  const merged = [...prev];
+                  for (const f of usable) {
+                    if (!merged.some((p) => p.name === f.name && p.size === f.size))
+                      merged.push(f);
+                  }
+                  if (merged.length > 3) toast.error("You can attach up to 3 PDFs.");
+                  return merged.slice(0, 3);
+                });
               }}
+
             />
             <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
               <FileUp className="mr-2 size-4" /> Add PDF
