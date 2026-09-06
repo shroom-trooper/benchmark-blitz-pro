@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -26,7 +27,9 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AuthPage,
+  component: AuthPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 function AuthPage() {

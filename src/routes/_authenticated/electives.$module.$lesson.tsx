@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Sparkles, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { saveErrorMessage } from "@/lib/errors";
 import { AppShell } from "@/components/AppShell";
 import { getElectiveLesson, submitElective } from "@/lib/benchmark.functions";
 import { track } from "@/lib/analytics";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/electives/$module/$lesson")({
   head: () => ({
@@ -30,7 +32,9 @@ export const Route = createFileRoute("/_authenticated/electives/$module/$lesson"
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ElectiveLessonPage,
+  component: ElectiveLessonPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 type SubmitResult = Awaited<ReturnType<typeof submitElective>>;
@@ -73,7 +77,7 @@ function ElectiveLessonPage() {
       queryClient.invalidateQueries({ queryKey: ["elective", module, lesson] });
       if (data.leveledUp) toast.success(`Level up! You reached level ${data.level}.`);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(saveErrorMessage(e)),
   });
 
   if (query.isLoading) {

@@ -353,15 +353,26 @@ function LibraryBuilder({ onCreated }: { onCreated: (id: string) => void }) {
 }
 
 async function fileToBase64(file: File) {
-  const buf = await file.arrayBuffer();
+  let buf: ArrayBuffer;
+  try {
+    buf = await file.arrayBuffer();
+  } catch {
+    throw new Error(`"${file.name}" could not be read — the file may be corrupt.`);
+  }
+  if (buf.byteLength === 0) throw new Error(`"${file.name}" is empty.`);
   let binary = "";
   const bytes = new Uint8Array(buf);
+  // A valid PDF always starts with "%PDF".
+  const header = String.fromCharCode(...bytes.subarray(0, 4));
+  if (header !== "%PDF")
+    throw new Error(`"${file.name}" doesn't look like a valid PDF file.`);
   const chunk = 0x8000;
   for (let i = 0; i < bytes.length; i += chunk) {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
   }
   return btoa(binary);
 }
+
 
 function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
   const [title, setTitle] = useState("");
@@ -381,6 +392,23 @@ function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
   );
 
   async function generate() {
+    if (busy) return; // guard against double submits
+    if (title.trim().length < 2) {
+      toast.error("Give the test a title first.");
+      return;
+    }
+    if (!brief.trim() && !text.trim() && !files.length) {
+      toast.error("Add a brief, some pasted notes, or a PDF to generate from.");
+      return;
+    }
+    if (tooBig) {
+      toast.error("Those files are too large — keep the total under 12 MB.");
+      return;
+    }
+    if (text.length > 200_000) {
+      toast.error("That's a lot of text — trim it to roughly 200,000 characters.");
+      return;
+    }
     setBusy(true);
     try {
       const encoded = await Promise.all(
@@ -392,10 +420,10 @@ function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
       );
       const r = await fn({
         data: {
-          title,
+          title: title.trim(),
           description: brief.slice(0, 200),
           brief,
-          text,
+          text: text.slice(0, 200_000),
           files: encoded,
           targetQuestions: count,
           minutesPerQuestion: minutes,
@@ -409,9 +437,15 @@ function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
       void qc.invalidateQueries({ queryKey: ["assessments"] });
       onCreated(r.id);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Generation failed");
+      const msg = e instanceof Error ? e.message : "Generation failed";
+      toast.error(
+        typeof navigator !== "undefined" && navigator.onLine === false
+          ? "You're offline — reconnect and try generating again."
+          : msg,
+      );
     } finally {
       setBusy(false);
+
     }
   }
 
@@ -454,9 +488,29 @@ function AiBuilder({ onCreated }: { onCreated: (id: string) => void }) {
               className="hidden"
               onChange={(e) => {
                 const picked = Array.from(e.target.files ?? []);
-                setFiles((prev) => [...prev, ...picked].slice(0, 3));
                 e.target.value = "";
+                const valid = picked.filter(
+                  (f) =>
+                    f.type === "application/pdf" ||
+                    f.name.toLowerCase().endsWith(".pdf"),
+                );
+                const empty = valid.filter((f) => f.size === 0);
+                if (valid.length < picked.length)
+                  toast.error("Only PDF files can be used as source material.");
+                if (empty.length) toast.error("That PDF is empty — pick another file.");
+                const usable = valid.filter((f) => f.size > 0);
+                if (!usable.length) return;
+                setFiles((prev) => {
+                  const merged = [...prev];
+                  for (const f of usable) {
+                    if (!merged.some((p) => p.name === f.name && p.size === f.size))
+                      merged.push(f);
+                  }
+                  if (merged.length > 3) toast.error("You can attach up to 3 PDFs.");
+                  return merged.slice(0, 3);
+                });
               }}
+
             />
             <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
               <FileUp className="mr-2 size-4" /> Add PDF

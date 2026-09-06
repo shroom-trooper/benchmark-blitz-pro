@@ -11,6 +11,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { saveErrorMessage } from "@/lib/errors";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { getWeek, submitWeek } from "@/lib/benchmark.functions";
@@ -20,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/session/$week")({
   head: () => ({
@@ -39,7 +41,9 @@ export const Route = createFileRoute("/_authenticated/session/$week")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SessionPage,
+  component: SessionPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 type SubmitResult = Awaited<ReturnType<typeof submitWeek>>;
@@ -77,7 +81,7 @@ function SessionPage() {
       queryClient.invalidateQueries({ queryKey: ["week", weekNumber] });
       if (data.leveledUp) toast.success(`Level up! You reached level ${data.level}.`);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(saveErrorMessage(e)),
   });
 
   if (query.isLoading) {

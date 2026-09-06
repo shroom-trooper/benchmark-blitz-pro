@@ -29,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -48,7 +50,9 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AdminPage,
+  component: AdminPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 type Console = NonNullable<Awaited<ReturnType<typeof getGroupConsole>>>;

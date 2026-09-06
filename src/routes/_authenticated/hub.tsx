@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/hub")({
   head: () => ({
@@ -52,7 +53,9 @@ export const Route = createFileRoute("/_authenticated/hub")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Hub,
+  component: Hub,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 const ICONS: Record<string, LucideIcon> = {

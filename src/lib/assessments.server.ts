@@ -311,25 +311,41 @@ async function generateQuestions(
     fail("The AI returned an unreadable response. Please try again.");
   }
 
-  const cleaned = (parsed.questions ?? [])
+  const cleaned = (Array.isArray(parsed.questions) ? parsed.questions : [])
     .filter(
-      (q) =>
+      (q): q is DraftQuestion =>
+        !!q &&
         typeof q.scenario === "string" &&
+        q.scenario.trim().length > 0 &&
         Array.isArray(q.options) &&
-        q.options.length >= 2 &&
-        typeof q.correctIndex === "number",
+        typeof q.correctIndex === "number" &&
+        Number.isFinite(q.correctIndex),
     )
-    .map((q) => ({
-      scenario: q.scenario.trim(),
-      options: q.options.slice(0, 4).map((o) => String(o).trim()),
-      correctIndex: Math.max(0, Math.min(q.options.length - 1, q.correctIndex)),
-      explanation: (q.explanation ?? "").trim(),
-    }))
+    .map((q) => {
+      // De-duplicate and trim options first, then clamp the answer to what remains.
+      const options = Array.from(
+        new Set(
+          q.options
+            .map((o) => String(o ?? "").trim())
+            .filter((o) => o.length > 0),
+        ),
+      ).slice(0, 4);
+      const chosen = String(q.options[q.correctIndex] ?? "").trim();
+      const idx = options.indexOf(chosen);
+      return {
+        scenario: q.scenario.trim(),
+        options,
+        correctIndex: idx >= 0 ? idx : 0,
+        explanation: String(q.explanation ?? "").trim(),
+      };
+    })
+    .filter((q) => q.options.length >= 2 && q.correctIndex < q.options.length)
     .slice(0, input.count);
 
   if (!cleaned.length)
     fail("The AI could not build questions from that material. Try a richer document or brief.");
   return cleaned;
+
 }
 
 export async function createWithAi(

@@ -4,12 +4,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Clock, Sparkles, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { saveErrorMessage } from "@/lib/errors";
 import { AppShell } from "@/components/AppShell";
 import { getAssessment, submitAssessment } from "@/lib/benchmark.functions";
 import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/assessment/$id")({
   head: () => ({
@@ -29,7 +31,9 @@ export const Route = createFileRoute("/_authenticated/assessment/$id")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AssessmentPage,
+  component: AssessmentPage,  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
+
 });
 
 type Result = Awaited<ReturnType<typeof submitAssessment>>;
@@ -66,7 +70,7 @@ function AssessmentPage() {
       void queryClient.invalidateQueries({ queryKey: ["member-assessments"] });
       if (data.leveledUp) toast.success(`Level up! You reached level ${data.level}.`);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(saveErrorMessage(e)),
   });
 
   if (query.isLoading)
