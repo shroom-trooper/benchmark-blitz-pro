@@ -136,7 +136,7 @@ export function ElectivesTab() {
                         !m.enabled && "pointer-events-none opacity-70",
                       )}
                       disabled={!m.enabled}
-                      onClick={() => toast.info(`${m.artifact} template preview coming soon.`)}
+                      onClick={() => toast.info(`${m.artifact} Template preview coming soon.`)}
                     >
                       <FileText className="size-3.5 shrink-0 text-indigo-400" />
                       <span className="flex-1">
