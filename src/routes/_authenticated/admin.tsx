@@ -159,7 +159,174 @@ function AdminPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <UpgradeProModal
+        open={proOpen}
+        onClose={() => setProOpen(false)}
+        groupId={t.group.id}
+        groupName={t.group.name}
+        email={t.users.find((u) => u.isOwner)?.email ?? ""}
+      />
     </AppShell>
+  );
+}
+
+const PRO_FEATURES = [
+  {
+    icon: Users,
+    title: "Unlimited Managers & Seats",
+    body: "Scale beyond the 3-seat free limit — grow your training group as your org grows.",
+  },
+  {
+    icon: BellRing,
+    title: "One-Click Manager Nudges",
+    body: "Nudge dormant managers who haven't completed their weekly assessments.",
+  },
+  {
+    icon: Building2,
+    title: "Departments & Multi-Team Analytics",
+    body: "Organize managers into departments (Product, Engineering, Sales) and filter decision accuracy by team.",
+  },
+  {
+    icon: Scale,
+    title: "Interviewer Pool Diversity Metrics",
+    body: "Measure and monitor diversity and balance across your active interviewer panels.",
+  },
+] as const;
+
+function UpgradeProModal({
+  open,
+  onClose,
+  groupId,
+  groupName,
+  email,
+}: {
+  open: boolean;
+  onClose: () => void;
+  groupId: string;
+  groupName: string;
+  email: string;
+}) {
+  const interestFn = useServerFn(registerUpgradeInterest);
+  const [requested, setRequested] = useState(false);
+  const [notifyEmail, setNotifyEmail] = useState(email);
+  const [pending, setPending] = useState(false);
+
+  if (!open) return null;
+
+  const requestAccess = async () => {
+    if (pending) return;
+    setPending(true);
+    track("upgrade_to_pro_clicked", { groupId, userRole: "group_admin" });
+    try {
+      await interestFn({ data: { seats: 10 } });
+    } catch {
+      // Interest may already be registered — the confirmation state still applies.
+    }
+    setRequested(true);
+    setPending(false);
+    toast.success("Priority access requested! We'll notify you shortly.");
+  };
+
+  const close = () => {
+    setRequested(false);
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 p-4 backdrop-blur-md"
+      onClick={close}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Upgrade to Benchmark Pro"
+    >
+      <div
+        className="w-full max-w-lg rounded-2xl border border-border bg-surface/95 p-6 shadow-2xl backdrop-blur-md sm:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={close}
+          aria-label="Close"
+          className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <X className="size-5" />
+        </button>
+
+        {!requested ? (
+          <>
+            <div className="flex items-center gap-2">
+              <span className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                <Sparkles className="size-5" />
+              </span>
+              <h2 className="text-2xl">Upgrade to Pro</h2>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Unlock the full Benchmark toolkit for{" "}
+              <span className="font-semibold text-heading">{groupName}</span>.
+            </p>
+
+            <div className="mt-4 rounded-xl border border-primary/30 bg-primary/10 p-4">
+              <p className="font-display text-2xl text-heading">
+                490 SEK{" "}
+                <span className="text-base font-normal text-muted-foreground">/ month</span>
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Includes up to 10 seats · then 99 SEK / seat / month
+              </p>
+            </div>
+
+            <ul className="mt-5 space-y-3.5">
+              {PRO_FEATURES.map((f) => (
+                <li key={f.title} className="flex items-start gap-3 text-sm">
+                  <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <f.icon className="size-4" />
+                  </span>
+                  <span>
+                    <span className="block font-semibold text-heading">{f.title}</span>
+                    <span className="leading-relaxed text-muted-foreground">{f.body}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <Button className="mt-6 w-full gap-2" onClick={requestAccess} disabled={pending}>
+              <Sparkles className="size-4" />
+              {pending ? "Requesting…" : "Upgrade Now"}
+            </Button>
+          </>
+        ) : (
+          <div className="text-center">
+            <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-success/15 text-success">
+              <CheckCircle2 className="size-6" />
+            </span>
+            <h2 className="mt-4 text-2xl">You're on the priority access list!</h2>
+            <p className="mt-2 text-sm leading-relaxed text-body">
+              Benchmark Pro is currently rolling out in batches to group admins. Because you
+              requested access today, we've locked in your 490 SEK/month rate and placed your
+              group at the top of the activation queue.
+            </p>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <Input
+                type="email"
+                value={notifyEmail}
+                onChange={(e) => setNotifyEmail(e.target.value)}
+                aria-label="Notification email"
+              />
+              <Button onClick={close} className="shrink-0">
+                Notify me when my seats unlock
+              </Button>
+            </div>
+            <button
+              onClick={close}
+              className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:underline"
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
