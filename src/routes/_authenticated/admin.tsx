@@ -60,6 +60,7 @@ type Console = NonNullable<Awaited<ReturnType<typeof getGroupConsole>>>;
 
 function AdminPage() {
   const consoleFn = useServerFn(getGroupConsole);
+  const [proOpen, setProOpen] = useState(false);
   const query = useQuery({
     queryKey: ["group-console"],
     queryFn: () => consoleFn({}),
