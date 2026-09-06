@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { saveErrorMessage } from "@/lib/errors";
 import {
   CheckCircle2,
   Flame,
@@ -176,7 +177,7 @@ function SprintOverlay({ onClose }: { onClose: () => void }) {
       track("sprint_started", { difficulty: (data as Sprint).difficulty });
     },
     onError: (e: Error) => {
-      toast.error(e.message);
+      toast.error(saveErrorMessage(e));
       onClose();
     },
   });

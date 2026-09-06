@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Sparkles, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { saveErrorMessage } from "@/lib/errors";
 import { AppShell } from "@/components/AppShell";
 import { getElectiveLesson, submitElective } from "@/lib/benchmark.functions";
 import { track } from "@/lib/analytics";
@@ -76,7 +77,7 @@ function ElectiveLessonPage() {
       queryClient.invalidateQueries({ queryKey: ["elective", module, lesson] });
       if (data.leveledUp) toast.success(`Level up! You reached level ${data.level}.`);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(saveErrorMessage(e)),
   });
 
   if (query.isLoading) {

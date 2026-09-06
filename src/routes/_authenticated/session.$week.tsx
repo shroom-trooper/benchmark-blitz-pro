@@ -11,6 +11,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { saveErrorMessage } from "@/lib/errors";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { getWeek, submitWeek } from "@/lib/benchmark.functions";
@@ -80,7 +81,7 @@ function SessionPage() {
       queryClient.invalidateQueries({ queryKey: ["week", weekNumber] });
       if (data.leveledUp) toast.success(`Level up! You reached level ${data.level}.`);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(saveErrorMessage(e)),
   });
 
   if (query.isLoading) {
