@@ -14,13 +14,13 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as GuidesHowToTrainHiringManagersRouteImport } from './routes/guides/how-to-train-hiring-managers'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
-import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as AuthenticatedAssessmentIdRouteImport } from './routes/_authenticated/assessment.$id'
 import { Route as AuthenticatedElectivesIndexRouteImport } from './routes/_authenticated/electives.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
@@ -55,6 +55,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -84,11 +89,6 @@ const GuidesHowToTrainHiringManagersRoute =
 const PSlugRoute = PSlugRouteImport.update({
   id: '/p/$slug',
   path: '/p/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapXmlRoute = SitemapXmlRouteImport.update({
-  id: '/sitemap/xml',
-  path: '/sitemap/xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAssessmentIdRoute =
@@ -148,13 +148,13 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/electives/': typeof AuthenticatedElectivesIndexRoute
@@ -170,12 +170,12 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/electives': typeof AuthenticatedElectivesIndexRoute
@@ -193,13 +193,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/_authenticated/assessment/$id': typeof AuthenticatedAssessmentIdRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
@@ -217,13 +217,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/admin'
     | '/electives'
     | '/hub'
     | '/onboarding'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
-    | '/sitemap/xml'
     | '/assessment/$id'
     | '/session/$week'
     | '/electives/'
@@ -239,12 +239,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/admin'
     | '/hub'
     | '/onboarding'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
-    | '/sitemap/xml'
     | '/assessment/$id'
     | '/session/$week'
     | '/electives'
@@ -261,13 +261,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/electives'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
-    | '/sitemap/xml'
     | '/_authenticated/assessment/$id'
     | '/_authenticated/session/$week'
     | '/_authenticated/electives/'
@@ -285,9 +285,9 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   LeaderboardRoute: typeof LeaderboardRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   GuidesHowToTrainHiringManagersRoute: typeof GuidesHowToTrainHiringManagersRoute
   PSlugRoute: typeof PSlugRoute
-  SitemapXmlRoute: typeof SitemapXmlRoute
   ApiPublicCronWeeklyUnlockRoute: typeof ApiPublicCronWeeklyUnlockRoute
   ApiPublicOgSlugRoute: typeof ApiPublicOgSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -332,6 +332,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -372,13 +379,6 @@ declare module '@tanstack/react-router' {
       path: '/p/$slug'
       fullPath: '/p/$slug'
       preLoaderRoute: typeof PSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap/xml': {
-      id: '/sitemap/xml'
-      path: '/sitemap/xml'
-      fullPath: '/sitemap/xml'
-      preLoaderRoute: typeof SitemapXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/assessment/$id': {
@@ -491,9 +491,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   LeaderboardRoute: LeaderboardRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   GuidesHowToTrainHiringManagersRoute: GuidesHowToTrainHiringManagersRoute,
   PSlugRoute: PSlugRoute,
-  SitemapXmlRoute: SitemapXmlRoute,
   ApiPublicCronWeeklyUnlockRoute: ApiPublicCronWeeklyUnlockRoute,
   ApiPublicOgSlugRoute: ApiPublicOgSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
