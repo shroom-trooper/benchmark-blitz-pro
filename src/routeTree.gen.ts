@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
@@ -52,6 +53,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/hub': typeof AuthenticatedHubRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/_authenticated/hub': typeof AuthenticatedHubRoute
@@ -208,6 +217,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/admin'
     | '/electives'
     | '/hub'
@@ -229,6 +239,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/admin'
     | '/hub'
     | '/onboarding'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/leaderboard'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/electives'
     | '/_authenticated/hub'
@@ -273,6 +285,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   LeaderboardRoute: typeof LeaderboardRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   GuidesHowToTrainHiringManagersRoute: typeof GuidesHowToTrainHiringManagersRoute
   PSlugRoute: typeof PSlugRoute
   ApiPublicCronWeeklyUnlockRoute: typeof ApiPublicCronWeeklyUnlockRoute
@@ -317,6 +330,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -471,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   LeaderboardRoute: LeaderboardRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   GuidesHowToTrainHiringManagersRoute: GuidesHowToTrainHiringManagersRoute,
   PSlugRoute: PSlugRoute,
   ApiPublicCronWeeklyUnlockRoute: ApiPublicCronWeeklyUnlockRoute,
