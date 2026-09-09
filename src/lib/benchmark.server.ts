@@ -802,6 +802,7 @@ export async function registerUpgradeInterest(
   supabase: DB,
   userId: string,
   seatsWanted: number | null,
+  email?: string | null,
 ) {
   const { data: group } = await supabase
     .from("groups")
@@ -812,6 +813,7 @@ export async function registerUpgradeInterest(
     user_id: userId,
     group_id: group?.id ?? null,
     seats_wanted: seatsWanted,
+    email: email ? email.trim() : null,
   });
   if (error) fail(error.message);
   return { ok: true };

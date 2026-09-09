@@ -219,7 +219,7 @@ function UpgradeProModal({
     setPending(true);
     track("upgrade_to_pro_clicked", { groupId, userRole: "group_admin" });
     try {
-      await interestFn({ data: { seats: 10 } });
+      await interestFn({ data: { seats: 10, email: notifyEmail } });
     } catch {
       // Interest may already be registered — the confirmation state still applies.
     }
