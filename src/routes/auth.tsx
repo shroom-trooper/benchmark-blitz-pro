@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Zap } from "lucide-react";
+import { Zap, MailCheck, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -27,10 +27,17 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AuthPage,  errorComponent: RouteError,
+  component: AuthPage,
+  errorComponent: RouteError,
   notFoundComponent: RouteNotFound,
-
 });
+
+const RESEND_COOLDOWN = 30;
+
+function isExistingUserError(message: string): boolean {
+  const m = message.toLowerCase();
+  return m.includes("already registered") || m.includes("already been registered") || m.includes("user already exists");
+}
 
 function AuthPage() {
   const router = useRouter();
@@ -39,12 +46,29 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const [existingUserEmail, setExistingUserEmail] = useState<string | null>(null);
+  const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) router.navigate({ to: "/hub" });
     });
   }, [router]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [resendCooldown]);
+
+  function goToSignIn(prefill?: string) {
+    if (prefill) setEmail(prefill);
+    setExistingUserEmail(null);
+    setForgotMode(false);
+    setTab("signin");
+  }
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
@@ -61,7 +85,8 @@ function AuthPage() {
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    setExistingUserEmail(null);
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -71,11 +96,38 @@ function AuthPage() {
     });
     setLoading(false);
     if (error) {
+      if (isExistingUserError(error.message)) {
+        setExistingUserEmail(email);
+        return;
+      }
       toast.error(error.message);
       return;
     }
-    toast.success("Account created — let's set you up.");
-    router.navigate({ to: "/onboarding" });
+    // Supabase returns a user with no identities when the email already exists
+    // (to avoid leaking account existence) — treat it as an existing account.
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setExistingUserEmail(email);
+      return;
+    }
+    setSignedUpEmail(email);
+    setResendCooldown(RESEND_COOLDOWN);
+  }
+
+  async function resendConfirmation() {
+    if (!signedUpEmail || resendCooldown > 0) return;
+    setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: signedUpEmail,
+      options: { emailRedirectTo: `${window.location.origin}/hub` },
+    });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Confirmation email resent.");
+    setResendCooldown(RESEND_COOLDOWN);
   }
 
   async function forgotPassword(e: React.FormEvent) {
@@ -104,7 +156,51 @@ function AuthPage() {
         </Link>
 
         <div className="rounded-xl border border-border bg-surface p-6">
-          {forgotMode ? (
+          {signedUpEmail ? (
+            <div className="space-y-5">
+              <div className="flex flex-col items-center text-center">
+                <span className="grid size-12 place-items-center rounded-full bg-primary/15 text-primary">
+                  <MailCheck className="size-6" />
+                </span>
+                <h2 className="mt-4 text-xl font-bold tracking-tight">Check your inbox</h2>
+                <p className="mt-2 text-sm leading-relaxed text-body">
+                  We've sent a confirmation link to{" "}
+                  <span className="font-medium text-foreground">{signedUpEmail}</span>. Click
+                  the link in the email to activate your account and get started.
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm leading-relaxed text-foreground">
+                <span className="font-medium">Can't find the email?</span> Check your spam or
+                junk folder, and mark it as "Not Spam" so you don't miss future updates.
+              </div>
+
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={resendConfirmation}
+                  disabled={loading || resendCooldown > 0}
+                >
+                  {loading
+                    ? "Sending…"
+                    : resendCooldown > 0
+                      ? `Resend email (${resendCooldown}s)`
+                      : "Resend email"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => {
+                    setSignedUpEmail(null);
+                    goToSignIn(signedUpEmail);
+                  }}
+                >
+                  Back to log in
+                </Button>
+              </div>
+            </div>
+          ) : forgotMode ? (
             <div>
               <h2 className="text-lg font-bold tracking-tight">Reset your password</h2>
               <p className="mt-1 text-sm text-body">
@@ -134,7 +230,7 @@ function AuthPage() {
               </form>
             </div>
           ) : (
-            <Tabs defaultValue="signin">
+            <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign in</TabsTrigger>
                 <TabsTrigger value="signup">Create account</TabsTrigger>
@@ -174,6 +270,23 @@ function AuthPage() {
               </TabsContent>
 
               <TabsContent value="signup">
+                {existingUserEmail ? (
+                  <div className="mt-4 flex items-start gap-3 rounded-lg border border-warning/40 bg-warning/10 p-4">
+                    <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+                    <div className="text-sm leading-relaxed">
+                      <p className="font-medium text-foreground">
+                        An account with this email already exists.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => goToSignIn(existingUserEmail)}
+                        className="mt-1 font-medium text-primary underline-offset-4 hover:underline"
+                      >
+                        Log in instead
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 <form onSubmit={signUp} className="mt-4 space-y-4">
                   <Field id="su-name" label="Full name">
                     <Input
@@ -189,7 +302,10 @@ function AuthPage() {
                       type="email"
                       required
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setExistingUserEmail(null);
+                      }}
                     />
                   </Field>
                   <Field id="su-pw" label="Password">
