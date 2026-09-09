@@ -82,7 +82,13 @@ function Landing() {
       </main>
 
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        Benchmark — continuous hiring capability training.
+        <p>Benchmark — continuous hiring capability training.</p>
+        <p className="mt-2">
+          Questions?{" "}
+          <a href="mailto:hey@usebenchmark.app" className="underline hover:text-foreground">
+            hey@usebenchmark.app
+          </a>
+        </p>
       </footer>
     </div>
   );
