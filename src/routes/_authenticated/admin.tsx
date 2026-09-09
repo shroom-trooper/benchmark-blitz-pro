@@ -219,7 +219,7 @@ function UpgradeProModal({
     setPending(true);
     track("upgrade_to_pro_clicked", { groupId, userRole: "group_admin" });
     try {
-      await interestFn({ data: { seats: 10 } });
+      await interestFn({ data: { seats: 10, email: notifyEmail } });
     } catch {
       // Interest may already be registered — the confirmation state still applies.
     }
@@ -290,7 +290,20 @@ function UpgradeProModal({
               ))}
             </ul>
 
-            <Button className="mt-6 w-full gap-2" onClick={requestAccess} disabled={pending}>
+            <div className="mt-5 space-y-2">
+              <Label htmlFor="pro-email" className="text-sm text-body">
+                Email for Pro updates
+              </Label>
+              <Input
+                id="pro-email"
+                type="email"
+                value={notifyEmail}
+                onChange={(e) => setNotifyEmail(e.target.value)}
+                aria-label="Notification email"
+              />
+            </div>
+
+            <Button className="mt-5 w-full gap-2" onClick={requestAccess} disabled={pending}>
               <Sparkles className="size-4" />
               {pending ? "Requesting…" : "Upgrade Now"}
             </Button>
@@ -306,23 +319,12 @@ function UpgradeProModal({
               requested access today, we've locked in your 490 SEK/month rate and placed your
               group at the top of the activation queue.
             </p>
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-              <Input
-                type="email"
-                value={notifyEmail}
-                onChange={(e) => setNotifyEmail(e.target.value)}
-                aria-label="Notification email"
-              />
-              <Button onClick={close} className="shrink-0">
-                Notify me when my seats unlock
-              </Button>
-            </div>
-            <button
-              onClick={close}
-              className="mt-3 text-xs text-muted-foreground underline-offset-4 hover:underline"
-            >
+            <p className="mt-3 text-sm text-muted-foreground">
+              We'll notify you at <span className="font-medium text-heading">{notifyEmail}</span>.
+            </p>
+            <Button onClick={close} className="mt-5 w-full">
               Close
-            </button>
+            </Button>
           </div>
         )}
       </div>

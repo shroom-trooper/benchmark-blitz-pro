@@ -131,10 +131,13 @@ export const removeMember = createServerFn({ method: "POST" })
 export const registerUpgradeInterest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ seats: z.number().int().min(1).max(10000).nullable() }).parse(d),
+    z.object({
+      seats: z.number().int().min(1).max(10000).nullable(),
+      email: z.string().email().optional(),
+    }).parse(d),
   )
   .handler(({ context, data }) =>
-    svc.registerUpgradeInterest(context.supabase, context.userId, data.seats),
+    svc.registerUpgradeInterest(context.supabase, context.userId, data.seats, data.email),
   );
 
 export const listAssessments = createServerFn({ method: "GET" })

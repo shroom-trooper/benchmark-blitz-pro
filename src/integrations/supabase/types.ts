@@ -600,6 +600,7 @@ export type Database = {
       upgrade_interest: {
         Row: {
           created_at: string
+          email: string | null
           group_id: string | null
           id: string
           seats_wanted: number | null
@@ -607,6 +608,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           group_id?: string | null
           id?: string
           seats_wanted?: number | null
@@ -614,6 +616,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           group_id?: string | null
           id?: string
           seats_wanted?: number | null

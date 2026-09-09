@@ -1,0 +1,1 @@
+ALTER TABLE public.upgrade_interest ADD COLUMN email text;
