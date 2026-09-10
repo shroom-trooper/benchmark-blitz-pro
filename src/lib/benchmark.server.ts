@@ -715,20 +715,29 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
   };
 }
 
-export async function createGroup(supabase: DB, _userId: string, name: string) {
-  const { data, error } = await supabase.rpc("create_group", { _name: name });
+export async function createGroup(_supabase: DB, userId: string, name: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.rpc("create_group", {
+    _name: name,
+    _actor: userId,
+  });
   if (error) fail(error.message);
   return { groupId: data as string };
 }
 
-export async function acceptInvite(supabase: DB, _userId: string, inviteId: string) {
-  const { data, error } = await supabase.rpc("accept_invite", { _invite_id: inviteId });
+export async function acceptInvite(_supabase: DB, userId: string, inviteId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.rpc("accept_invite", {
+    _invite_id: inviteId,
+    _actor: userId,
+  });
   if (error) fail(friendly(error.message));
   return { groupId: data as string };
 }
 
-export async function leaveGroup(supabase: DB, _userId: string) {
-  const { error } = await supabase.rpc("leave_group");
+export async function leaveGroup(_supabase: DB, userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { error } = await supabaseAdmin.rpc("leave_group", { _actor: userId });
   if (error) fail(error.message);
   return { ok: true };
 }
