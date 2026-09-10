@@ -644,7 +644,13 @@ function MemberAnalytics({ data }: { data: Console }) {
 
 
 
-function TeamTab({ data }: { data: Console }) {
+function TeamTab({
+  data,
+  onUpgrade,
+}: {
+  data: Console;
+  onUpgrade: () => void;
+}) {
   const qc = useQueryClient();
   const inviteFn = useServerFn(inviteToGroup);
   const revokeFn = useServerFn(revokeInvite);
