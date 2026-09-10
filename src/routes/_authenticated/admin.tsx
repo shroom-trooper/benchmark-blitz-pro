@@ -705,8 +705,14 @@ function TeamTab({
               <Lock className="size-4" /> Group limit reached
             </p>
             <p className="mt-1 text-sm leading-relaxed text-body">
-              The free tier covers {data.group.memberLimit} members plus you. Larger teams are
-              coming soon — tell us how many seats you need.
+              The free tier covers {data.group.memberLimit} members plus you. Need to invite your
+              full team?{" "}
+              <button
+                onClick={onUpgrade}
+                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+              >
+                Upgrade to Pro <Sparkles className="size-3" />
+              </button>
             </p>
             <div className="mt-3 flex gap-2">
               <Input
@@ -727,16 +733,27 @@ function TeamTab({
             </div>
           </div>
         ) : (
-          <div className="flex gap-2">
-            <Input
-              type="email"
-              placeholder="manager@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Button onClick={() => invite.mutate()} disabled={!email || invite.isPending}>
-              Invite
-            </Button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <Input
+                type="email"
+                placeholder="manager@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Button onClick={() => invite.mutate()} disabled={!email || invite.isPending}>
+                Invite
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Free plan limited to {data.group.memberLimit} seats. Need to add more managers?{" "}
+              <button
+                onClick={onUpgrade}
+                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+              >
+                Upgrade to Pro <Sparkles className="size-3" />
+              </button>
+            </p>
           </div>
         )}
 
