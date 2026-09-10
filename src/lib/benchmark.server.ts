@@ -311,41 +311,38 @@ export async function submitWeek(
   };
 }
 
-export async function loadGroupLeaderboard(supabase: DB, userId: string) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("group_id")
-    .eq("id", userId)
-    .maybeSingle();
-  if (!profile?.group_id) return null;
+export async function loadGroupLeaderboard(_supabase: DB, userId: string) {
+  // Peers must not read each other's profile rows (they contain emails), so the
+  // board comes from a server-only function that returns display fields only.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: rows } = await supabaseAdmin.rpc("get_group_leaderboard", {
+    _actor: userId,
+  });
+  const all = rows ?? [];
+  if (!all.length) return null;
 
-  const { data: group } = await supabase
-    .from("groups")
-    .select("*")
-    .eq("id", profile.group_id)
-    .maybeSingle();
-  const { data: members } = await supabase
-    .from("profiles")
-    .select("id, full_name, display_name, email, total_xp, level, current_streak")
-    .eq("group_id", profile.group_id);
-
-  const ranked = (members ?? [])
+  const first = all[0]!;
+  const ranked = all
     // The group lead administers the group and is not ranked with members.
-    .filter((p) => p.id !== group?.owner_id)
+    .filter((p) => p.id !== first.owner_id)
     .map((p) => ({
       id: p.id,
-      name: p.display_name || p.full_name || p.email.split("@")[0]!,
+      name: p.name,
       totalXp: p.total_xp,
       level: p.level,
       streak: p.current_streak,
       isMe: p.id === userId,
-      isOwner: p.id === group?.owner_id,
+      isOwner: false,
     }))
     .sort((a, b) => b.totalXp - a.totalXp)
     .map((p, i) => ({ ...p, rank: i + 1 }));
 
   return {
-    group: group ? { id: group.id, name: group.name, memberLimit: group.member_limit } : null,
+    group: {
+      id: first.group_id,
+      name: first.group_name,
+      memberLimit: first.member_limit,
+    },
     members: ranked,
   };
 }
