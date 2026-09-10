@@ -145,7 +145,7 @@ function AdminPage() {
           </TabsList>
 
           <TabsContent value="team" className="mt-6 space-y-6">
-            <TeamTab data={t} />
+            <TeamTab data={t} onUpgrade={() => setProOpen(true)} />
           </TabsContent>
 
           <TabsContent value="assessments" className="mt-6 space-y-6">
