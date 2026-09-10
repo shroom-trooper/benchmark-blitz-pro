@@ -705,8 +705,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      accept_invite: { Args: { _invite_id: string }; Returns: string }
-      create_group: { Args: { _name: string }; Returns: string }
+      accept_invite: {
+        Args: { _actor: string; _invite_id: string }
+        Returns: string
+      }
+      create_group: { Args: { _actor: string; _name: string }; Returns: string }
+      get_group_leaderboard: {
+        Args: { _actor: string }
+        Returns: {
+          current_streak: number
+          group_id: string
+          group_name: string
+          id: string
+          level: number
+          member_limit: number
+          name: string
+          owner_id: string
+          total_xp: number
+        }[]
+      }
       get_public_leaderboard: {
         Args: never
         Returns: {
@@ -744,7 +761,7 @@ export type Database = {
         Returns: boolean
       }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
-      leave_group: { Args: never; Returns: undefined }
+      leave_group: { Args: { _actor: string }; Returns: undefined }
       make_share_slug: { Args: { _seed: string }; Returns: string }
     }
     Enums: {
