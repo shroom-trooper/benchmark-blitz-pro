@@ -99,18 +99,22 @@ function AdminPage() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-3xl">{t.group.name}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Week {t.summary.currentWeek} of 52 · {t.group.seatsUsed}/{t.group.memberLimit}{" "}
-              seats used
-            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span>
+                Week {t.summary.currentWeek} of 52 · {t.group.seatsUsed}/
+                {t.group.memberLimit} seats used
+              </span>
+              <span className="text-border">·</span>
+              <button
+                onClick={() => setProOpen(true)}
+                className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20 hover:text-primary-foreground"
+              >
+                <Sparkles className="size-3" />
+                Need more seats? Upgrade to Pro
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
           </div>
-          <Button
-            onClick={() => setProOpen(true)}
-            className="gap-2 shadow-lg shadow-primary/25"
-          >
-            <Sparkles className="size-4" />
-            Upgrade to Pro
-          </Button>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
