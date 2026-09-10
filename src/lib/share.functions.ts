@@ -37,7 +37,7 @@ export const claimShareBonus = createServerFn({ method: "POST" })
 export const getPublicProfile = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {
-    const client = publicClient();
+    const client = await publicClient();
     const { data: rows, error } = await client.rpc("get_public_profile", {
       p_slug: data.slug,
     });

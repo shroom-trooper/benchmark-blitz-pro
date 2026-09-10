@@ -13,7 +13,10 @@ export const Route = createFileRoute('/api/public/og/$slug')({
     handlers: {
       GET: async ({ params }) => {
         const slug = params.slug.replace(/\.png$/, '')
-        const { data, error } = await publicClient().rpc('get_share_card', {
+        const { supabaseAdmin } = await import(
+          '@/integrations/supabase/client.server'
+        )
+        const { data, error } = await supabaseAdmin.rpc('get_share_card', {
           p_slug: slug,
         })
         if (error || !data) return new Response('Not found', { status: 404 })
