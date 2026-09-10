@@ -1,26 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
 import { levelForXp } from "./gamification";
 import * as share from "./share.server";
 
-function publicClient() {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  const url = process.env["SUPABASE_URL"]!;
-  return createClient<Database>(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => {
-        const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
-          h.delete("Authorization");
-        h.set("apikey", key);
-        return fetch(input, { ...init, headers: h });
-      },
-    },
-  });
+// The public profile function is server-only, so read it with the trusted
+// server client rather than exposing it to browsers.
+async function publicClient() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
 }
 
 const slugSchema = z.object({ slug: z.string().min(2).max(64) });
@@ -47,7 +35,7 @@ export const claimShareBonus = createServerFn({ method: "POST" })
 export const getPublicProfile = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {
-    const client = publicClient();
+    const client = await publicClient();
     const { data: rows, error } = await client.rpc("get_public_profile", {
       p_slug: data.slug,
     });

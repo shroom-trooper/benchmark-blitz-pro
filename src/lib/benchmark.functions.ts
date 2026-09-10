@@ -1,8 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
 import * as svc from "./benchmark.server";
 import * as asv from "./assessments.server";
 
@@ -36,20 +34,9 @@ export const submitWeek = createServerFn({ method: "POST" })
 
 /** Public, signed-out readable board built from the safe-columns view. */
 export const getPublicLeaderboard = createServerFn({ method: "GET" }).handler(async () => {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  const url = process.env["SUPABASE_URL"]!;
-  const client = createClient<Database>(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => {
-        const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
-          h.delete("Authorization");
-        h.set("apikey", key);
-        return fetch(input, { ...init, headers: h });
-      },
-    },
-  });
+  // The leaderboard function is server-only; browsers cannot call it directly.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const client = supabaseAdmin;
   type LeaderRow = {
     id: string;
     display_name: string | null;
