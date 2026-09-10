@@ -99,18 +99,22 @@ function AdminPage() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-3xl">{t.group.name}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Week {t.summary.currentWeek} of 52 · {t.group.seatsUsed}/{t.group.memberLimit}{" "}
-              seats used
-            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span>
+                Week {t.summary.currentWeek} of 52 · {t.group.seatsUsed}/
+                {t.group.memberLimit} seats used
+              </span>
+              <span className="text-border">·</span>
+              <button
+                onClick={() => setProOpen(true)}
+                className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20 hover:text-primary-foreground"
+              >
+                <Sparkles className="size-3" />
+                Need more seats? Upgrade to Pro
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
           </div>
-          <Button
-            onClick={() => setProOpen(true)}
-            className="gap-2 shadow-lg shadow-primary/25"
-          >
-            <Sparkles className="size-4" />
-            Upgrade to Pro
-          </Button>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -141,7 +145,7 @@ function AdminPage() {
           </TabsList>
 
           <TabsContent value="team" className="mt-6 space-y-6">
-            <TeamTab data={t} />
+            <TeamTab data={t} onUpgrade={() => setProOpen(true)} />
           </TabsContent>
 
           <TabsContent value="assessments" className="mt-6 space-y-6">
@@ -640,7 +644,13 @@ function MemberAnalytics({ data }: { data: Console }) {
 
 
 
-function TeamTab({ data }: { data: Console }) {
+function TeamTab({
+  data,
+  onUpgrade,
+}: {
+  data: Console;
+  onUpgrade: () => void;
+}) {
   const qc = useQueryClient();
   const inviteFn = useServerFn(inviteToGroup);
   const revokeFn = useServerFn(revokeInvite);
@@ -695,8 +705,14 @@ function TeamTab({ data }: { data: Console }) {
               <Lock className="size-4" /> Group limit reached
             </p>
             <p className="mt-1 text-sm leading-relaxed text-body">
-              The free tier covers {data.group.memberLimit} members plus you. Larger teams are
-              coming soon — tell us how many seats you need.
+              The free tier covers {data.group.memberLimit} members plus you. Need to invite your
+              full team?{" "}
+              <button
+                onClick={onUpgrade}
+                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+              >
+                Upgrade to Pro <Sparkles className="size-3" />
+              </button>
             </p>
             <div className="mt-3 flex gap-2">
               <Input
@@ -717,16 +733,27 @@ function TeamTab({ data }: { data: Console }) {
             </div>
           </div>
         ) : (
-          <div className="flex gap-2">
-            <Input
-              type="email"
-              placeholder="manager@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Button onClick={() => invite.mutate()} disabled={!email || invite.isPending}>
-              Invite
-            </Button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <Input
+                type="email"
+                placeholder="manager@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Button onClick={() => invite.mutate()} disabled={!email || invite.isPending}>
+                Invite
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Free plan limited to {data.group.memberLimit} seats. Need to add more managers?{" "}
+              <button
+                onClick={onUpgrade}
+                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+              >
+                Upgrade to Pro <Sparkles className="size-3" />
+              </button>
+            </p>
           </div>
         )}
 
