@@ -8,19 +8,30 @@ import { RouteError, RouteNotFound } from "@/components/RouteError";
 const SITE = "https://usebenchmark.app";
 
 export const Route = createFileRoute("/p/$slug")({
-  loader: async ({ params }) => {
-    const profile = await getPublicProfile({ data: { slug: params.slug } });
+  validateSearch: (search: Record<string, unknown>) => ({
+    track: search["track"] === "recruiter" ? ("recruiter" as const) : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ track: search.track }),
+  loader: async ({ params, deps }) => {
+    const profile = await getPublicProfile({
+      data: { slug: params.slug, ...(deps.track ? { track: deps.track } : {}) },
+    });
     if (!profile) throw notFound();
     return profile;
   },
   head: ({ params, loaderData }) => {
+    const recruiter = loaderData?.track === "recruiter";
+    const suffix = recruiter ? "?track=recruiter" : "";
     const title = loaderData
       ? `${loaderData.name} · Level ${loaderData.level} ${loaderData.levelTitle} on Benchmark`
       : "Benchmark player";
+    const tagline = recruiter
+      ? "Calibrated & ready to recruit. See where your TA judgement stacks up on Benchmark."
+      : "Calibrated & ready to hire. See where your hiring skills stack up on Benchmark.";
     const description = loaderData
-      ? `${loaderData.name} has ${loaderData.totalXp.toLocaleString()} XP and a ${loaderData.streak}-week streak. Calibrated & ready to hire. See where your hiring skills stack up on Benchmark.`
-      : "See where your hiring skills stack up on Benchmark.";
-    const image = `${SITE}/api/public/og/${params.slug}`;
+      ? `${loaderData.name} has ${loaderData.totalXp.toLocaleString()} XP and a ${loaderData.streak}-week streak. ${tagline}`
+      : tagline;
+    const image = `${SITE}/api/public/og/${params.slug}${suffix}`;
     return {
       meta: [
         { title },
@@ -28,14 +39,14 @@ export const Route = createFileRoute("/p/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "profile" },
-        { property: "og:url", content: `${SITE}/p/${params.slug}` },
+        { property: "og:url", content: `${SITE}/p/${params.slug}${suffix}` },
         { property: "og:image", content: image },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
         { name: "twitter:image", content: image },
       ],
-      links: [{ rel: "canonical", href: `${SITE}/p/${params.slug}` }],
+      links: [{ rel: "canonical", href: `${SITE}/p/${params.slug}${suffix}` }],
     };
   },
   component: PublicProfilePage,  errorComponent: RouteError,
@@ -46,6 +57,7 @@ export const Route = createFileRoute("/p/$slug")({
 function PublicProfilePage() {
   const p = Route.useLoaderData();
   const { slug } = Route.useParams();
+  const isRecruiter = p.track === "recruiter";
 
   return (
     <div className="min-h-dvh bg-background">
@@ -66,7 +78,7 @@ function PublicProfilePage() {
       <main className="mx-auto max-w-4xl space-y-8 px-4 py-12">
         <section className="overflow-hidden rounded-2xl border border-border bg-surface">
           <img
-            src={`/api/public/og/${slug}`}
+            src={`/api/public/og/${slug}${isRecruiter ? "?track=recruiter" : ""}`}
             alt={`${p.name}'s Benchmark achievement card`}
             className="w-full"
             onError={(e) => {
@@ -85,11 +97,13 @@ function PublicProfilePage() {
           <p className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
             <Trophy className="size-3" /> {rankBadgeLabel(p)}
           </p>
-          <h1 className="mt-4 text-3xl">Test your hiring signal</h1>
+          <h1 className="mt-4 text-3xl">
+            {isRecruiter ? "Test your recruiting signal" : "Test your hiring signal"}
+          </h1>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-body">
-            Three real interview scenarios, 45 seconds each. See how your judgement
-            compares with {p.totalPlayers.toLocaleString()} hiring managers training on
-            Benchmark.
+            {isRecruiter
+              ? `Three real TA scenarios, 45 seconds each. See how your judgement compares with ${p.totalPlayers.toLocaleString()} recruiters training on Benchmark.`
+              : `Three real interview scenarios, 45 seconds each. See how your judgement compares with ${p.totalPlayers.toLocaleString()} hiring managers training on Benchmark.`}
           </p>
           <Button asChild size="lg" className="mt-6">
             <Link to="/auth">Try 3-Minute Quick Sprint Free</Link>

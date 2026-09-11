@@ -8,12 +8,22 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CARD_H, CARD_W, ShareCard, type ShareCardData } from "@/components/ShareCard";
 import { claimShareBonus, getShareProfile, saveShareCard } from "@/lib/share.functions";
-import { track } from "@/lib/analytics";
+import { track as trackEvent } from "@/lib/analytics";
 
-const HOOK =
-  "Calibrated & ready to hire. See where your hiring skills stack up on Benchmark.";
+const HOOKS = {
+  interviewer:
+    "Calibrated & ready to hire. See where your hiring skills stack up on Benchmark.",
+  recruiter:
+    "Calibrated & ready to recruit. See where your TA judgement stacks up on Benchmark.",
+} as const;
 
-export function ShareAchievementModal({ onClose }: { onClose: () => void }) {
+export function ShareAchievementModal({
+  onClose,
+  track = "interviewer",
+}: {
+  onClose: () => void;
+  track?: "interviewer" | "recruiter";
+}) {
   const profileFn = useServerFn(getShareProfile);
   const saveFn = useServerFn(saveShareCard);
   const bonusFn = useServerFn(claimShareBonus);
@@ -22,21 +32,25 @@ export function ShareAchievementModal({ onClose }: { onClose: () => void }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [png, setPng] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const HOOK = HOOKS[track];
 
   const { data, isLoading } = useQuery({
-    queryKey: ["share-profile"],
-    queryFn: () => profileFn({}),
+    queryKey: ["share-profile", track],
+    queryFn: () => profileFn({ data: { track } }),
   });
 
-  const save = useMutation({ mutationFn: (dataUrl: string) => saveFn({ data: { png: dataUrl } }) });
+  const save = useMutation({
+    mutationFn: (dataUrl: string) => saveFn({ data: { png: dataUrl, track } }),
+  });
 
   const bonus = useMutation({
-    mutationFn: () => bonusFn({}),
+    mutationFn: () => bonusFn({ data: { track } }),
     onSuccess: (res) => {
       if (res.awarded) {
         toast.success("+50 XP for sharing your achievement");
         void qc.invalidateQueries({ queryKey: ["me"] });
         void qc.invalidateQueries({ queryKey: ["public-leaderboard"] });
+        void qc.invalidateQueries({ queryKey: ["public-recruiter-leaderboard"] });
       }
     },
   });
@@ -64,11 +78,13 @@ export function ShareAchievementModal({ onClose }: { onClose: () => void }) {
   // so LinkedIn/Twitter crawlers (and recipients) get a blocked page.
   const SHARE_BASE =
     (import.meta.env["VITE_SITE_URL"] as string | undefined) ?? "https://usebenchmark.app";
-  const shareUrl = data?.slug ? `${SHARE_BASE}/p/${data.slug}` : "";
+  const shareUrl = data?.slug
+    ? `${SHARE_BASE}/p/${data.slug}${track === "recruiter" ? "?track=recruiter" : ""}`
+    : "";
 
   const afterShare = useCallback(
     (channel: string) => {
-      track("achievement_shared", { channel });
+      trackEvent("achievement_shared", { channel, track });
       if (data && !data.bonusAwarded) bonus.mutate();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,6 +101,7 @@ export function ShareAchievementModal({ onClose }: { onClose: () => void }) {
         rank: data.rank,
         totalPlayers: data.totalPlayers,
         percentile: data.percentile,
+        track,
       }
     : null;
 

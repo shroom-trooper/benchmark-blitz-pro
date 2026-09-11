@@ -11,13 +11,18 @@ function base64ToBytes(b64: string) {
 export const Route = createFileRoute('/api/public/og/$slug')({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ params, request }) => {
         const slug = params.slug.replace(/\.png$/, '')
+        const track =
+          new URL(request.url).searchParams.get('track') === 'recruiter'
+            ? 'recruiter'
+            : 'interviewer'
         const { supabaseAdmin } = await import(
           '@/integrations/supabase/client.server'
         )
-        const { data, error } = await supabaseAdmin.rpc('get_share_card', {
+        const { data, error } = await supabaseAdmin.rpc('get_share_card_tracked', {
           p_slug: slug,
+          p_track: track,
         })
         if (error || !data) return new Response('Not found', { status: 404 })
         return new Response(base64ToBytes(data), {

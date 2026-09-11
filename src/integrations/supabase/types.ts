@@ -408,6 +408,7 @@ export type Database = {
           longest_sprint_streak: number
           longest_streak: number
           share_bonus_awarded: boolean
+          share_bonus_recruiter: boolean
           share_card_url: string | null
           share_slug: string | null
           sprint_streak: number
@@ -430,6 +431,7 @@ export type Database = {
           longest_sprint_streak?: number
           longest_streak?: number
           share_bonus_awarded?: boolean
+          share_bonus_recruiter?: boolean
           share_card_url?: string | null
           share_slug?: string | null
           sprint_streak?: number
@@ -452,6 +454,7 @@ export type Database = {
           longest_sprint_streak?: number
           longest_streak?: number
           share_bonus_awarded?: boolean
+          share_bonus_recruiter?: boolean
           share_card_url?: string | null
           share_slug?: string | null
           sprint_streak?: number
@@ -620,16 +623,19 @@ export type Database = {
       share_cards: {
         Row: {
           png_base64: string
+          track: string
           updated_at: string
           user_id: string
         }
         Insert: {
           png_base64: string
+          track?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           png_base64?: string
+          track?: string
           updated_at?: string
           user_id?: string
         }
@@ -893,7 +899,35 @@ export type Database = {
           total_xp: number
         }[]
       }
+      get_public_recruiter_profile: {
+        Args: { p_slug: string }
+        Returns: {
+          current_streak: number
+          display_name: string
+          level: number
+          longest_streak: number
+          rank: number
+          total_players: number
+          total_xp: number
+        }[]
+      }
+      get_recruiter_share_stats: {
+        Args: { _user: string }
+        Returns: {
+          current_streak: number
+          display_name: string
+          level: number
+          longest_streak: number
+          rank: number
+          total_players: number
+          total_xp: number
+        }[]
+      }
       get_share_card: { Args: { p_slug: string }; Returns: string }
+      get_share_card_tracked: {
+        Args: { p_slug: string; p_track: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
