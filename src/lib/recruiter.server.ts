@@ -124,9 +124,48 @@ export async function loadRecruiterMe(supabase: DB, userId: string) {
       .order("week_number"),
   ]);
 
+  const [profileRes, ownedRes, invitesRes] = await Promise.all([
+    supabase.from("profiles").select("display_name, group_id").eq("id", userId).maybeSingle(),
+    supabase
+      .from("groups")
+      .select("id, name")
+      .eq("owner_id", userId)
+      .eq("track", "recruiter")
+      .maybeSingle(),
+    supabase.from("invites").select("id, group_id, status").eq("status", "pending"),
+  ]);
+
+  let group: { id: string; name: string } | null = ownedRes.data ?? null;
+  const ownsGroup = Boolean(ownedRes.data);
+  const memberGroupId = profileRes.data?.group_id ?? null;
+  if (!group && memberGroupId) {
+    const { data: mg } = await supabase
+      .from("groups")
+      .select("id, name, track")
+      .eq("id", memberGroupId)
+      .maybeSingle();
+    if (mg?.track === "recruiter") group = { id: mg.id, name: mg.name };
+  }
+
+  const pendingInvites: { id: string; groupName: string }[] = [];
+  if (!group) {
+    for (const inv of invitesRes.data ?? []) {
+      const { data: g } = await supabase
+        .from("groups")
+        .select("id, name, track")
+        .eq("id", inv.group_id)
+        .maybeSingle();
+      if (g?.track === "recruiter") pendingInvites.push({ id: inv.id, groupName: g.name });
+    }
+  }
+
   return {
     track: "recruiter" as const,
     progress,
+    displayName: profileRes.data?.display_name ?? "",
+    group,
+    ownsGroup,
+    pendingInvites,
     weeks: weeksRes.data ?? [],
     responses: responsesRes.data ?? [],
     unlockedWeek: unlockedWeekFor(progress.startedAt),
