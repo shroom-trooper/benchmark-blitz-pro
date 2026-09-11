@@ -27,6 +27,7 @@ import { Route as AuthenticatedElectivesIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedRecruiterIndexRouteImport } from './routes/_authenticated/recruiter.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
+import { Route as AuthenticatedRecruiterSessionWeekRouteImport } from './routes/_authenticated/recruiter.session.$week'
 import { Route as ApiPublicCronWeeklyUnlockRouteImport } from './routes/api/public/cron/weekly-unlock'
 import { Route as ApiPublicOgSlugRouteImport } from './routes/api/public/og/$slug'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -128,6 +129,12 @@ const AuthenticatedElectivesModuleLessonRoute =
     path: '/$module/$lesson',
     getParentRoute: () => AuthenticatedElectivesRoute,
   } as any)
+const AuthenticatedRecruiterSessionWeekRoute =
+  AuthenticatedRecruiterSessionWeekRouteImport.update({
+    id: '/session/$week',
+    path: '/session/$week',
+    getParentRoute: () => AuthenticatedRecruiterRoute,
+  } as any)
 const ApiPublicCronWeeklyUnlockRoute =
   ApiPublicCronWeeklyUnlockRouteImport.update({
     id: '/api/public/cron/weekly-unlock',
@@ -174,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/electives/': typeof AuthenticatedElectivesIndexRoute
   '/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
+  '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -196,6 +204,7 @@ export interface FileRoutesByTo {
   '/electives': typeof AuthenticatedElectivesIndexRoute
   '/recruiter': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
+  '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -222,6 +231,7 @@ export interface FileRoutesById {
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
   '/_authenticated/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
+  '/_authenticated/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/electives/'
     | '/recruiter/'
     | '/electives/$module/$lesson'
+    | '/recruiter/session/$week'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/electives'
     | '/recruiter'
     | '/electives/$module/$lesson'
+    | '/recruiter/session/$week'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -295,6 +307,7 @@ export interface FileRouteTypes {
     | '/_authenticated/electives/'
     | '/_authenticated/recruiter/'
     | '/_authenticated/electives/$module/$lesson'
+    | '/_authenticated/recruiter/session/$week'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedElectivesModuleLessonRouteImport
       parentRoute: typeof AuthenticatedElectivesRoute
     }
+    '/_authenticated/recruiter/session/$week': {
+      id: '/_authenticated/recruiter/session/$week'
+      path: '/session/$week'
+      fullPath: '/recruiter/session/$week'
+      preLoaderRoute: typeof AuthenticatedRecruiterSessionWeekRouteImport
+      parentRoute: typeof AuthenticatedRecruiterRoute
+    }
     '/api/public/cron/weekly-unlock': {
       id: '/api/public/cron/weekly-unlock'
       path: '/api/public/cron/weekly-unlock'
@@ -503,11 +523,14 @@ const AuthenticatedElectivesRouteWithChildren =
 
 interface AuthenticatedRecruiterRouteChildren {
   AuthenticatedRecruiterIndexRoute: typeof AuthenticatedRecruiterIndexRoute
+  AuthenticatedRecruiterSessionWeekRoute: typeof AuthenticatedRecruiterSessionWeekRoute
 }
 
 const AuthenticatedRecruiterRouteChildren: AuthenticatedRecruiterRouteChildren =
   {
     AuthenticatedRecruiterIndexRoute: AuthenticatedRecruiterIndexRoute,
+    AuthenticatedRecruiterSessionWeekRoute:
+      AuthenticatedRecruiterSessionWeekRoute,
   }
 
 const AuthenticatedRecruiterRouteWithChildren =
