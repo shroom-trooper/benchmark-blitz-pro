@@ -87,6 +87,84 @@ export function quarterForWeek(week: number): number {
 
 export const TOTAL_WEEKS = 52;
 
+/* ---------- Tracks ---------- */
+
+export type Track = "interviewer" | "recruiter";
+
+export const TRACKS: Track[] = ["interviewer", "recruiter"];
+
+export function isTrack(value: unknown): value is Track {
+  return value === "interviewer" || value === "recruiter";
+}
+
+export const TRACK_LABELS: Record<Track, string> = {
+  interviewer: "Interviewer training",
+  recruiter: "Recruiter training",
+};
+
+export const RECRUITER_LEVELS: LevelDef[] = [
+  { level: 1, title: "Novice Recruiter", minXp: 0 },
+  { level: 2, title: "Intake Apprentice", minXp: 200 },
+  { level: 3, title: "Search Builder", minXp: 500 },
+  { level: 4, title: "Market Mapper", minXp: 900 },
+  { level: 5, title: "Engagement Specialist", minXp: 1400 },
+  { level: 6, title: "Conversion Driver", minXp: 2000 },
+  { level: 7, title: "Assessment Partner", minXp: 2800 },
+  { level: 8, title: "Closing Expert", minXp: 3800 },
+  { level: 9, title: "Talent Advisor", minXp: 5000 },
+  { level: 10, title: "Master Talent Partner", minXp: 6500 },
+];
+
+export const RECRUITER_QUARTER_THEMES: Record<number, { name: string; blurb: string }> = {
+  1: {
+    name: "Intake Calibration & Search Strategy",
+    blurb: "Aligning the bar, mapping the market and building precise searches.",
+  },
+  2: {
+    name: "Engagement & Conversion",
+    blurb: "Outreach, value propositions, objections and candidate experience.",
+  },
+  3: {
+    name: "Assessment & Bias Mitigation",
+    blurb: "Structured screening, evidence and fair evaluation at the top of the funnel.",
+  },
+  4: {
+    name: "Negotiation, Closing & Partnership",
+    blurb: "Closing offers and operating as a strategic hiring manager partner.",
+  },
+};
+
+export function levelsForTrack(track: Track): LevelDef[] {
+  return track === "recruiter" ? RECRUITER_LEVELS : LEVELS;
+}
+
+export function levelForXpIn(track: Track, totalXp: number): LevelDef {
+  let current = levelsForTrack(track)[0]!;
+  for (const l of levelsForTrack(track)) if (totalXp >= l.minXp) current = l;
+  return current;
+}
+
+export function levelProgressIn(track: Track, totalXp: number) {
+  const levels = levelsForTrack(track);
+  const current = levelForXpIn(track, totalXp);
+  const next = levels.find((l) => l.minXp > totalXp) ?? null;
+  if (!next) return { current, next: null, pct: 100, xpIntoLevel: 0, xpForLevel: 0 };
+  const xpForLevel = next.minXp - current.minXp;
+  const xpIntoLevel = totalXp - current.minXp;
+  return {
+    current,
+    next,
+    xpIntoLevel,
+    xpForLevel,
+    pct: Math.min(100, Math.round((xpIntoLevel / xpForLevel) * 100)),
+  };
+}
+
+export function quarterThemesForTrack(track: Track) {
+  return track === "recruiter" ? RECRUITER_QUARTER_THEMES : QUARTER_THEMES;
+}
+
+
 /** Rolling per-user release: week 1 at signup, a new week every 7 days. */
 export function unlockedWeekFor(createdAt: string | null | undefined): number {
   if (!createdAt) return 1;
