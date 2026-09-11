@@ -860,7 +860,7 @@ export async function inviteToGroup(supabase: DB, userId: string, email: string)
         groupName: group.name,
         inviterName:
           inviter?.display_name || inviter?.full_name || inviter?.email?.split("@")[0] || null,
-        joinUrl: `${process.env["APP_URL"] || "https://benchmark-blitz-pro.lovable.app"}/auth`,
+        joinUrl: `${process.env["APP_URL"] || "https://usebenchmark.app"}/auth`,
       },
       idempotencyKey: `group-invite-${data.id}`,
     });
