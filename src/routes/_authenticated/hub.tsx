@@ -26,7 +26,7 @@ import { GroupPanel } from "@/components/GroupPanel";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingSplash } from "@/components/LoadingSplash";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 import { TrackSwitch } from "@/components/TrackSwitch";
 
@@ -94,11 +94,7 @@ function Hub() {
     allowedTracks.includes("recruiter");
 
   if (isLoading || !me || redirecting) {
-    return (
-      <AppShell>
-        <Skeleton className="h-48 w-full rounded-xl" />
-      </AppShell>
-    );
+    return <LoadingSplash />;
   }
 
   const currentWeek = me.unlockedWeek ?? 1;

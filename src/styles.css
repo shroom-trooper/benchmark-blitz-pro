@@ -74,6 +74,17 @@
   --animate-pop: pop 0.3s ease-out;
   --animate-rise: rise 0.5s ease-out both;
   --animate-fall: fall 2.6s linear forwards;
+  --animate-splash-glow: splash-glow 2.2s ease-in-out infinite;
+  --animate-splash-pulse: splash-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes splash-glow {
+  0%, 100% { opacity: 0.5; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@keyframes splash-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
 }
 
 @keyframes shake {
