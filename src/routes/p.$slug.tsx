@@ -57,6 +57,7 @@ export const Route = createFileRoute("/p/$slug")({
 function PublicProfilePage() {
   const p = Route.useLoaderData();
   const { slug } = Route.useParams();
+  const isRecruiter = p.track === "recruiter";
 
   return (
     <div className="min-h-dvh bg-background">
@@ -96,11 +97,13 @@ function PublicProfilePage() {
           <p className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
             <Trophy className="size-3" /> {rankBadgeLabel(p)}
           </p>
-          <h1 className="mt-4 text-3xl">Test your hiring signal</h1>
+          <h1 className="mt-4 text-3xl">
+            {isRecruiter ? "Test your recruiting signal" : "Test your hiring signal"}
+          </h1>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-body">
-            Three real interview scenarios, 45 seconds each. See how your judgement
-            compares with {p.totalPlayers.toLocaleString()} hiring managers training on
-            Benchmark.
+            {isRecruiter
+              ? `Three real TA scenarios, 45 seconds each. See how your judgement compares with ${p.totalPlayers.toLocaleString()} recruiters training on Benchmark.`
+              : `Three real interview scenarios, 45 seconds each. See how your judgement compares with ${p.totalPlayers.toLocaleString()} hiring managers training on Benchmark.`}
           </p>
           <Button asChild size="lg" className="mt-6">
             <Link to="/auth">Try 3-Minute Quick Sprint Free</Link>
