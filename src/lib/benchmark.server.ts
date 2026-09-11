@@ -750,17 +750,26 @@ export async function acceptInvite(_supabase: DB, userId: string, inviteId: stri
   });
   if (error) fail(friendly(error.message));
 
-  // The invite decides which track the member trains on.
+  // The invite decides which track the member trains on. Invited members are
+  // single-track; only group owners (self-signups) keep both tracks.
   const inviteTrack = invite?.track === "recruiter" ? "recruiter" : "interviewer";
+  const { data: owned } = await supabaseAdmin
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .limit(1);
+  const isOwner = (owned?.length ?? 0) > 0;
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("allowed_tracks")
     .eq("id", userId)
     .maybeSingle();
-  const allowed = new Set([...(profile?.allowed_tracks ?? []), inviteTrack]);
+  const allowed = isOwner
+    ? [...new Set([...(profile?.allowed_tracks ?? []), inviteTrack])]
+    : [inviteTrack];
   await supabaseAdmin
     .from("profiles")
-    .update({ allowed_tracks: [...allowed], active_track: inviteTrack })
+    .update({ allowed_tracks: allowed, active_track: inviteTrack })
     .eq("id", userId);
 
   return { groupId: data as string };

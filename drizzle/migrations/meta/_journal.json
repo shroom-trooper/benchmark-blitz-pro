@@ -15,6 +15,13 @@
       "when": 1789121613823,
       "tag": "0001_seed_recruiter_weeks",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789123567817,
+      "tag": "0002_both_tracks_at_signup",
+      "breakpoints": true
     }
   ]
 }
