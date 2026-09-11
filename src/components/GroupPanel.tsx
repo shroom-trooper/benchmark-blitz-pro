@@ -125,6 +125,8 @@ export function GroupPanel({
             </p>
           </div>
         ) : (
+          <>
+
 
             <p className="mt-2 text-sm leading-relaxed text-body">{copy.blurb}</p>
             <div className="mt-4 flex gap-2">
