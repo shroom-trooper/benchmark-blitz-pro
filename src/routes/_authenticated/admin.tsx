@@ -467,6 +467,7 @@ function MemberAnalytics({ data }: { data: Console }) {
   const released = data.summary.releasedWeeks;
   const rows = data.users;
   const [open, setOpen] = useState<string | null>(null);
+  const memberNoun = data.group.track === "recruiter" ? "recruiter" : "manager";
 
   return (
     <Panel title="Member performance">
@@ -626,7 +627,7 @@ function MemberAnalytics({ data }: { data: Console }) {
         </div>
       ) : (
         <p className="text-sm leading-relaxed text-body">
-          No members yet — invite managers from the Team tab to start tracking their progress.
+          No members yet — invite {memberNoun}s from the Team tab to start tracking their progress.
         </p>
       )}
     </Panel>
@@ -730,7 +731,7 @@ function TeamTab({
             <div className="flex gap-2">
               <Input
                 type="email"
-                placeholder="manager@company.com"
+                placeholder={`${memberNoun}@company.com`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -739,7 +740,7 @@ function TeamTab({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Free plan limited to {data.group.memberLimit} seats. Need to add more managers?{" "}
+              Free plan limited to {data.group.memberLimit} seats. Need to add more {memberNoun}s?{" "}
               <button
                 onClick={onUpgrade}
                 className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
