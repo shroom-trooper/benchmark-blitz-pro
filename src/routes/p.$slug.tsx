@@ -46,7 +46,7 @@ export const Route = createFileRoute("/p/$slug")({
         { name: "twitter:description", content: description },
         { name: "twitter:image", content: image },
       ],
-      links: [{ rel: "canonical", href: `${SITE}/p/${params.slug}` }],
+      links: [{ rel: "canonical", href: `${SITE}/p/${params.slug}${suffix}` }],
     };
   },
   component: PublicProfilePage,  errorComponent: RouteError,
@@ -77,7 +77,7 @@ function PublicProfilePage() {
       <main className="mx-auto max-w-4xl space-y-8 px-4 py-12">
         <section className="overflow-hidden rounded-2xl border border-border bg-surface">
           <img
-            src={`/api/public/og/${slug}`}
+            src={`/api/public/og/${slug}${isRecruiter ? "?track=recruiter" : ""}`}
             alt={`${p.name}'s Benchmark achievement card`}
             className="w-full"
             onError={(e) => {
