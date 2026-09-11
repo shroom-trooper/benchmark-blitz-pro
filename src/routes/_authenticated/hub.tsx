@@ -34,6 +34,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
+import { TrackSwitch } from "@/components/TrackSwitch";
+
 
 export const Route = createFileRoute("/_authenticated/hub")({
   head: () => ({
@@ -108,7 +110,9 @@ function Hub() {
   return (
     <AppShell>
       <div className="space-y-8">
+        <TrackSwitch active="interviewer" />
         <div className="grid gap-6 lg:grid-cols-3">
+
         <section className="rounded-2xl border border-border bg-gradient-to-br from-surface to-surface-2 p-6 sm:p-8 lg:col-span-2">
 
           <div className="flex flex-wrap items-start justify-between gap-6">
@@ -323,10 +327,12 @@ function GroupPanel({
   const acceptFn = useServerFn(acceptInvite);
   const nameFn = useServerFn(updateDisplayName);
   const [groupName, setGroupName] = useState("");
+  const [groupTrack, setGroupTrack] = useState<"interviewer" | "recruiter">("interviewer");
   const [name, setName] = useState(displayName);
 
   const create = useMutation({
-    mutationFn: () => createFn({ data: { name: groupName.trim() } }),
+    mutationFn: () => createFn({ data: { name: groupName.trim(), track: groupTrack } }),
+
     onSuccess: async () => {
       await qc.invalidateQueries();
       toast.success("Group created — invite your managers");
@@ -396,19 +402,40 @@ function GroupPanel({
               Training your managers? Create a group and invite up to 3 of them — you'll see
               their progress and a private group board.
             </p>
-            <div className="mt-4 flex gap-2">
-              <Input
-                placeholder="Acme hiring managers"
-                value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
-              />
-              <Button
-                onClick={() => create.mutate()}
-                disabled={groupName.trim().length < 2 || create.isPending}
-              >
-                Create group
-              </Button>
+            <div className="mt-4 space-y-3">
+              <div className="inline-flex rounded-lg border border-border bg-background/40 p-1">
+                <Button
+                  size="sm"
+                  variant={groupTrack === "interviewer" ? "default" : "ghost"}
+                  onClick={() => setGroupTrack("interviewer")}
+                >
+                  Interviewers
+                </Button>
+                <Button
+                  size="sm"
+                  variant={groupTrack === "recruiter" ? "default" : "ghost"}
+                  onClick={() => setGroupTrack("recruiter")}
+                >
+                  Recruiters
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder={
+                    groupTrack === "recruiter" ? "Acme recruiters" : "Acme hiring managers"
+                  }
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                />
+                <Button
+                  onClick={() => create.mutate()}
+                  disabled={groupName.trim().length < 2 || create.isPending}
+                >
+                  Create group
+                </Button>
+              </div>
             </div>
+
           </>
         )}
       </div>

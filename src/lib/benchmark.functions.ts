@@ -115,10 +115,18 @@ export const getGroupConsole = createServerFn({ method: "GET" })
 
 export const createGroup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ name: z.string().min(2).max(80) }).parse(d))
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        name: z.string().min(2).max(80),
+        track: z.enum(["interviewer", "recruiter"]).default("interviewer"),
+      })
+      .parse(d),
+  )
   .handler(({ context, data }) =>
-    svc.createGroup(context.supabase, context.userId, data.name),
+    svc.createGroup(context.supabase, context.userId, data.name, data.track),
   );
+
 
 export const acceptInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
