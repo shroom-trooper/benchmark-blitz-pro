@@ -19,13 +19,18 @@ interface Props {
   topic?: string
   streak?: number
   sessionUrl?: string
+  track?: 'interviewer' | 'recruiter'
 }
 
-const Email = ({ firstName, weekNumber, topic, streak, sessionUrl }: Props) => {
+const Email = ({ firstName, weekNumber, topic, streak, sessionUrl, track }: Props) => {
+  const isRecruiter = track === 'recruiter'
   const name = firstName || 'there'
   const week = weekNumber || 1
-  const title = topic || 'this week’s hiring simulation'
-  const url = sessionUrl || `https://usebenchmark.app/session/${week}`
+  const title =
+    topic || (isRecruiter ? 'this week’s recruiting scenarios' : 'this week’s hiring simulation')
+  const url =
+    sessionUrl ||
+    `https://usebenchmark.app/${isRecruiter ? 'recruiter/session' : 'session'}/${week}`
 
   return (
     <Html lang="en" dir="ltr">
