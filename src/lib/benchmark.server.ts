@@ -826,7 +826,10 @@ export async function inviteToGroup(supabase: DB, userId: string, email: string)
     .maybeSingle();
   if (accountLookupError) fail("We couldn't verify that email address. Please try again.");
   if (existingAccount) {
-    fail("That email already has a Benchmark account and cannot be invited to a group.");
+    return {
+      ok: false as const,
+      error: "That email already has a Benchmark account and cannot be invited to a group.",
+    };
   }
 
   const { data, error } = await supabase
@@ -840,6 +843,9 @@ export async function inviteToGroup(supabase: DB, userId: string, email: string)
 
     .select()
     .single();
+  if (error?.message.includes("already has a Benchmark account")) {
+    return { ok: false as const, error: friendly(error.message) };
+  }
   if (error) fail(friendly(error.message));
 
   const { data: inviter } = await supabase
@@ -862,7 +868,7 @@ export async function inviteToGroup(supabase: DB, userId: string, email: string)
     console.error("[invite] email send failed", e);
   }
 
-  return data;
+  return { ok: true as const, invite: data };
 }
 
 

@@ -674,7 +674,11 @@ function TeamTab({
 
   const invite = useMutation({
     mutationFn: () => inviteFn({ data: { email } }),
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success("Invite created — they'll see it when they sign in with that email");
       setEmail("");
       refresh();
