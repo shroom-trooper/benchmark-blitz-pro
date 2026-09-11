@@ -11,25 +11,36 @@ async function publicClient() {
   return supabaseAdmin;
 }
 
-const slugSchema = z.object({ slug: z.string().min(2).max(64) });
+const trackSchema = z.enum(["interviewer", "recruiter"]).default("interviewer");
+const slugSchema = z.object({ slug: z.string().min(2).max(64), track: trackSchema.optional() });
 
 /** Everything the share-card modal needs about the signed-in player. */
 export const getShareProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(({ context }) => share.loadShareProfile(context.supabase, context.userId));
+  .inputValidator((d: unknown) => z.object({ track: trackSchema }).parse(d ?? {}))
+  .handler(({ context, data }) =>
+    data.track === "recruiter"
+      ? share.loadRecruiterShareProfile(context.supabase, context.userId)
+      : share.loadShareProfile(context.supabase, context.userId),
+  );
 
 export const saveShareCard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ png: z.string().min(100).max(4_000_000) }).parse(d),
+    z.object({ png: z.string().min(100).max(4_000_000), track: trackSchema }).parse(d),
   )
   .handler(({ context, data }) =>
-    share.saveShareCard(context.supabase, context.userId, data.png),
+    share.saveShareCard(context.supabase, context.userId, data.png, data.track),
   );
 
 export const claimShareBonus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(({ context }) => share.awardShareBonus(context.supabase, context.userId));
+  .inputValidator((d: unknown) => z.object({ track: trackSchema }).parse(d ?? {}))
+  .handler(({ context, data }) =>
+    data.track === "recruiter"
+      ? share.awardRecruiterShareBonus(context.supabase, context.userId)
+      : share.awardShareBonus(context.supabase, context.userId),
+  );
 
 /** Public, signed-out readable profile for /p/$slug. */
 export const getPublicProfile = createServerFn({ method: "GET" })
