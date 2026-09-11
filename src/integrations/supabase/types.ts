@@ -844,6 +844,20 @@ export type Database = {
           total_xp: number
         }[]
       }
+      get_group_recruiter_leaderboard: {
+        Args: { _actor: string }
+        Returns: {
+          current_streak: number
+          group_id: string
+          group_name: string
+          id: string
+          level: number
+          member_limit: number
+          name: string
+          owner_id: string
+          total_xp: number
+        }[]
+      }
       get_public_leaderboard: {
         Args: never
         Returns: {
@@ -865,6 +879,17 @@ export type Database = {
           rank: number
           share_card_url: string
           total_players: number
+          total_xp: number
+        }[]
+      }
+      get_public_recruiter_leaderboard: {
+        Args: never
+        Returns: {
+          current_streak: number
+          display_name: string
+          id: string
+          last_completed_week: number
+          level: number
           total_xp: number
         }[]
       }

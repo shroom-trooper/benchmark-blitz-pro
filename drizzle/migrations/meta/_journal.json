@@ -50,6 +50,13 @@
       "when": 1789130302616,
       "tag": "0006_block_group_creation_for_invited_members",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789131380061,
+      "tag": "0007_recruiter_leaderboards",
+      "breakpoints": true
     }
   ]
 }
