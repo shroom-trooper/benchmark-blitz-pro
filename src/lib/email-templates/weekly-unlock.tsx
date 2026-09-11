@@ -123,8 +123,13 @@ const hr = { borderColor: '#1f1f23', margin: '24px 0' }
 
 export const template: TemplateEntry = {
   component: Email,
-  subject: (data: Record<string, any>) =>
-    `Week ${data['weekNumber'] ?? 1} unlocked — ${data['topic'] ?? 'your next hiring simulation'}`,
+  subject: (data: Record<string, any>) => {
+    const recruiter = data['track'] === 'recruiter'
+    const fallback = recruiter
+      ? 'your next recruiting scenarios'
+      : 'your next hiring simulation'
+    return `${recruiter ? 'Recruiter week' : 'Week'} ${data['weekNumber'] ?? 1} unlocked — ${data['topic'] ?? fallback}`
+  },
   displayName: 'Weekly unlock reminder',
   previewData: {
     firstName: 'Alex',
