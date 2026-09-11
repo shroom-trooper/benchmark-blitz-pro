@@ -665,9 +665,7 @@ function TeamTab({
   const inviteFn = useServerFn(inviteToGroup);
   const revokeFn = useServerFn(revokeInvite);
   const removeFn = useServerFn(removeMember);
-  const interestFn = useServerFn(registerUpgradeInterest);
   const [email, setEmail] = useState("");
-  const [seats, setSeats] = useState("10");
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["group-console"] });
   const full = data.group.seatsLeft <= 0;
@@ -702,12 +700,6 @@ function TeamTab({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const interest = useMutation({
-    mutationFn: () => interestFn({ data: { seats: Number(seats) || null } }),
-    onSuccess: () => toast.success("Noted — we'll let you know when bigger groups open up"),
-    onError: (e: Error) => toast.error(e.message),
-  });
-
   return (
     <>
       <Panel title={`Invite a ${memberNoun}`}>
@@ -726,23 +718,6 @@ function TeamTab({
                 Upgrade to Pro <Sparkles className="size-3" />
               </button>
             </p>
-            <div className="mt-3 flex gap-2">
-              <Input
-                type="number"
-                min={1}
-                className="w-28"
-                value={seats}
-                onChange={(e) => setSeats(e.target.value)}
-                aria-label="Seats needed"
-              />
-              <Button
-                variant="outline"
-                onClick={() => interest.mutate()}
-                disabled={interest.isPending}
-              >
-                Notify me
-              </Button>
-            </div>
           </div>
         ) : (
           <div className="space-y-2">
