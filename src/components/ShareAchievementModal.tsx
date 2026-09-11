@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CARD_H, CARD_W, ShareCard, type ShareCardData } from "@/components/ShareCard";
 import { claimShareBonus, getShareProfile, saveShareCard } from "@/lib/share.functions";
-import { track } from "@/lib/analytics";
+import { track as trackEvent } from "@/lib/analytics";
 
 const HOOKS = {
   interviewer:
@@ -50,6 +50,7 @@ export function ShareAchievementModal({
         toast.success("+50 XP for sharing your achievement");
         void qc.invalidateQueries({ queryKey: ["me"] });
         void qc.invalidateQueries({ queryKey: ["public-leaderboard"] });
+        void qc.invalidateQueries({ queryKey: ["public-recruiter-leaderboard"] });
       }
     },
   });
@@ -77,11 +78,13 @@ export function ShareAchievementModal({
   // so LinkedIn/Twitter crawlers (and recipients) get a blocked page.
   const SHARE_BASE =
     (import.meta.env["VITE_SITE_URL"] as string | undefined) ?? "https://usebenchmark.app";
-  const shareUrl = data?.slug ? `${SHARE_BASE}/p/${data.slug}` : "";
+  const shareUrl = data?.slug
+    ? `${SHARE_BASE}/p/${data.slug}${track === "recruiter" ? "?track=recruiter" : ""}`
+    : "";
 
   const afterShare = useCallback(
     (channel: string) => {
-      track("achievement_shared", { channel });
+      trackEvent("achievement_shared", { channel, track });
       if (data && !data.bonusAwarded) bonus.mutate();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,6 +101,7 @@ export function ShareAchievementModal({
         rank: data.rank,
         totalPlayers: data.totalPlayers,
         percentile: data.percentile,
+        track,
       }
     : null;
 
