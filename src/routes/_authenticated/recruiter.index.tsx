@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Lightbulb, Lock, Play } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
+import { AppShell, useMe } from "@/components/AppShell";
 import { getRecruiterMe } from "@/lib/benchmark.functions";
 import { levelProgressIn, quarterForWeek, quarterThemesForTrack } from "@/lib/gamification";
 import { Progress } from "@/components/ui/progress";
@@ -38,6 +39,17 @@ export const Route = createFileRoute("/_authenticated/recruiter/")({
 });
 
 function RecruiterHub() {
+  const navigate = useNavigate();
+  const { data: shellMe } = useMe();
+  const allowedTracks = shellMe?.allowedTracks;
+
+  useEffect(() => {
+    if (!allowedTracks) return;
+    if (!allowedTracks.includes("recruiter") && allowedTracks.includes("interviewer")) {
+      navigate({ to: "/hub", replace: true });
+    }
+  }, [allowedTracks, navigate]);
+
   const meFn = useServerFn(getRecruiterMe);
   const query = useQuery({
     queryKey: ["recruiter-me"],
