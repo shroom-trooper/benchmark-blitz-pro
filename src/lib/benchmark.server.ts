@@ -68,13 +68,17 @@ export async function isAdmin(supabase: DB, userId: string) {
 }
 
 export async function requireGroupOwner(supabase: DB, userId: string) {
-  const { data } = await supabase
-    .from("groups")
-    .select("*")
-    .eq("owner_id", userId)
+  const { data } = await supabase.from("groups").select("*").eq("owner_id", userId);
+  const groups = data ?? [];
+  if (!groups.length) fail("You do not own a group yet.");
+  if (groups.length === 1) return groups[0];
+  // A lead can own one group per track; administer the one on their active track.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("active_track")
+    .eq("id", userId)
     .maybeSingle();
-  if (!data) fail("You do not own a group yet.");
-  return data;
+  return groups.find((g) => g.track === profile?.active_track) ?? groups[0];
 }
 
 export async function isPlatformAdmin(supabase: DB, userId: string) {
@@ -358,12 +362,22 @@ export async function loadGroupLeaderboard(_supabase: DB, userId: string) {
 
 export async function loadGroupConsole(supabase: DB, userId: string) {
   // Owning no group is a normal state (solo users), not an error.
-  const { data: group } = await supabase
+  const { data: ownedGroups } = await supabase
     .from("groups")
     .select("*")
-    .eq("owner_id", userId)
-    .maybeSingle();
-  if (!group) return null;
+    .eq("owner_id", userId);
+  const groups = ownedGroups ?? [];
+  if (!groups.length) return null;
+  let group = groups[0];
+  if (groups.length > 1) {
+    // Administer the group on the lead's active track.
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("active_track")
+      .eq("id", userId)
+      .maybeSingle();
+    group = groups.find((g) => g.track === profile?.active_track) ?? groups[0];
+  }
 
   const [membersRes, weeksRes, settingsRes, invitesRes] = await Promise.all([
     supabase.from("profiles").select("*").eq("group_id", group.id),
@@ -692,6 +706,7 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
     group: {
       id: group.id,
       name: group.name,
+      track: group.track,
       memberLimit: group.member_limit,
       seatsUsed,
       seatsLeft: Math.max(0, group.member_limit - seatsUsed),
