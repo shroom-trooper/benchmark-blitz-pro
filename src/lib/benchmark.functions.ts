@@ -32,6 +32,50 @@ export const submitWeek = createServerFn({ method: "POST" })
     svc.submitWeek(context.supabase, context.userId, data.week, data.answers),
   );
 
+/* ---------- Recruiter track ---------- */
+
+export const setActiveTrack = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ track: z.enum(["interviewer", "recruiter"]) }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const rec = await import("./recruiter.server");
+    return rec.setActiveTrack(context.supabase, context.userId, data.track);
+  });
+
+export const getRecruiterMe = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const rec = await import("./recruiter.server");
+    return rec.loadRecruiterMe(context.supabase, context.userId);
+  });
+
+export const getRecruiterWeek = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => weekSchema.parse(d))
+  .handler(async ({ context, data }) => {
+    const rec = await import("./recruiter.server");
+    return rec.loadRecruiterWeek(context.supabase, context.userId, data.week);
+  });
+
+export const submitRecruiterWeek = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        week: z.number().int().min(1).max(52),
+        answers: z.array(z.number().int().min(0).max(5)).min(1).max(10),
+      })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const rec = await import("./recruiter.server");
+    return rec.submitRecruiterWeek(context.supabase, context.userId, data.week, data.answers);
+  });
+
+
+
 /** Public, signed-out readable board built from the safe-columns view. */
 export const getPublicLeaderboard = createServerFn({ method: "GET" }).handler(async () => {
   // The leaderboard function is server-only; browsers cannot call it directly.
