@@ -22,7 +22,7 @@ interface Props {
 const Email = ({ groupName, inviterName, joinUrl }: Props) => {
   const group = groupName || 'a Benchmark group'
   const inviter = inviterName || 'A group lead'
-  const url = joinUrl || 'https://usebenchmark.app/auth'
+  const url = joinUrl || 'https://usebenchmark.app/accept-invite'
 
   return (
     <Html lang="en" dir="ltr">
@@ -39,11 +39,11 @@ const Email = ({ groupName, inviterName, joinUrl }: Props) => {
           </Text>
           <Section style={{ margin: '28px 0' }}>
             <Button style={button} href={url}>
-              Accept invite
+              Join your group
             </Button>
           </Section>
           <Text style={muted}>
-            Sign up with this email address and your invite will be waiting for you.
+            No password needed — we&rsquo;ll email you a one-click sign-in link for this address.
           </Text>
           <Hr style={hr} />
           <Text style={muted}>
@@ -63,7 +63,7 @@ export const template = {
   previewData: {
     groupName: 'Talent Acquisition EMEA',
     inviterName: 'Abhay',
-    joinUrl: 'https://usebenchmark.app/auth',
+    joinUrl: 'https://usebenchmark.app/accept-invite?token=preview',
   },
 } satisfies TemplateEntry
 

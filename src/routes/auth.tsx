@@ -130,6 +130,21 @@ function AuthPage() {
     setResendCooldown(RESEND_COOLDOWN);
   }
 
+  async function sendMagicLink() {
+    if (!email) return;
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/hub` },
+    });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Sign-in link sent — check your inbox.");
+  }
+
   async function forgotPassword(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -258,6 +273,15 @@ function AuthPage() {
                   </Field>
                   <Button className="w-full" disabled={loading}>
                     {loading ? "Signing in…" : "Sign in"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    disabled={loading || !email}
+                    onClick={sendMagicLink}
+                  >
+                    Email me a sign-in link
                   </Button>
                   <button
                     type="button"
