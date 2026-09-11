@@ -170,6 +170,8 @@ export async function loadRecruiterMe(supabase: DB, userId: string) {
     group,
     ownsGroup,
     pendingInvites,
+    revokedFromGroup,
+
     weeks: weeksRes.data ?? [],
     responses: responsesRes.data ?? [],
     unlockedWeek: unlockedWeekFor(progress.startedAt),
