@@ -1,4 +1,6 @@
 # Roadmap
 
-- [ ] Fix SEO finding `gsc:gsc`: link Google Search Console connection, verify usebenchmark.app via META tag, submit sitemap
-- [ ] Create /guides/how-to-train-hiring-managers guide page targeting "train hiring managers" (finding `agent_content:growth_opportunity`)
+- [ ] Allow existing account holders to accept valid group invitations.
+- [ ] Make invitation acceptance compatible with dual-track group ownership.
+- [ ] Preserve email matching, invitation status, seat capacity, and track access restrictions.
+- [ ] Verify authenticated invitation acceptance without permitting caller identity spoofing.
