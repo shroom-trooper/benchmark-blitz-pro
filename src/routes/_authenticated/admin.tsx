@@ -61,19 +61,19 @@ type Console = NonNullable<Awaited<ReturnType<typeof getGroupConsole>>>;
 function AdminPage() {
   const consoleFn = useServerFn(getGroupConsole);
   const [proOpen, setProOpen] = useState(false);
+  const { data: me, isLoading: meLoading } = useMe();
+  const activeTrack = me?.activeTrack;
   const query = useQuery({
-    queryKey: ["group-console"],
+    queryKey: ["group-console", activeTrack ?? "unknown"],
     queryFn: () => consoleFn({}),
     retry: false,
+    enabled: !!activeTrack,
   });
 
-  if (query.isLoading) {
-    return (
-      <AppShell>
-        <Skeleton className="h-96 w-full rounded-xl" />
-      </AppShell>
-    );
+  if (meLoading || !activeTrack || query.isLoading || query.isPending) {
+    return <LoadingSplash />;
   }
+
 
   if (query.error || !query.data) {
     return (
