@@ -115,6 +115,7 @@ export async function loadShareProfile(supabase: DB, userId: string) {
       : null;
 
   return {
+    track: "interviewer" as const,
     slug: profile.share_slug,
     name: profile.display_name ?? profile.full_name ?? "Anonymous",
     level: profile.level ?? 1,
@@ -129,10 +130,18 @@ export async function loadShareProfile(supabase: DB, userId: string) {
   };
 }
 
-export async function saveShareCard(supabase: DB, userId: string, pngBase64: string) {
+export async function saveShareCard(
+  supabase: DB,
+  userId: string,
+  pngBase64: string,
+  track: ShareTrack = "interviewer",
+) {
   const { error } = await supabase
     .from("share_cards")
-    .upsert({ user_id: userId, png_base64: pngBase64, updated_at: new Date().toISOString() });
+    .upsert(
+      { user_id: userId, track, png_base64: pngBase64, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,track" },
+    );
   if (error) throw new Error(error.message);
   return { ok: true as const };
 }
