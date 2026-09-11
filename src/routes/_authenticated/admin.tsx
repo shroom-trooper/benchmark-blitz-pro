@@ -650,6 +650,8 @@ function TeamTab({
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["group-console"] });
   const full = data.group.seatsLeft <= 0;
+  const isRecruiter = data.group.track === "recruiter";
+  const memberNoun = isRecruiter ? "recruiter" : "manager";
 
   const invite = useMutation({
     mutationFn: () => inviteFn({ data: { email } }),
@@ -687,7 +689,7 @@ function TeamTab({
 
   return (
     <>
-      <Panel title="Invite a manager">
+      <Panel title={`Invite a ${memberNoun}`}>
         {full ? (
           <div className="rounded-lg border border-warning/40 bg-warning/10 p-4">
             <p className="flex items-center gap-2 text-sm font-semibold text-warning">
