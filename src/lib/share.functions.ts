@@ -47,16 +47,20 @@ export const getPublicProfile = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {
     const client = await publicClient();
-    const { data: rows, error } = await client.rpc("get_public_profile", {
-      p_slug: data.slug,
-    });
+    const isRecruiter = data.track === "recruiter";
+    const { data: rows, error } = isRecruiter
+      ? await client.rpc("get_public_recruiter_profile", { p_slug: data.slug })
+      : await client.rpc("get_public_profile", { p_slug: data.slug });
     const row = rows?.[0];
     if (error || !row) return null;
     return {
+      track: isRecruiter ? ("recruiter" as const) : ("interviewer" as const),
       slug: data.slug,
       name: row.display_name ?? "Anonymous",
       level: row.level ?? 1,
-      levelTitle: levelForXp(row.total_xp ?? 0).title,
+      levelTitle: isRecruiter
+        ? levelForXpIn("recruiter", row.total_xp ?? 0).title
+        : levelForXp(row.total_xp ?? 0).title,
       totalXp: row.total_xp ?? 0,
       streak: row.current_streak ?? 0,
       longestStreak: row.longest_streak ?? 0,
