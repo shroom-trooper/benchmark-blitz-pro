@@ -38,6 +38,17 @@ export const Route = createFileRoute("/_authenticated/recruiter/")({
 });
 
 function RecruiterHub() {
+  const navigate = useNavigate();
+  const { data: shellMe } = useMe();
+  const allowedTracks = shellMe?.allowedTracks;
+
+  useEffect(() => {
+    if (!allowedTracks) return;
+    if (!allowedTracks.includes("recruiter") && allowedTracks.includes("interviewer")) {
+      navigate({ to: "/hub", replace: true });
+    }
+  }, [allowedTracks, navigate]);
+
   const meFn = useServerFn(getRecruiterMe);
   const query = useQuery({
     queryKey: ["recruiter-me"],
