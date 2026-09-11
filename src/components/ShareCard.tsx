@@ -9,15 +9,17 @@ export type ShareCardData = {
   rank: number | null;
   totalPlayers: number;
   percentile: number | null;
+  track?: "interviewer" | "recruiter";
 };
 
 export const CARD_W = 1200;
 export const CARD_H = 630;
 
 export function rankBadgeLabel(d: ShareCardData) {
+  const role = d.track === "recruiter" ? "Recruiter" : "Interviewer";
   if (!d.rank) return "In training";
   if (d.rank <= 3) return `#${d.rank} Global Rank`;
-  if (d.percentile && d.percentile <= 25) return `Top ${d.percentile}% Interviewer`;
+  if (d.percentile && d.percentile <= 25) return `Top ${d.percentile}% ${role}`;
   return `#${d.rank} of ${d.totalPlayers} Global`;
 }
 
