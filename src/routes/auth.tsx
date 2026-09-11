@@ -70,7 +70,9 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.navigate({ to: "/hub" });
+      if (data.session) {
+        void trackDestination().then((to) => router.navigate({ to }));
+      }
     });
   }, [router]);
 
