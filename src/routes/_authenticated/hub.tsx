@@ -327,10 +327,12 @@ function GroupPanel({
   const acceptFn = useServerFn(acceptInvite);
   const nameFn = useServerFn(updateDisplayName);
   const [groupName, setGroupName] = useState("");
+  const [groupTrack, setGroupTrack] = useState<"interviewer" | "recruiter">("interviewer");
   const [name, setName] = useState(displayName);
 
   const create = useMutation({
-    mutationFn: () => createFn({ data: { name: groupName.trim() } }),
+    mutationFn: () => createFn({ data: { name: groupName.trim(), track: groupTrack } }),
+
     onSuccess: async () => {
       await qc.invalidateQueries();
       toast.success("Group created — invite your managers");
