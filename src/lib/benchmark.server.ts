@@ -369,7 +369,7 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
     .eq("owner_id", userId);
   const groups = ownedGroups ?? [];
   if (!groups.length) return null;
-  let group = groups[0];
+  let group = groups[0]!;
   if (groups.length > 1) {
     // Administer the group on the lead's active track.
     const { data: profile } = await supabase
