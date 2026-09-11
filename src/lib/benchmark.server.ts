@@ -70,15 +70,16 @@ export async function isAdmin(supabase: DB, userId: string) {
 export async function requireGroupOwner(supabase: DB, userId: string) {
   const { data } = await supabase.from("groups").select("*").eq("owner_id", userId);
   const groups = data ?? [];
-  if (!groups.length) fail("You do not own a group yet.");
-  if (groups.length === 1) return groups[0];
+  const first = groups[0];
+  if (!first) fail("You do not own a group yet.");
+  if (groups.length === 1) return first;
   // A lead can own one group per track; administer the one on their active track.
   const { data: profile } = await supabase
     .from("profiles")
     .select("active_track")
     .eq("id", userId)
     .maybeSingle();
-  return groups.find((g) => g.track === profile?.active_track) ?? groups[0];
+  return groups.find((g) => g.track === profile?.active_track) ?? first;
 }
 
 export async function isPlatformAdmin(supabase: DB, userId: string) {
