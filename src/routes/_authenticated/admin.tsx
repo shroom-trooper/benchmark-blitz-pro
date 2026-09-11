@@ -167,8 +167,8 @@ function AdminPage() {
 const PRO_FEATURES = [
   {
     icon: Users,
-    title: "Unlimited Managers & Seats",
-    body: "Scale beyond the 3-seat free limit — grow your training group as your org grows.",
+    title: "10 manager + 5 recruiter seats",
+    body: "Scale beyond the free single-seat groups — 15 seats included, add more any time.",
   },
   {
     icon: BellRing,
@@ -261,11 +261,11 @@ function UpgradeProModal({
 
             <div className="mt-4 rounded-xl border border-primary/30 bg-primary/10 p-4">
               <p className="font-display text-2xl text-heading">
-                490 SEK{" "}
+                €199{" "}
                 <span className="text-base font-normal text-muted-foreground">/ month</span>
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Includes up to 10 seats · then 99 SEK / seat / month
+                Includes 10 hiring manager seats and 5 recruiter seats · then €15 / seat / month
               </p>
             </div>
 
@@ -309,7 +309,7 @@ function UpgradeProModal({
             <h2 className="mt-4 text-2xl">You're on the priority access list!</h2>
             <p className="mt-2 text-sm leading-relaxed text-body">
               Benchmark Pro is currently rolling out in batches to group admins. Because you
-              requested access today, we've locked in your 490 SEK/month rate and placed your
+              requested access today, we've locked in your €199/month rate and placed your
               group at the top of the activation queue.
             </p>
             <p className="mt-3 text-sm text-muted-foreground">

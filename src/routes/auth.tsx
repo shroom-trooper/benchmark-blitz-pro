@@ -328,7 +328,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Train solo, or create a group and invite up to 3 managers — free.
+          Train solo, or create a group and invite 1 manager and 1 recruiter — free.
         </p>
       </div>
     </div>
