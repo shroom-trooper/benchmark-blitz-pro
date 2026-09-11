@@ -259,6 +259,15 @@ function AuthPage() {
                   <Button className="w-full" disabled={loading}>
                     {loading ? "Signing in…" : "Sign in"}
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    disabled={loading || !email}
+                    onClick={sendMagicLink}
+                  >
+                    Email me a sign-in link
+                  </Button>
                   <button
                     type="button"
                     onClick={() => setForgotMode(true)}
