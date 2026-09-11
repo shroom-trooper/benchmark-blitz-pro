@@ -98,7 +98,7 @@ function AuthPage() {
       toast.error(error.message);
       return;
     }
-    router.navigate({ to: "/hub" });
+    router.navigate({ to: await trackDestination() });
   }
 
   async function signUp(e: React.FormEvent) {
