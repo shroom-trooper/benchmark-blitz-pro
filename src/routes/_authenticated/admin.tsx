@@ -378,6 +378,7 @@ const DONUT_SEGMENTS = [
 ] as const;
 
 function ReadinessDonut({ data }: { data: Console }) {
+  const memberNoun = data.group.track === "recruiter" ? "recruiter" : "manager";
   const counts = { ready: 0, practice: 0, inactive: 0 };
   for (const u of data.users) {
     if (u.readiness === "risk") counts.inactive += 1;
@@ -427,7 +428,8 @@ function ReadinessDonut({ data }: { data: Console }) {
                 {Math.round((counts.ready / total) * 100)}%
               </span>
               <span className="mt-1 max-w-[9rem] text-sm font-medium leading-snug text-foreground/70">
-                of {total} manager{total === 1 ? "" : "s"} ready to interview
+                of {total} {memberNoun}
+                {total === 1 ? "" : "s"} ready to interview
               </span>
             </div>
           </div>
@@ -454,7 +456,7 @@ function ReadinessDonut({ data }: { data: Console }) {
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          No members in your group yet — invite your managers to see readiness.
+          No members in your group yet — invite your {memberNoun}s to see readiness.
         </p>
       )}
     </Panel>
