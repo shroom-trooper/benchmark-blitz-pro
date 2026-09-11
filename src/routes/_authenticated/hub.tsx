@@ -88,7 +88,12 @@ function Hub() {
     },
   });
 
-  if (isLoading || !me) {
+  const redirecting =
+    !!allowedTracks &&
+    !allowedTracks.includes("interviewer") &&
+    allowedTracks.includes("recruiter");
+
+  if (isLoading || !me || redirecting) {
     return (
       <AppShell>
         <Skeleton className="h-48 w-full rounded-xl" />
