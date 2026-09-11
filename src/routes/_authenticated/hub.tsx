@@ -94,11 +94,7 @@ function Hub() {
     allowedTracks.includes("recruiter");
 
   if (isLoading || !me || redirecting) {
-    return (
-      <AppShell>
-        <Skeleton className="h-48 w-full rounded-xl" />
-      </AppShell>
-    );
+    return <LoadingSplash />;
   }
 
   const currentWeek = me.unlockedWeek ?? 1;

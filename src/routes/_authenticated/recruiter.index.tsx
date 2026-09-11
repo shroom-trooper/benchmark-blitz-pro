@@ -63,11 +63,7 @@ function RecruiterHub() {
     allowedTracks.includes("interviewer");
 
   if (query.isLoading || !query.data || redirecting) {
-    return (
-      <AppShell>
-        <Skeleton className="h-48 w-full rounded-xl" />
-      </AppShell>
-    );
+    return <LoadingSplash />;
   }
 
   const me = query.data;
