@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
+import { TrackSwitch } from "@/components/TrackSwitch";
+
 
 export const Route = createFileRoute("/_authenticated/recruiter/")({
   head: () => ({
