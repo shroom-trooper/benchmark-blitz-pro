@@ -25,15 +25,27 @@ correctly stays hidden; it's an entitlement gap, not a rendering bug.
 
 ## Plan
 
-1. **Self-serve track unlock on the Hub.** When a user has only one track,
-   replace the (hidden) switcher area with an "Unlock the Recruiter Track"
-   card: short pitch + one button calling a new `unlockTrack` server function
-   that appends the track to `allowed_tracks`, initializes `track_progress`,
-   and switches `active_track`. Idempotent — safe to call twice.
-2. **Grant the track on group creation.** Update `create_group_tracked` so a
+1. **Track choice at signup.** After a new solo account is created (onboarding
+   step), the user picks Interviewer Track or Recruiter Track (or both). The
+   choice is written to `allowed_tracks` / `active_track` and a
+   `track_progress` row is initialized per chosen track. Recruiter group
+   invitees still get the track automatically on invite acceptance, unchanged.
+2. **Self-serve track unlock on the Hub.** When an existing user has only one
+   track, show an "Unlock the Recruiter Track" card on the Hub: short pitch +
+   one button calling a new `unlockTrack` server function that appends the
+   track to `allowed_tracks`, initializes `track_progress`, and switches
+   `active_track`. Idempotent — safe to call twice.
+3. **Grant the track on group creation.** Update `create_group_tracked` so a
    lead who creates a recruiter group automatically gets `recruiter` added to
    their own `allowed_tracks` (same for interviewer), so owners can always
    preview the track they administer.
+4. **Show the switcher whenever both tracks are held.** No change needed —
+   `TrackSwitch` already appears automatically once a step above grants the
+   second track, on both `/hub` and `/recruiter`.
+5. **Verify.** Typecheck + existing tests, then a browser check: a fresh
+   account picks Recruiter at signup; your account unlocks the Recruiter track
+   from the Hub, the segmented control appears, and switching navigates
+   between `/hub` and `/recruiter`.
 3. **Show the switcher whenever both tracks are held.** No change needed —
    `TrackSwitch` already appears automatically once step 1/2 grants the second
    track, on both `/hub` and `/recruiter`.
