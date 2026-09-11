@@ -4,3 +4,4 @@
 - [x] Return a clear, recoverable message instead of a blank-screen error.
 - [x] Preserve email matching, invitation status, seat capacity, and track restrictions.
 - [x] Verify existing-account rejection through the signed-in group admin flow.
+- [x] Return expected existing-account rejections as form feedback without triggering the runtime error screen.
