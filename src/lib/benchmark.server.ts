@@ -377,7 +377,7 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
       .select("active_track")
       .eq("id", userId)
       .maybeSingle();
-    group = groups.find((g) => g.track === profile?.active_track) ?? groups[0]!;
+    group = groups.find((g) => g.track === profile?.active_track) ?? group;
   }
 
   const [membersRes, weeksRes, settingsRes, invitesRes] = await Promise.all([
