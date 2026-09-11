@@ -816,10 +816,23 @@ export async function updateDisplayName(supabase: DB, userId: string, name: stri
 
 export async function inviteToGroup(supabase: DB, userId: string, email: string) {
   const group = await requireGroupOwner(supabase, userId);
+  const normalizedEmail = email.trim().toLowerCase();
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: existingAccount, error: accountLookupError } = await supabaseAdmin
+    .from("profiles")
+    .select("id")
+    .ilike("email", normalizedEmail)
+    .limit(1)
+    .maybeSingle();
+  if (accountLookupError) fail("We couldn't verify that email address. Please try again.");
+  if (existingAccount) {
+    fail("That email already has a Benchmark account and cannot be invited to a group.");
+  }
+
   const { data, error } = await supabase
     .from("invites")
     .insert({
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       group_id: group.id,
       invited_by: userId,
       track: group.track,
