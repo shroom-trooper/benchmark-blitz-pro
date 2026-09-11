@@ -31,12 +31,14 @@ export function GroupPanel({
   group,
   ownsGroup,
   pendingInvites,
+  revokedFromGroup,
   displayName,
 }: {
   track: Track;
   group: { id: string; name: string } | null;
   ownsGroup: boolean;
   pendingInvites: { id: string; groupName: string }[];
+  revokedFromGroup?: { groupName: string } | null;
   displayName: string;
 }) {
   const copy = COPY[track];
