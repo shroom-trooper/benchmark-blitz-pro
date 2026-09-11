@@ -19,13 +19,18 @@ interface Props {
   topic?: string
   streak?: number
   sessionUrl?: string
+  track?: 'interviewer' | 'recruiter'
 }
 
-const Email = ({ firstName, weekNumber, topic, streak, sessionUrl }: Props) => {
+const Email = ({ firstName, weekNumber, topic, streak, sessionUrl, track }: Props) => {
+  const isRecruiter = track === 'recruiter'
   const name = firstName || 'there'
   const week = weekNumber || 1
-  const title = topic || 'this week’s hiring simulation'
-  const url = sessionUrl || `https://usebenchmark.app/session/${week}`
+  const title =
+    topic || (isRecruiter ? 'this week’s recruiting scenarios' : 'this week’s hiring simulation')
+  const url =
+    sessionUrl ||
+    `https://usebenchmark.app/${isRecruiter ? 'recruiter/session' : 'session'}/${week}`
 
   return (
     <Html lang="en" dir="ltr">
@@ -34,10 +39,16 @@ const Email = ({ firstName, weekNumber, topic, streak, sessionUrl }: Props) => {
       <Body style={main}>
         <Container style={container}>
           <Text style={brand}>BENCHMARK</Text>
-          <Heading style={heading}>Week {week} is unlocked</Heading>
+          <Heading style={heading}>
+            {isRecruiter ? 'Recruiter week' : 'Week'} {week} is unlocked
+          </Heading>
           <Text style={body}>
-            Hi {name}, your next training week is ready: <strong>{title}</strong>.
-            Three scenarios, roughly four minutes, and it keeps your streak alive.
+            Hi {name}, your next{' '}
+            {isRecruiter ? 'recruiter training week' : 'training week'} is ready:{' '}
+            <strong>{title}</strong>.{' '}
+            {isRecruiter
+              ? 'Three real TA scenarios, roughly four minutes, and it keeps your streak alive.'
+              : 'Three scenarios, roughly four minutes, and it keeps your streak alive.'}
           </Text>
           {streak ? (
             <Text style={body}>
@@ -112,8 +123,13 @@ const hr = { borderColor: '#1f1f23', margin: '24px 0' }
 
 export const template: TemplateEntry = {
   component: Email,
-  subject: (data: Record<string, any>) =>
-    `Week ${data['weekNumber'] ?? 1} unlocked — ${data['topic'] ?? 'your next hiring simulation'}`,
+  subject: (data: Record<string, any>) => {
+    const recruiter = data['track'] === 'recruiter'
+    const fallback = recruiter
+      ? 'your next recruiting scenarios'
+      : 'your next hiring simulation'
+    return `${recruiter ? 'Recruiter week' : 'Week'} ${data['weekNumber'] ?? 1} unlocked — ${data['topic'] ?? fallback}`
+  },
   displayName: 'Weekly unlock reminder',
   previewData: {
     firstName: 'Alex',

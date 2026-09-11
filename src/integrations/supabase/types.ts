@@ -805,18 +805,21 @@ export type Database = {
         Row: {
           id: string
           sent_at: string
+          track: string
           user_id: string
           week_number: number
         }
         Insert: {
           id?: string
           sent_at?: string
+          track?: string
           user_id: string
           week_number: number
         }
         Update: {
           id?: string
           sent_at?: string
+          track?: string
           user_id?: string
           week_number?: number
         }
