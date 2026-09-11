@@ -43,6 +43,13 @@
       "when": 1789127429635,
       "tag": "0005_prevent_invites_for_existing_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789130302616,
+      "tag": "0006_block_group_creation_for_invited_members",
+      "breakpoints": true
     }
   ]
 }
