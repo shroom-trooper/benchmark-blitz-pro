@@ -402,19 +402,40 @@ function GroupPanel({
               Training your managers? Create a group and invite up to 3 of them — you'll see
               their progress and a private group board.
             </p>
-            <div className="mt-4 flex gap-2">
-              <Input
-                placeholder="Acme hiring managers"
-                value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
-              />
-              <Button
-                onClick={() => create.mutate()}
-                disabled={groupName.trim().length < 2 || create.isPending}
-              >
-                Create group
-              </Button>
+            <div className="mt-4 space-y-3">
+              <div className="inline-flex rounded-lg border border-border bg-background/40 p-1">
+                <Button
+                  size="sm"
+                  variant={groupTrack === "interviewer" ? "default" : "ghost"}
+                  onClick={() => setGroupTrack("interviewer")}
+                >
+                  Interviewers
+                </Button>
+                <Button
+                  size="sm"
+                  variant={groupTrack === "recruiter" ? "default" : "ghost"}
+                  onClick={() => setGroupTrack("recruiter")}
+                >
+                  Recruiters
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder={
+                    groupTrack === "recruiter" ? "Acme recruiters" : "Acme hiring managers"
+                  }
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                />
+                <Button
+                  onClick={() => create.mutate()}
+                  disabled={groupName.trim().length < 2 || create.isPending}
+                >
+                  Create group
+                </Button>
+              </div>
             </div>
+
           </>
         )}
       </div>
