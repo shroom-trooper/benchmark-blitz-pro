@@ -19,13 +19,15 @@ function fail(message: string): never {
 }
 
 async function requireOwnedGroup(supabase: DB, userId: string) {
-  const { data } = await supabase
-    .from("groups")
-    .select("*")
-    .eq("owner_id", userId)
-    .maybeSingle();
-  if (!data) fail("You do not own a group yet.");
-  return data;
+  // A lead can own one group per track, so pick the one for their active track.
+  const [{ data: profile }, { data: groups }] = await Promise.all([
+    supabase.from("profiles").select("active_track").eq("id", userId).maybeSingle(),
+    supabase.from("groups").select("*").eq("owner_id", userId).order("created_at"),
+  ]);
+  const owned = groups ?? [];
+  if (!owned.length) fail("You do not own a group yet.");
+  const active = profile?.active_track === "recruiter" ? "recruiter" : "interviewer";
+  return owned.find((g) => g.track === active) ?? owned[0]!;
 }
 
 async function requireOwnedAssessment(supabase: DB, userId: string, id: string) {
