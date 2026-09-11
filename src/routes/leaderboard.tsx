@@ -39,9 +39,12 @@ export const Route = createFileRoute("/leaderboard")({
 function LeaderboardPage() {
   const publicFn = useServerFn(getPublicLeaderboard);
   const groupFn = useServerFn(getGroupLeaderboard);
+  const publicRecruiterFn = useServerFn(getPublicRecruiterLeaderboard);
+  const recruiterGroupFn = useServerFn(getRecruiterGroupLeaderboard);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [myId, setMyId] = useState<string | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
+  const [track, setTrack] = useState<"interviewer" | "recruiter">("interviewer");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -63,7 +66,26 @@ function LeaderboardPage() {
     retry: false,
   });
 
+  const recruiterBoard = useQuery({
+    queryKey: ["public-recruiter-leaderboard"],
+    queryFn: () => publicRecruiterFn({}),
+    enabled: track === "recruiter",
+  });
+
+  const recruiterGroupBoard = useQuery({
+    queryKey: ["recruiter-group-leaderboard"],
+    queryFn: () => recruiterGroupFn({}),
+    enabled: track === "recruiter" && signedIn === true,
+    retry: false,
+  });
+
   const group = groupBoard.data;
+  const recruiterGroup = recruiterGroupBoard.data;
+  const isRecruiter = track === "recruiter";
+  const activeBoard = isRecruiter ? recruiterBoard : publicBoard;
+  const activeGroup = isRecruiter ? recruiterGroup : group;
+  const titleFor = (xp: number) =>
+    isRecruiter ? levelProgressIn("recruiter", xp).current.title : levelForXp(xp).title;
 
   return (
     <div className="min-h-dvh bg-background">
@@ -93,55 +115,71 @@ function LeaderboardPage() {
         <div>
           <h1 className="text-3xl">Global leaderboard</h1>
           <p className="mt-1 text-sm text-body">
-            {publicBoard.data
-              ? `${publicBoard.data.totalPlayers} people training their hiring judgement`
+            {activeBoard.data
+              ? `${activeBoard.data.totalPlayers} people training their ${
+                  isRecruiter ? "recruiting craft" : "hiring judgement"
+                }`
               : "Loading rankings"}
           </p>
         </div>
 
-        {publicBoard.isLoading ? (
+        <Tabs value={track} onValueChange={(v) => setTrack(v as "interviewer" | "recruiter")}>
+          <TabsList>
+            <TabsTrigger value="interviewer">Interviewer</TabsTrigger>
+            <TabsTrigger value="recruiter">Recruiter</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {activeBoard.isLoading ? (
           <Skeleton className="h-96 w-full rounded-xl" />
         ) : (
-          <Tabs defaultValue="global">
+          <Tabs defaultValue="global" key={track}>
             <TabsList>
               <TabsTrigger value="global">Global</TabsTrigger>
-              {group?.group ? <TabsTrigger value="group">{group.group.name}</TabsTrigger> : null}
+              {activeGroup?.group ? (
+                <TabsTrigger value="group">{activeGroup.group.name}</TabsTrigger>
+              ) : null}
             </TabsList>
 
             <TabsContent value="global" className="mt-4 space-y-2">
-              {publicBoard.data?.players.map((p) => (
+              {activeBoard.data?.players.map((p) => (
                 <Row
                   key={p.id}
                   rank={p.rank}
                   name={p.name}
-                  sub={`Lvl ${p.level} ${levelForXp(p.totalXp).title}`}
+                  sub={`Lvl ${p.level} ${titleFor(p.totalXp)}`}
                   streak={p.streak}
                   xp={p.totalXp}
                   highlight={p.id === myId}
-                  onShare={p.id === myId ? () => setShareOpen(true) : undefined}
+                  onShare={!isRecruiter && p.id === myId ? () => setShareOpen(true) : undefined}
                 />
               ))}
 
-              {!publicBoard.data?.players.length ? (
+              {!activeBoard.data?.players.length ? (
                 <p className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-body">
-                  No one has completed a simulation yet. Be first.
+                  No one has completed a {isRecruiter ? "recruiter " : ""}simulation yet. Be first.
                 </p>
               ) : null}
             </TabsContent>
 
-            {group?.group ? (
+            {activeGroup?.group ? (
               <TabsContent value="group" className="mt-4 space-y-2">
-                {group.members.map((m) => (
+                {activeGroup.members.map((m) => (
                   <Row
                     key={m.id}
                     rank={m.rank}
                     name={m.name + (m.isMe ? " · you" : m.isOwner ? " · admin" : "")}
-                    sub={`Lvl ${m.level} ${levelForXp(m.totalXp).title}`}
+                    sub={`Lvl ${m.level} ${titleFor(m.totalXp)}`}
                     streak={m.streak}
                     xp={m.totalXp}
                     highlight={m.isMe}
                   />
                 ))}
+                {!activeGroup.members.length ? (
+                  <p className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-body">
+                    No members have trained yet.
+                  </p>
+                ) : null}
               </TabsContent>
             ) : null}
           </Tabs>
@@ -164,6 +202,7 @@ function LeaderboardPage() {
     </div>
   );
 }
+
 
 function Row({
   rank,
