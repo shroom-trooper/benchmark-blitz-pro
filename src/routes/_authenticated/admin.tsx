@@ -6,7 +6,7 @@ import { AlertTriangle, Users, Activity, CalendarClock, Lock, Sparkles, CheckCir
 import { track } from "@/lib/analytics";
 import { toast } from "sonner";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { AppShell } from "@/components/AppShell";
+import { AppShell, useMe } from "@/components/AppShell";
 import { AssessmentsTab } from "@/components/AssessmentsTab";
 import { ElectivesTab } from "@/components/ElectivesTab";
 
@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingSplash } from "@/components/LoadingSplash";
 import {
   Select,
   SelectContent,
@@ -61,19 +61,19 @@ type Console = NonNullable<Awaited<ReturnType<typeof getGroupConsole>>>;
 function AdminPage() {
   const consoleFn = useServerFn(getGroupConsole);
   const [proOpen, setProOpen] = useState(false);
+  const { data: me, isLoading: meLoading } = useMe();
+  const activeTrack = me?.activeTrack;
   const query = useQuery({
-    queryKey: ["group-console"],
+    queryKey: ["group-console", activeTrack ?? "unknown"],
     queryFn: () => consoleFn({}),
     retry: false,
+    enabled: !!activeTrack,
   });
 
-  if (query.isLoading) {
-    return (
-      <AppShell>
-        <Skeleton className="h-96 w-full rounded-xl" />
-      </AppShell>
-    );
+  if (meLoading || !activeTrack || query.isLoading || query.isPending) {
+    return <LoadingSplash />;
   }
+
 
   if (query.error || !query.data) {
     return (
