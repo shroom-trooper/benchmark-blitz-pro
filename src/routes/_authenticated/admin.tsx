@@ -6,7 +6,7 @@ import { AlertTriangle, Users, Activity, CalendarClock, Lock, Sparkles, CheckCir
 import { track } from "@/lib/analytics";
 import { toast } from "sonner";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { AppShell } from "@/components/AppShell";
+import { AppShell, useMe } from "@/components/AppShell";
 import { AssessmentsTab } from "@/components/AssessmentsTab";
 import { ElectivesTab } from "@/components/ElectivesTab";
 
@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingSplash } from "@/components/LoadingSplash";
 import {
   Select,
   SelectContent,
