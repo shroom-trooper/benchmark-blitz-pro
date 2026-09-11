@@ -18,17 +18,12 @@ import {
 import { AppShell, useMe } from "@/components/AppShell";
 import { QuickDrillCard, useSprintStats } from "@/components/QuickDrill";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  acceptInvite,
-  createGroup,
-  listMemberAssessments,
-  updateDisplayName,
-} from "@/lib/benchmark.functions";
+import { listMemberAssessments } from "@/lib/benchmark.functions";
 
 import { levelProgress, QUARTER_THEMES, quarterForWeek } from "@/lib/gamification";
+import { GroupPanel } from "@/components/GroupPanel";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
