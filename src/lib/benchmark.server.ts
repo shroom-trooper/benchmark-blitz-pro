@@ -118,7 +118,13 @@ export async function loadMe(supabase: DB, userId: string) {
   const roles = (rolesRes.data ?? []).map((r) => r.role);
 
   const [ownedRes, groupRes, invitesRes, platformRes] = await Promise.all([
-    supabase.from("groups").select("*").eq("owner_id", userId).maybeSingle(),
+    // A lead may own one group per track; this hub shows the interviewer one.
+    supabase
+      .from("groups")
+      .select("*")
+      .eq("owner_id", userId)
+      .eq("track", "interviewer")
+      .maybeSingle(),
     profile?.group_id
       ? supabase.from("groups").select("*").eq("id", profile.group_id).maybeSingle()
       : Promise.resolve({ data: null }),
