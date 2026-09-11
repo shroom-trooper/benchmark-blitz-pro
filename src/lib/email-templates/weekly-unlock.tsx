@@ -39,10 +39,16 @@ const Email = ({ firstName, weekNumber, topic, streak, sessionUrl, track }: Prop
       <Body style={main}>
         <Container style={container}>
           <Text style={brand}>BENCHMARK</Text>
-          <Heading style={heading}>Week {week} is unlocked</Heading>
+          <Heading style={heading}>
+            {isRecruiter ? 'Recruiter week' : 'Week'} {week} is unlocked
+          </Heading>
           <Text style={body}>
-            Hi {name}, your next training week is ready: <strong>{title}</strong>.
-            Three scenarios, roughly four minutes, and it keeps your streak alive.
+            Hi {name}, your next{' '}
+            {isRecruiter ? 'recruiter training week' : 'training week'} is ready:{' '}
+            <strong>{title}</strong>.{' '}
+            {isRecruiter
+              ? 'Three real TA scenarios, roughly four minutes, and it keeps your streak alive.'
+              : 'Three scenarios, roughly four minutes, and it keeps your streak alive.'}
           </Text>
           {streak ? (
             <Text style={body}>
