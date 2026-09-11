@@ -128,8 +128,12 @@ function AdminPage() {
         <Tabs defaultValue="team">
           <TabsList>
             <TabsTrigger value="team">Team</TabsTrigger>
-            <TabsTrigger value="assessments">Assessments</TabsTrigger>
-            <TabsTrigger value="electives">Electives</TabsTrigger>
+            {t.group.track === "recruiter" ? null : (
+              <>
+                <TabsTrigger value="assessments">Assessments</TabsTrigger>
+                <TabsTrigger value="electives">Electives</TabsTrigger>
+              </>
+            )}
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -137,18 +141,22 @@ function AdminPage() {
             <TeamTab data={t} onUpgrade={() => setProOpen(true)} />
           </TabsContent>
 
-          <TabsContent value="assessments" className="mt-6 space-y-6">
-            <AssessmentsTab />
-          </TabsContent>
+          {t.group.track === "recruiter" ? null : (
+            <>
+              <TabsContent value="assessments" className="mt-6 space-y-6">
+                <AssessmentsTab />
+              </TabsContent>
 
-          <TabsContent value="electives" className="mt-6 space-y-6">
-            <ElectivesTab />
-          </TabsContent>
+              <TabsContent value="electives" className="mt-6 space-y-6">
+                <ElectivesTab />
+              </TabsContent>
+            </>
+          )}
 
           <TabsContent value="analytics" className="mt-6 space-y-6">
             <MemberAnalytics data={t} />
 
-            <ReadinessDonut data={t} />
+            {t.group.track === "recruiter" ? null : <ReadinessDonut data={t} />}
           </TabsContent>
         </Tabs>
       </div>
@@ -468,6 +476,7 @@ function MemberAnalytics({ data }: { data: Console }) {
   const rows = data.users;
   const [open, setOpen] = useState<string | null>(null);
   const memberNoun = data.group.track === "recruiter" ? "recruiter" : "manager";
+  const isRecruiterGroup = data.group.track === "recruiter";
 
   return (
     <Panel title="Member performance">
@@ -481,8 +490,12 @@ function MemberAnalytics({ data }: { data: Console }) {
                 <th className="py-2 pr-4 font-medium">Readiness</th>
                 <th className="py-2 pr-4 font-medium">Combined accuracy</th>
                 <th className="py-2 pr-4 font-medium">Weekly tests</th>
-                <th className="py-2 pr-4 font-medium">Custom tests</th>
-                <th className="py-2 pr-4 font-medium">Quick Drills</th>
+                {isRecruiterGroup ? null : (
+                  <>
+                    <th className="py-2 pr-4 font-medium">Custom tests</th>
+                    <th className="py-2 pr-4 font-medium">Quick Drills</th>
+                  </>
+                )}
                 <th className="py-2 font-medium">Last active</th>
               </tr>
             </thead>
@@ -534,25 +547,29 @@ function MemberAnalytics({ data }: { data: Console }) {
                           ({u.weeklyAccuracy}%)
                         </span>
                       </td>
-                      <td className="py-3 pr-4 whitespace-nowrap">
-                        {u.customCompletions} / {u.assignedCustom}{" "}
-                        <span className="text-xs text-muted-foreground">
-                          ({u.customAvgAccuracy}%)
-                        </span>
-                      </td>
-                      <td className="py-3 pr-4 whitespace-nowrap">
-                        {u.sprintCompletions}{" "}
-                        <span className="text-xs text-muted-foreground">
-                          ({u.sprintAccuracy}%)
-                        </span>
-                      </td>
+                      {isRecruiterGroup ? null : (
+                        <>
+                          <td className="py-3 pr-4 whitespace-nowrap">
+                            {u.customCompletions} / {u.assignedCustom}{" "}
+                            <span className="text-xs text-muted-foreground">
+                              ({u.customAvgAccuracy}%)
+                            </span>
+                          </td>
+                          <td className="py-3 pr-4 whitespace-nowrap">
+                            {u.sprintCompletions}{" "}
+                            <span className="text-xs text-muted-foreground">
+                              ({u.sprintAccuracy}%)
+                            </span>
+                          </td>
+                        </>
+                      )}
                       <td className="py-3 whitespace-nowrap text-muted-foreground">
                         {timeAgo(u.lastActiveAt)}
                       </td>
                     </tr>
                     {isOpen ? (
                       <tr className="border-b border-border/60 last:border-0">
-                        <td colSpan={8} className="bg-muted/20 px-3 py-4">
+                        <td colSpan={isRecruiterGroup ? 6 : 8} className="bg-muted/20 px-3 py-4">
 
                           {totalSessions ? (
                             <div className="grid gap-6 md:grid-cols-2">
@@ -621,8 +638,9 @@ function MemberAnalytics({ data }: { data: Console }) {
             </tbody>
           </table>
           <p className="mt-3 text-xs text-muted-foreground">
-            Ranked by overall accuracy across weekly and custom sessions. Select a row for the
-            full breakdown.
+            {isRecruiterGroup
+              ? "Ranked by accuracy across weekly recruiter tests. Select a row for the full breakdown."
+              : "Ranked by overall accuracy across weekly and custom sessions. Select a row for the full breakdown."}
           </p>
         </div>
       ) : (
