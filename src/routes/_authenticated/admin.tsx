@@ -128,8 +128,12 @@ function AdminPage() {
         <Tabs defaultValue="team">
           <TabsList>
             <TabsTrigger value="team">Team</TabsTrigger>
-            <TabsTrigger value="assessments">Assessments</TabsTrigger>
-            <TabsTrigger value="electives">Electives</TabsTrigger>
+            {t.group.track === "recruiter" ? null : (
+              <>
+                <TabsTrigger value="assessments">Assessments</TabsTrigger>
+                <TabsTrigger value="electives">Electives</TabsTrigger>
+              </>
+            )}
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -137,18 +141,22 @@ function AdminPage() {
             <TeamTab data={t} onUpgrade={() => setProOpen(true)} />
           </TabsContent>
 
-          <TabsContent value="assessments" className="mt-6 space-y-6">
-            <AssessmentsTab />
-          </TabsContent>
+          {t.group.track === "recruiter" ? null : (
+            <>
+              <TabsContent value="assessments" className="mt-6 space-y-6">
+                <AssessmentsTab />
+              </TabsContent>
 
-          <TabsContent value="electives" className="mt-6 space-y-6">
-            <ElectivesTab />
-          </TabsContent>
+              <TabsContent value="electives" className="mt-6 space-y-6">
+                <ElectivesTab />
+              </TabsContent>
+            </>
+          )}
 
           <TabsContent value="analytics" className="mt-6 space-y-6">
             <MemberAnalytics data={t} />
 
-            <ReadinessDonut data={t} />
+            {t.group.track === "recruiter" ? null : <ReadinessDonut data={t} />}
           </TabsContent>
         </Tabs>
       </div>
