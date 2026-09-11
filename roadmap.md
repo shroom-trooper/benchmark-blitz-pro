@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Allow existing account holders to accept valid group invitations.
-- [ ] Make invitation acceptance compatible with dual-track group ownership.
-- [ ] Preserve email matching, invitation status, seat capacity, and track access restrictions.
-- [ ] Verify authenticated invitation acceptance without permitting caller identity spoofing.
+- [ ] Prevent invitations to email addresses that already have an account.
+- [ ] Return a clear, recoverable message instead of a blank-screen error.
+- [ ] Preserve email matching, invitation status, seat capacity, and track restrictions.
+- [ ] Verify new-email invitation behavior and existing-account rejection.
