@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { toast } from "sonner";
 import {
   Flame,
   Lock,
@@ -20,17 +18,12 @@ import {
 import { AppShell, useMe } from "@/components/AppShell";
 import { QuickDrillCard, useSprintStats } from "@/components/QuickDrill";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  acceptInvite,
-  createGroup,
-  listMemberAssessments,
-  updateDisplayName,
-} from "@/lib/benchmark.functions";
+import { listMemberAssessments } from "@/lib/benchmark.functions";
 
 import { levelProgress, QUARTER_THEMES, quarterForWeek } from "@/lib/gamification";
+import { GroupPanel } from "@/components/GroupPanel";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
@@ -211,6 +204,7 @@ function Hub() {
 
 
         <GroupPanel
+          track="interviewer"
           group={me.group}
           ownsGroup={me.ownsGroup}
           pendingInvites={me.pendingInvites}
@@ -311,154 +305,6 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function GroupPanel({
-  group,
-  ownsGroup,
-  pendingInvites,
-  displayName,
-}: {
-  group: { id: string; name: string } | null;
-  ownsGroup: boolean;
-  pendingInvites: { id: string; groupName: string }[];
-  displayName: string;
-}) {
-  const qc = useQueryClient();
-  const createFn = useServerFn(createGroup);
-  const acceptFn = useServerFn(acceptInvite);
-  const nameFn = useServerFn(updateDisplayName);
-  const [groupName, setGroupName] = useState("");
-  const [groupTrack, setGroupTrack] = useState<"interviewer" | "recruiter">("interviewer");
-  const [name, setName] = useState(displayName);
-
-  const create = useMutation({
-    mutationFn: () => createFn({ data: { name: groupName.trim(), track: groupTrack } }),
-
-    onSuccess: async () => {
-      await qc.invalidateQueries();
-      toast.success("Group created — invite your managers");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const accept = useMutation({
-    mutationFn: (inviteId: string) => acceptFn({ data: { inviteId } }),
-    onSuccess: async () => {
-      await qc.invalidateQueries();
-      toast.success("You've joined the group");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const saveName = useMutation({
-    mutationFn: () => nameFn({ data: { name: name.trim() } }),
-    onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["me"] });
-      toast.success("Display name updated");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  return (
-    <section className="grid gap-4 lg:grid-cols-2">
-      <div className="rounded-xl border border-border bg-surface p-6">
-        <h2 className="text-lg">Your group</h2>
-        {group ? (
-          <>
-            <p className="mt-2 text-sm leading-relaxed text-body">
-              You're {ownsGroup ? "the admin of" : "a member of"}{" "}
-              <span className="font-medium text-foreground">{group.name}</span>.
-            </p>
-            <div className="mt-4 flex gap-2">
-              {ownsGroup ? (
-                <Button asChild size="sm">
-                  <Link to="/admin">Open group console</Link>
-                </Button>
-              ) : null}
-              <Button asChild size="sm" variant="outline">
-                <Link to="/leaderboard">Group leaderboard</Link>
-              </Button>
-            </div>
-          </>
-        ) : pendingInvites.length ? (
-          <div className="mt-3 space-y-2">
-            <p className="text-sm text-body">You've been invited to join:</p>
-            {pendingInvites.map((i) => (
-              <div key={i.id} className="flex items-center gap-3 text-sm">
-                <span className="font-medium">{i.groupName}</span>
-                <Button
-                  size="sm"
-                  className="ml-auto"
-                  onClick={() => accept.mutate(i.id)}
-                  disabled={accept.isPending}
-                >
-                  Join
-                </Button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            <p className="mt-2 text-sm leading-relaxed text-body">
-              Training your managers? Create a group and invite up to 3 of them — you'll see
-              their progress and a private group board.
-            </p>
-            <div className="mt-4 space-y-3">
-              <div className="inline-flex rounded-lg border border-border bg-background/40 p-1">
-                <Button
-                  size="sm"
-                  variant={groupTrack === "interviewer" ? "default" : "ghost"}
-                  onClick={() => setGroupTrack("interviewer")}
-                >
-                  Interviewers
-                </Button>
-                <Button
-                  size="sm"
-                  variant={groupTrack === "recruiter" ? "default" : "ghost"}
-                  onClick={() => setGroupTrack("recruiter")}
-                >
-                  Recruiters
-                </Button>
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  placeholder={
-                    groupTrack === "recruiter" ? "Acme recruiters" : "Acme hiring managers"
-                  }
-                  value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
-                />
-                <Button
-                  onClick={() => create.mutate()}
-                  disabled={groupName.trim().length < 2 || create.isPending}
-                >
-                  Create group
-                </Button>
-              </div>
-            </div>
-
-          </>
-        )}
-      </div>
-
-      <div className="rounded-xl border border-border bg-surface p-6">
-        <h2 className="text-lg">Public profile</h2>
-        <p className="mt-2 text-sm text-body">
-          This name appears on the global leaderboard.
-        </p>
-        <div className="mt-4 flex gap-2">
-          <Input value={name} onChange={(e) => setName(e.target.value)} aria-label="Display name" />
-          <Button
-            variant="outline"
-            onClick={() => saveName.mutate()}
-            disabled={name.trim().length < 2 || saveName.isPending}
-          >
-            Save
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function GroupAssessments() {
   const listFn = useServerFn(listMemberAssessments);

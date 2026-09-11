@@ -244,7 +244,7 @@ function GuidePage() {
               </Link>
             </Button>
             <p className="mt-3 text-xs text-muted-foreground">
-              Free for solo players · groups up to 3 seats included
+              Free for solo players · 1 manager seat and 1 recruiter seat included
             </p>
           </section>
         </article>

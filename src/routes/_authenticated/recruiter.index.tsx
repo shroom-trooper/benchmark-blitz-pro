@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 import { TrackSwitch } from "@/components/TrackSwitch";
+import { GroupPanel } from "@/components/GroupPanel";
 
 
 export const Route = createFileRoute("/_authenticated/recruiter/")({
@@ -152,6 +153,14 @@ function RecruiterHub() {
           <Stat label="Sessions completed" value={String(me.responses.length)} />
           <Stat label="Decision accuracy" value={`${accuracy}%`} />
         </section>
+
+        <GroupPanel
+          track="recruiter"
+          group={me.group}
+          ownsGroup={me.ownsGroup}
+          pendingInvites={me.pendingInvites}
+          displayName={me.displayName}
+        />
 
         <section>
           <h2 className="text-xl">52-week recruiter curriculum</h2>

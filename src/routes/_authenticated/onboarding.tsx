@@ -139,7 +139,7 @@ function Onboarding() {
               onClick={() => setMode("group")}
               icon={<Users className="size-5" />}
               title="Create a group"
-              body="Invite up to 3 managers, see their progress and a private group board."
+              body="Invite 1 manager and 1 recruiter, see their progress and a private group board."
             />
           </div>
 
