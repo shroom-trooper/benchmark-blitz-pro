@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur">
         <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:flex sm:gap-4">
           <div className="flex min-w-0 items-center gap-3">
-          <Link to="/hub" className="flex shrink-0 items-center gap-2">
+          <Link to={hubTo} className="flex shrink-0 items-center gap-2">
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <Zap className="size-4" />
             </span>
@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
 
           <nav className="flex min-w-0 items-center gap-1 text-sm">
-            <NavLink to="/hub" icon={<LayoutDashboard className="size-4" />} label="Hub" />
+            <NavLink to={hubTo} icon={<LayoutDashboard className="size-4" />} label="Hub" />
             <NavLink
               to="/leaderboard"
               icon={<Trophy className="size-4" />}
