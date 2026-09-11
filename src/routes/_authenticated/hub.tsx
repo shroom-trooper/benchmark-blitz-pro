@@ -66,6 +66,15 @@ const ICONS: Record<string, LucideIcon> = {
 function Hub() {
   const { data: me, isLoading } = useMe();
   const { data: sprintStats } = useSprintStats();
+  const navigate = useNavigate();
+  const allowedTracks = me?.allowedTracks;
+
+  useEffect(() => {
+    if (!allowedTracks) return;
+    if (!allowedTracks.includes("interviewer") && allowedTracks.includes("recruiter")) {
+      navigate({ to: "/recruiter", replace: true });
+    }
+  }, [allowedTracks, navigate]);
   const weeksQuery = useQuery({
     queryKey: ["weeks"],
     queryFn: async () => {
