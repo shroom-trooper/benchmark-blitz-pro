@@ -890,6 +890,33 @@ export async function inviteToGroup(supabase: DB, userId: string, email: string)
 
 export async function revokeInvite(supabase: DB, userId: string, inviteId: string) {
   const group = await requireGroupOwner(supabase, userId);
+  const { data: invite } = await supabase
+    .from("invites")
+    .select("id, email, status")
+    .eq("id", inviteId)
+    .eq("group_id", group.id)
+    .maybeSingle();
+  if (!invite) fail("That invite is no longer available.");
+
+  if (invite!.status === "accepted") {
+    // Pull the member out of the group and keep a revoked record so they can't rejoin.
+    const { data: member } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("email", invite!.email)
+      .maybeSingle();
+    if (member) {
+      await supabase.from("profiles").update({ group_id: null }).eq("id", member.id);
+    }
+    const { error } = await supabase
+      .from("invites")
+      .update({ status: "revoked" })
+      .eq("id", inviteId)
+      .eq("group_id", group.id);
+    if (error) fail(error.message);
+    return { ok: true };
+  }
+
   const { error } = await supabase
     .from("invites")
     .delete()
@@ -902,14 +929,27 @@ export async function revokeInvite(supabase: DB, userId: string, inviteId: strin
 export async function removeMember(supabase: DB, userId: string, memberId: string) {
   const group = await requireGroupOwner(supabase, userId);
   if (memberId === userId) fail("You cannot remove yourself from your own group.");
+  const { data: member } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", memberId)
+    .maybeSingle();
   const { error } = await supabase
     .from("profiles")
     .update({ group_id: null })
     .eq("id", memberId)
     .eq("group_id", group.id);
   if (error) fail(error.message);
+  if (member?.email) {
+    await supabase
+      .from("invites")
+      .update({ status: "revoked" })
+      .eq("group_id", group.id)
+      .ilike("email", member.email);
+  }
   return { ok: true };
 }
+
 
 export async function registerUpgradeInterest(
   supabase: DB,
