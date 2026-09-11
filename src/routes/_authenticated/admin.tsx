@@ -13,6 +13,7 @@ import { ElectivesTab } from "@/components/ElectivesTab";
 import {
   getGroupConsole,
   inviteToGroup,
+  registerUpgradeInterest,
   removeMember,
   revokeInvite,
 } from "@/lib/benchmark.functions";
