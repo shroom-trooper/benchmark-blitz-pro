@@ -9,7 +9,7 @@ import { levelProgressIn, quarterForWeek, quarterThemesForTrack } from "@/lib/ga
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingSplash } from "@/components/LoadingSplash";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 import { TrackSwitch } from "@/components/TrackSwitch";
 import { GroupPanel } from "@/components/GroupPanel";
