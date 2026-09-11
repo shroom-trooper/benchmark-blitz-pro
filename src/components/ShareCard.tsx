@@ -86,7 +86,9 @@ export const ShareCard = forwardRef<HTMLDivElement, { data: ShareCardData }>(
               color: "#A1A1AA",
             }}
           >
-            Hiring capability training
+            {data.track === "recruiter"
+              ? "Talent acquisition training"
+              : "Hiring capability training"}
           </span>
         </div>
 
@@ -151,8 +153,9 @@ export const ShareCard = forwardRef<HTMLDivElement, { data: ShareCardData }>(
               textAlign: "right",
             }}
           >
-            Calibrated &amp; ready to hire. See where your hiring skills stack up on
-            Benchmark.
+            {data.track === "recruiter"
+              ? "Calibrated & ready to recruit. See where your TA judgement stacks up on Benchmark."
+              : "Calibrated & ready to hire. See where your hiring skills stack up on Benchmark."}
           </div>
         </div>
       </div>
