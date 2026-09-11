@@ -31,12 +31,14 @@ export function GroupPanel({
   group,
   ownsGroup,
   pendingInvites,
+  revokedFromGroup,
   displayName,
 }: {
   track: Track;
   group: { id: string; name: string } | null;
   ownsGroup: boolean;
   pendingInvites: { id: string; groupName: string }[];
+  revokedFromGroup?: { groupName: string } | null;
   displayName: string;
 }) {
   const copy = COPY[track];
@@ -112,8 +114,20 @@ export function GroupPanel({
               </div>
             ))}
           </div>
+        ) : revokedFromGroup ? (
+          <div className="mt-3 rounded-lg border border-warning/40 bg-warning/10 p-4">
+            <p className="text-sm font-semibold text-warning">Your group access was removed</p>
+            <p className="mt-1 text-sm leading-relaxed text-body">
+              You're no longer part of{" "}
+              <span className="font-medium text-foreground">{revokedFromGroup.groupName}</span>, so
+              group training, analytics and the group board aren't available. If this looks wrong,
+              please contact your group owner to be invited again.
+            </p>
+          </div>
         ) : (
           <>
+
+
             <p className="mt-2 text-sm leading-relaxed text-body">{copy.blurb}</p>
             <div className="mt-4 flex gap-2">
               <Input

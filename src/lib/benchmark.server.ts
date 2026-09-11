@@ -131,25 +131,40 @@ export async function loadMe(supabase: DB, userId: string) {
     supabase
       .from("invites")
       .select("id, email, group_id, status, created_at")
-      .eq("status", "pending"),
+      .in("status", ["pending", "revoked"]),
     supabase.from("platform_admins").select("user_id").eq("user_id", userId).maybeSingle(),
   ]);
 
   const ownedGroup = ownedRes.data ?? null;
   const group = groupRes.data ?? ownedGroup;
 
+  const groupNameFor = async (groupId: string) => {
+    const { data: g } = await supabase
+      .from("groups")
+      .select("id, name")
+      .eq("id", groupId)
+      .maybeSingle();
+    return g?.name ?? "A group";
+  };
+
   const pendingInvites = profile?.group_id
     ? []
     : await Promise.all(
-        (invitesRes.data ?? []).map(async (i) => {
-          const { data: g } = await supabase
-            .from("groups")
-            .select("id, name")
-            .eq("id", i.group_id)
-            .maybeSingle();
-          return { id: i.id, groupName: g?.name ?? "A group", email: i.email };
-        }),
+        (invitesRes.data ?? [])
+          .filter((i) => i.status === "pending")
+          .map(async (i) => ({
+            id: i.id,
+            groupName: await groupNameFor(i.group_id),
+            email: i.email,
+          })),
       );
+
+  const revokedInvite = (invitesRes.data ?? []).find((i) => i.status === "revoked");
+  const revokedFromGroup =
+    !profile?.group_id && !ownedGroup && revokedInvite
+      ? { groupName: await groupNameFor(revokedInvite.group_id) }
+      : null;
+
 
   const activeTrack =
     profile?.active_track === "recruiter" ? ("recruiter" as const) : ("interviewer" as const);
@@ -165,6 +180,7 @@ export async function loadMe(supabase: DB, userId: string) {
     group,
     ownsGroup: Boolean(ownedGroup),
     pendingInvites,
+    revokedFromGroup,
     settings: settingsRes.data,
     activeTrack,
     allowedTracks: allowedTracks.length ? allowedTracks : (["interviewer"] as const).slice(),
@@ -874,6 +890,33 @@ export async function inviteToGroup(supabase: DB, userId: string, email: string)
 
 export async function revokeInvite(supabase: DB, userId: string, inviteId: string) {
   const group = await requireGroupOwner(supabase, userId);
+  const { data: invite } = await supabase
+    .from("invites")
+    .select("id, email, status")
+    .eq("id", inviteId)
+    .eq("group_id", group.id)
+    .maybeSingle();
+  if (!invite) fail("That invite is no longer available.");
+
+  if (invite!.status === "accepted") {
+    // Pull the member out of the group and keep a revoked record so they can't rejoin.
+    const { data: member } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("email", invite!.email)
+      .maybeSingle();
+    if (member) {
+      await supabase.from("profiles").update({ group_id: null }).eq("id", member.id);
+    }
+    const { error } = await supabase
+      .from("invites")
+      .update({ status: "revoked" })
+      .eq("id", inviteId)
+      .eq("group_id", group.id);
+    if (error) fail(error.message);
+    return { ok: true };
+  }
+
   const { error } = await supabase
     .from("invites")
     .delete()
@@ -886,14 +929,27 @@ export async function revokeInvite(supabase: DB, userId: string, inviteId: strin
 export async function removeMember(supabase: DB, userId: string, memberId: string) {
   const group = await requireGroupOwner(supabase, userId);
   if (memberId === userId) fail("You cannot remove yourself from your own group.");
+  const { data: member } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", memberId)
+    .maybeSingle();
   const { error } = await supabase
     .from("profiles")
     .update({ group_id: null })
     .eq("id", memberId)
     .eq("group_id", group.id);
   if (error) fail(error.message);
+  if (member?.email) {
+    await supabase
+      .from("invites")
+      .update({ status: "revoked" })
+      .eq("group_id", group.id)
+      .ilike("email", member.email);
+  }
   return { ok: true };
 }
+
 
 export async function registerUpgradeInterest(
   supabase: DB,

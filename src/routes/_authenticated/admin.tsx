@@ -752,15 +752,30 @@ function TeamTab({
           {data.invites.map((i) => (
             <li key={i.id} className="flex items-center gap-3">
               <span className="truncate">{i.email}</span>
-              <span className="text-xs text-muted-foreground">{i.status}</span>
-              {i.status === "pending" ? (
+              <span
+                className={`rounded-full border px-2 py-0.5 text-xs ${
+                  i.status === "accepted"
+                    ? "border-success/40 bg-success/10 text-success"
+                    : i.status === "revoked"
+                      ? "border-destructive/40 bg-destructive/10 text-destructive"
+                      : "border-border text-muted-foreground"
+                }`}
+              >
+                {i.status === "revoked"
+                  ? "access removed"
+                  : i.status === "accepted"
+                    ? "accepted"
+                    : "pending"}
+              </span>
+              {i.status === "pending" || i.status === "accepted" ? (
                 <Button
                   size="sm"
                   variant="ghost"
                   className="ml-auto"
                   onClick={() => revoke.mutate(i.id)}
+                  disabled={revoke.isPending}
                 >
-                  Revoke
+                  {i.status === "accepted" ? "Remove access" : "Revoke"}
                 </Button>
               ) : null}
             </li>
@@ -769,6 +784,7 @@ function TeamTab({
             <li className="text-xs text-muted-foreground">No invites yet.</li>
           ) : null}
         </ul>
+
       </Panel>
 
       <Panel title="Members">

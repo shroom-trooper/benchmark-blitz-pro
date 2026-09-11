@@ -159,6 +159,8 @@ function RecruiterHub() {
           group={me.group}
           ownsGroup={me.ownsGroup}
           pendingInvites={me.pendingInvites}
+          revokedFromGroup={me.revokedFromGroup}
+
           displayName={me.displayName}
         />
 
