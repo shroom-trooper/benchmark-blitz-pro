@@ -297,3 +297,38 @@ export async function submitRecruiterWeek(
     newAchievements: [] as string[],
   };
 }
+
+/** Recruiter-group board: same shape and rules as the interviewer group board. */
+export async function loadRecruiterGroupLeaderboard(_supabase: DB, userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: rows } = await supabaseAdmin.rpc("get_group_recruiter_leaderboard", {
+    _actor: userId,
+  });
+  const all = rows ?? [];
+  if (!all.length) return null;
+
+  const first = all[0]!;
+  const ranked = all
+    // The group lead administers the group and is not ranked with members.
+    .filter((p) => p.id !== first.owner_id)
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      totalXp: p.total_xp,
+      level: p.level,
+      streak: p.current_streak,
+      isMe: p.id === userId,
+      isOwner: false,
+    }))
+    .sort((a, b) => b.totalXp - a.totalXp)
+    .map((p, i) => ({ ...p, rank: i + 1 }));
+
+  return {
+    group: {
+      id: first.group_id,
+      name: first.group_name,
+      memberLimit: first.member_limit,
+    },
+    members: ranked,
+  };
+}
