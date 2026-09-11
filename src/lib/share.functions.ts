@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { levelForXp } from "./gamification";
+import { levelForXp, levelForXpIn } from "./gamification";
 import * as share from "./share.server";
 
 // The public profile function is server-only, so read it with the trusted
