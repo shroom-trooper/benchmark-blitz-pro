@@ -1,67 +1,57 @@
-# Why the track switcher is hidden — and how to fix it
+# Track access: both tracks for every new account
 
-## Diagnosis (confirmed)
+## Why the switcher isn't showing
 
-The segmented control `[Recruiter Track | Interviewer Track]` exists and is
-rendered on the Hub (`TrackSwitch` component), but it deliberately renders
-nothing unless your profile is entitled to **both** tracks:
+The segmented control `[Recruiter Track | Interviewer Track]` is already built
+and rendered on the Hub, but it hides itself unless the account is entitled to
+both tracks. Your account currently holds only `interviewer`, so it renders
+nothing. Today the only way to gain a track is accepting an invite for it —
+signing up grants interviewer only. That's the gap.
 
-```text
-allowedTracks = profiles.allowed_tracks   (e.g. ["interviewer", "recruiter"])
-if allowedTracks.length < 2 → show nothing
-```
+## Target behaviour
 
-Your account (`abhay.ajitraj@yandex.com`) currently has:
-
-```text
-allowed_tracks: [interviewer]     active_track: interviewer
-```
-
-The only code path that adds a track to `allowed_tracks` today is **accepting
-a group invitation** for that track. There is no self-serve way to unlock the
-Recruiter track — not even creating a recruiter group grants it
-(`create_group_tracked` never updates `allowed_tracks`). So the switcher
-correctly stays hidden; it's an entitlement gap, not a rendering bug.
+- Every new account gets **both** tracks straight away: Interviewer and
+  Recruiter, each with its own week counter, XP, level and streak.
+- The Hub switcher appears for everyone, so people can move between tracks.
+- Each person can create **one group per track**: one Interviewer group and
+  one Recruiter group.
+- Each free group has **one seat**: an interviewer group can invite one
+  manager, a recruiter group can invite one recruiter.
+- **Invited people are single-track**: accepting a recruiter invite grants the
+  recruiter track only; accepting an interviewer invite grants interviewer
+  only. No switcher for them.
 
 ## Plan
 
-1. **Track choice at signup.** After a new solo account is created (onboarding
-   step), the user picks Interviewer Track or Recruiter Track (or both). The
-   choice is written to `allowed_tracks` / `active_track` and a
-   `track_progress` row is initialized per chosen track. Recruiter group
-   invitees still get the track automatically on invite acceptance, unchanged.
-2. **Self-serve track unlock on the Hub.** When an existing user has only one
-   track, show an "Unlock the Recruiter Track" card on the Hub: short pitch +
-   one button calling a new `unlockTrack` server function that appends the
-   track to `allowed_tracks`, initializes `track_progress`, and switches
-   `active_track`. Idempotent — safe to call twice.
-3. **Grant the track on group creation.** Update `create_group_tracked` so a
-   lead who creates a recruiter group automatically gets `recruiter` added to
-   their own `allowed_tracks` (same for interviewer), so owners can always
-   preview the track they administer.
-4. **Show the switcher whenever both tracks are held.** No change needed —
-   `TrackSwitch` already appears automatically once a step above grants the
-   second track, on both `/hub` and `/recruiter`.
-5. **Verify.** Typecheck + existing tests, then a browser check: a fresh
-   account picks Recruiter at signup; your account unlocks the Recruiter track
-   from the Hub, the segmented control appears, and switching navigates
-   between `/hub` and `/recruiter`.
-3. **Show the switcher whenever both tracks are held.** No change needed —
-   `TrackSwitch` already appears automatically once step 1/2 grants the second
-   track, on both `/hub` and `/recruiter`.
-4. **Verify.** Typecheck + existing tests, then a browser check: your account
-   unlocks the Recruiter track, the segmented control appears on the Hub, and
-   switching navigates between `/hub` and `/recruiter`.
+1. **Grant both tracks at signup.** New profiles get
+   `allowed_tracks = [interviewer, recruiter]` with interviewer active, and a
+   progress row for each track created on first use. Existing solo accounts
+   (people who own a group or belong to none) are backfilled to both tracks;
+   accounts that joined via an invite keep their single invited track.
+2. **Invites stay single-track.** Invite acceptance keeps granting exactly the
+   invited track and does not add the second one. An invited member never sees
+   the switcher.
+3. **One group per track, one seat each.** Group creation is already scoped per
+   track; confirm the seat limit is 1 for both and that the console labels read
+   "Invite a manager" on the interviewer track and "Invite a recruiter" on the
+   recruiter track, with matching seat counters.
+4. **Switcher visibility.** No component change — once both tracks are granted
+   the control appears automatically on `/hub` and `/recruiter`.
+5. **Verify.** Typecheck plus existing tests, then a browser pass: a fresh
+   account sees both tracks and can switch; your account sees the switcher
+   after the backfill; an invited member sees only their track.
 
 ## Technical details
 
-- New `unlockTrack` server function in `src/lib/benchmark.functions.ts` +
-  handler in `src/lib/recruiter.server.ts` (updates `profiles.allowed_tracks`
-  / `active_track`, inserts `track_progress` row for the new track).
-- SQL migration altering `public.create_group_tracked` to also upsert the
-  track into the owner's `allowed_tracks` (server-only RPC; grants unchanged).
-- `src/components/TrackSwitch.tsx` unchanged; new `UnlockTrackCard` component
-  rendered on `src/routes/_authenticated/hub.tsx` when `allowedTracks` has
-  one entry.
-- Existing members invited to recruiter groups are unaffected (invite flow
-  already grants the track).
+- Migration: update `handle_new_user()` to set
+  `allowed_tracks = ARRAY['interviewer','recruiter']`; change the profiles
+  column default to match. Backfill `allowed_tracks` for existing profiles
+  that own a group or have no `group_id`, leaving invited members untouched.
+- `accept_invite` / the tracked invite path continues to set
+  `allowed_tracks` to the invited track only — no widening.
+- `create_group_tracked` already enforces one group per track and
+  `member_limit = 1`; verify and leave as is.
+- Recruiter progress rows are created lazily in `recruiter.server.ts` on first
+  recruiter visit, so no bulk `track_progress` seeding is needed.
+- Group console copy in `src/routes/_authenticated/admin.tsx` becomes
+  track-aware for the invite button and seat text.
