@@ -132,7 +132,7 @@ export async function loadRecruiterMe(supabase: DB, userId: string) {
       .eq("owner_id", userId)
       .eq("track", "recruiter")
       .maybeSingle(),
-    supabase.from("invites").select("id, group_id, status").eq("status", "pending"),
+    supabase.from("invites").select("id, group_id, status").in("status", ["pending", "revoked"]),
   ]);
 
   let group: { id: string; name: string } | null = ownedRes.data ?? null;
@@ -148,6 +148,7 @@ export async function loadRecruiterMe(supabase: DB, userId: string) {
   }
 
   const pendingInvites: { id: string; groupName: string }[] = [];
+  let revokedFromGroup: { groupName: string } | null = null;
   if (!group) {
     for (const inv of invitesRes.data ?? []) {
       const { data: g } = await supabase
@@ -155,9 +156,12 @@ export async function loadRecruiterMe(supabase: DB, userId: string) {
         .select("id, name, track")
         .eq("id", inv.group_id)
         .maybeSingle();
-      if (g?.track === "recruiter") pendingInvites.push({ id: inv.id, groupName: g.name });
+      if (g?.track !== "recruiter") continue;
+      if (inv.status === "pending") pendingInvites.push({ id: inv.id, groupName: g.name });
+      else if (!revokedFromGroup) revokedFromGroup = { groupName: g.name };
     }
   }
+
 
   return {
     track: "recruiter" as const,
