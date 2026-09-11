@@ -68,13 +68,18 @@ export async function isAdmin(supabase: DB, userId: string) {
 }
 
 export async function requireGroupOwner(supabase: DB, userId: string) {
-  const { data } = await supabase
-    .from("groups")
-    .select("*")
-    .eq("owner_id", userId)
+  const { data } = await supabase.from("groups").select("*").eq("owner_id", userId);
+  const groups = data ?? [];
+  const first = groups[0];
+  if (!first) fail("You do not own a group yet.");
+  if (groups.length === 1) return first;
+  // A lead can own one group per track; administer the one on their active track.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("active_track")
+    .eq("id", userId)
     .maybeSingle();
-  if (!data) fail("You do not own a group yet.");
-  return data;
+  return groups.find((g) => g.track === profile?.active_track) ?? first;
 }
 
 export async function isPlatformAdmin(supabase: DB, userId: string) {
@@ -358,12 +363,22 @@ export async function loadGroupLeaderboard(_supabase: DB, userId: string) {
 
 export async function loadGroupConsole(supabase: DB, userId: string) {
   // Owning no group is a normal state (solo users), not an error.
-  const { data: group } = await supabase
+  const { data: ownedGroups } = await supabase
     .from("groups")
     .select("*")
-    .eq("owner_id", userId)
-    .maybeSingle();
-  if (!group) return null;
+    .eq("owner_id", userId);
+  const groups = ownedGroups ?? [];
+  if (!groups.length) return null;
+  let group = groups[0]!;
+  if (groups.length > 1) {
+    // Administer the group on the lead's active track.
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("active_track")
+      .eq("id", userId)
+      .maybeSingle();
+    group = groups.find((g) => g.track === profile?.active_track) ?? group;
+  }
 
   const [membersRes, weeksRes, settingsRes, invitesRes] = await Promise.all([
     supabase.from("profiles").select("*").eq("group_id", group.id),
@@ -692,6 +707,7 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
     group: {
       id: group.id,
       name: group.name,
+      track: group.track,
       memberLimit: group.member_limit,
       seatsUsed,
       seatsLeft: Math.max(0, group.member_limit - seatsUsed),
@@ -750,17 +766,26 @@ export async function acceptInvite(_supabase: DB, userId: string, inviteId: stri
   });
   if (error) fail(friendly(error.message));
 
-  // The invite decides which track the member trains on.
+  // The invite decides which track the member trains on. Invited members are
+  // single-track; only group owners (self-signups) keep both tracks.
   const inviteTrack = invite?.track === "recruiter" ? "recruiter" : "interviewer";
+  const { data: owned } = await supabaseAdmin
+    .from("groups")
+    .select("id")
+    .eq("owner_id", userId)
+    .limit(1);
+  const isOwner = (owned?.length ?? 0) > 0;
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("allowed_tracks")
     .eq("id", userId)
     .maybeSingle();
-  const allowed = new Set([...(profile?.allowed_tracks ?? []), inviteTrack]);
+  const allowed = isOwner
+    ? [...new Set([...(profile?.allowed_tracks ?? []), inviteTrack])]
+    : [inviteTrack];
   await supabaseAdmin
     .from("profiles")
-    .update({ allowed_tracks: [...allowed], active_track: inviteTrack })
+    .update({ allowed_tracks: allowed, active_track: inviteTrack })
     .eq("id", userId);
 
   return { groupId: data as string };

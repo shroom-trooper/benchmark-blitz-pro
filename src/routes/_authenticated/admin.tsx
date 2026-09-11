@@ -378,6 +378,7 @@ const DONUT_SEGMENTS = [
 ] as const;
 
 function ReadinessDonut({ data }: { data: Console }) {
+  const memberNoun = data.group.track === "recruiter" ? "recruiter" : "manager";
   const counts = { ready: 0, practice: 0, inactive: 0 };
   for (const u of data.users) {
     if (u.readiness === "risk") counts.inactive += 1;
@@ -427,7 +428,8 @@ function ReadinessDonut({ data }: { data: Console }) {
                 {Math.round((counts.ready / total) * 100)}%
               </span>
               <span className="mt-1 max-w-[9rem] text-sm font-medium leading-snug text-foreground/70">
-                of {total} manager{total === 1 ? "" : "s"} ready to interview
+                of {total} {memberNoun}
+                {total === 1 ? "" : "s"} ready to interview
               </span>
             </div>
           </div>
@@ -454,7 +456,7 @@ function ReadinessDonut({ data }: { data: Console }) {
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          No members in your group yet — invite your managers to see readiness.
+          No members in your group yet — invite your {memberNoun}s to see readiness.
         </p>
       )}
     </Panel>
@@ -465,6 +467,7 @@ function MemberAnalytics({ data }: { data: Console }) {
   const released = data.summary.releasedWeeks;
   const rows = data.users;
   const [open, setOpen] = useState<string | null>(null);
+  const memberNoun = data.group.track === "recruiter" ? "recruiter" : "manager";
 
   return (
     <Panel title="Member performance">
@@ -624,7 +627,7 @@ function MemberAnalytics({ data }: { data: Console }) {
         </div>
       ) : (
         <p className="text-sm leading-relaxed text-body">
-          No members yet — invite managers from the Team tab to start tracking their progress.
+          No members yet — invite {memberNoun}s from the Team tab to start tracking their progress.
         </p>
       )}
     </Panel>
@@ -650,6 +653,8 @@ function TeamTab({
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["group-console"] });
   const full = data.group.seatsLeft <= 0;
+  const isRecruiter = data.group.track === "recruiter";
+  const memberNoun = isRecruiter ? "recruiter" : "manager";
 
   const invite = useMutation({
     mutationFn: () => inviteFn({ data: { email } }),
@@ -687,7 +692,7 @@ function TeamTab({
 
   return (
     <>
-      <Panel title="Invite a manager">
+      <Panel title={`Invite a ${memberNoun}`}>
         {full ? (
           <div className="rounded-lg border border-warning/40 bg-warning/10 p-4">
             <p className="flex items-center gap-2 text-sm font-semibold text-warning">
@@ -726,7 +731,7 @@ function TeamTab({
             <div className="flex gap-2">
               <Input
                 type="email"
-                placeholder="manager@company.com"
+                placeholder={`${memberNoun}@company.com`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -735,7 +740,7 @@ function TeamTab({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Free plan limited to {data.group.memberLimit} seats. Need to add more managers?{" "}
+              Free plan limited to {data.group.memberLimit} seats. Need to add more {memberNoun}s?{" "}
               <button
                 onClick={onUpgrade}
                 className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
