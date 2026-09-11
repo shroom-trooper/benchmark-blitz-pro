@@ -131,25 +131,40 @@ export async function loadMe(supabase: DB, userId: string) {
     supabase
       .from("invites")
       .select("id, email, group_id, status, created_at")
-      .eq("status", "pending"),
+      .in("status", ["pending", "revoked"]),
     supabase.from("platform_admins").select("user_id").eq("user_id", userId).maybeSingle(),
   ]);
 
   const ownedGroup = ownedRes.data ?? null;
   const group = groupRes.data ?? ownedGroup;
 
+  const groupNameFor = async (groupId: string) => {
+    const { data: g } = await supabase
+      .from("groups")
+      .select("id, name")
+      .eq("id", groupId)
+      .maybeSingle();
+    return g?.name ?? "A group";
+  };
+
   const pendingInvites = profile?.group_id
     ? []
     : await Promise.all(
-        (invitesRes.data ?? []).map(async (i) => {
-          const { data: g } = await supabase
-            .from("groups")
-            .select("id, name")
-            .eq("id", i.group_id)
-            .maybeSingle();
-          return { id: i.id, groupName: g?.name ?? "A group", email: i.email };
-        }),
+        (invitesRes.data ?? [])
+          .filter((i) => i.status === "pending")
+          .map(async (i) => ({
+            id: i.id,
+            groupName: await groupNameFor(i.group_id),
+            email: i.email,
+          })),
       );
+
+  const revokedInvite = (invitesRes.data ?? []).find((i) => i.status === "revoked");
+  const revokedFromGroup =
+    !profile?.group_id && !ownedGroup && revokedInvite
+      ? { groupName: await groupNameFor(revokedInvite.group_id) }
+      : null;
+
 
   const activeTrack =
     profile?.active_track === "recruiter" ? ("recruiter" as const) : ("interviewer" as const);
