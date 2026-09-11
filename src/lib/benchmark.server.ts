@@ -721,11 +721,17 @@ export async function loadGroupConsole(supabase: DB, userId: string) {
   };
 }
 
-export async function createGroup(_supabase: DB, userId: string, name: string) {
+export async function createGroup(
+  _supabase: DB,
+  userId: string,
+  name: string,
+  track: "interviewer" | "recruiter" = "interviewer",
+) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.rpc("create_group", {
+  const { data, error } = await supabaseAdmin.rpc("create_group_tracked", {
     _name: name,
     _actor: userId,
+    _track: track,
   });
   if (error) fail(error.message);
   return { groupId: data as string };
@@ -733,13 +739,33 @@ export async function createGroup(_supabase: DB, userId: string, name: string) {
 
 export async function acceptInvite(_supabase: DB, userId: string, inviteId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: invite } = await supabaseAdmin
+    .from("invites")
+    .select("track")
+    .eq("id", inviteId)
+    .maybeSingle();
   const { data, error } = await supabaseAdmin.rpc("accept_invite", {
     _invite_id: inviteId,
     _actor: userId,
   });
   if (error) fail(friendly(error.message));
+
+  // The invite decides which track the member trains on.
+  const inviteTrack = invite?.track === "recruiter" ? "recruiter" : "interviewer";
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("allowed_tracks")
+    .eq("id", userId)
+    .maybeSingle();
+  const allowed = new Set([...(profile?.allowed_tracks ?? []), inviteTrack]);
+  await supabaseAdmin
+    .from("profiles")
+    .update({ allowed_tracks: [...allowed], active_track: inviteTrack })
+    .eq("id", userId);
+
   return { groupId: data as string };
 }
+
 
 export async function leaveGroup(_supabase: DB, userId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
