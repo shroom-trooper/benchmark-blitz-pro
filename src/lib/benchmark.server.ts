@@ -787,7 +787,13 @@ export async function inviteToGroup(supabase: DB, userId: string, email: string)
   const group = await requireGroupOwner(supabase, userId);
   const { data, error } = await supabase
     .from("invites")
-    .insert({ email: email.trim().toLowerCase(), group_id: group.id, invited_by: userId })
+    .insert({
+      email: email.trim().toLowerCase(),
+      group_id: group.id,
+      invited_by: userId,
+      track: group.track,
+    })
+
     .select()
     .single();
   if (error) fail(friendly(error.message));
