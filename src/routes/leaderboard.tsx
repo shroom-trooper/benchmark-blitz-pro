@@ -157,7 +157,7 @@ function LeaderboardPage() {
                   streak={p.streak}
                   xp={p.totalXp}
                   highlight={p.id === myId}
-                  onShare={!isRecruiter && p.id === myId ? () => setShareOpen(true) : undefined}
+                  onShare={p.id === myId ? () => setShareOpen(true) : undefined}
                 />
               ))}
 
@@ -204,7 +204,9 @@ function LeaderboardPage() {
         ) : null}
       </main>
 
-      {shareOpen ? <ShareAchievementModal onClose={() => setShareOpen(false)} /> : null}
+      {shareOpen ? (
+        <ShareAchievementModal track={track} onClose={() => setShareOpen(false)} />
+      ) : null}
     </div>
   );
 }
