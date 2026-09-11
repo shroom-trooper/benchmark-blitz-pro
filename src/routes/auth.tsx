@@ -39,6 +39,23 @@ function isExistingUserError(message: string): boolean {
   return m.includes("already registered") || m.includes("already been registered") || m.includes("user already exists");
 }
 
+/** Resolve the hub that matches the signed-in person's track. */
+async function trackDestination(): Promise<"/hub" | "/recruiter"> {
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return "/hub";
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("active_track, allowed_tracks")
+    .eq("id", userId)
+    .maybeSingle();
+  const allowed = (profile?.allowed_tracks ?? []) as string[];
+  if (allowed.length && !allowed.includes("interviewer") && allowed.includes("recruiter")) {
+    return "/recruiter";
+  }
+  return profile?.active_track === "recruiter" ? "/recruiter" : "/hub";
+}
+
 function AuthPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
