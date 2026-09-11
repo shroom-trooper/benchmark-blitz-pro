@@ -180,6 +180,7 @@ export async function loadMe(supabase: DB, userId: string) {
     group,
     ownsGroup: Boolean(ownedGroup),
     pendingInvites,
+    revokedFromGroup,
     settings: settingsRes.data,
     activeTrack,
     allowedTracks: allowedTracks.length ? allowedTracks : (["interviewer"] as const).slice(),
