@@ -8,19 +8,30 @@ import { RouteError, RouteNotFound } from "@/components/RouteError";
 const SITE = "https://usebenchmark.app";
 
 export const Route = createFileRoute("/p/$slug")({
-  loader: async ({ params }) => {
-    const profile = await getPublicProfile({ data: { slug: params.slug } });
+  validateSearch: (search: Record<string, unknown>) => ({
+    track: search["track"] === "recruiter" ? ("recruiter" as const) : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ track: search.track }),
+  loader: async ({ params, deps }) => {
+    const profile = await getPublicProfile({
+      data: { slug: params.slug, ...(deps.track ? { track: deps.track } : {}) },
+    });
     if (!profile) throw notFound();
     return profile;
   },
   head: ({ params, loaderData }) => {
+    const recruiter = loaderData?.track === "recruiter";
+    const suffix = recruiter ? "?track=recruiter" : "";
     const title = loaderData
       ? `${loaderData.name} · Level ${loaderData.level} ${loaderData.levelTitle} on Benchmark`
       : "Benchmark player";
+    const tagline = recruiter
+      ? "Calibrated & ready to recruit. See where your TA judgement stacks up on Benchmark."
+      : "Calibrated & ready to hire. See where your hiring skills stack up on Benchmark.";
     const description = loaderData
-      ? `${loaderData.name} has ${loaderData.totalXp.toLocaleString()} XP and a ${loaderData.streak}-week streak. Calibrated & ready to hire. See where your hiring skills stack up on Benchmark.`
-      : "See where your hiring skills stack up on Benchmark.";
-    const image = `${SITE}/api/public/og/${params.slug}`;
+      ? `${loaderData.name} has ${loaderData.totalXp.toLocaleString()} XP and a ${loaderData.streak}-week streak. ${tagline}`
+      : tagline;
+    const image = `${SITE}/api/public/og/${params.slug}${suffix}`;
     return {
       meta: [
         { title },
@@ -28,7 +39,7 @@ export const Route = createFileRoute("/p/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "profile" },
-        { property: "og:url", content: `${SITE}/p/${params.slug}` },
+        { property: "og:url", content: `${SITE}/p/${params.slug}${suffix}` },
         { property: "og:image", content: image },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
