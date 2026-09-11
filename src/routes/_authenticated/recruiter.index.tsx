@@ -67,7 +67,9 @@ function RecruiterHub() {
   return (
     <AppShell>
       <div className="space-y-8">
+        <TrackSwitch active="recruiter" />
         <section className="rounded-2xl border border-border bg-gradient-to-br from-surface to-surface-2 p-6 sm:p-8">
+
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div className="max-w-xl">
               <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
