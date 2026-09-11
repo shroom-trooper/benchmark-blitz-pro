@@ -140,6 +140,12 @@ export async function loadMe(supabase: DB, userId: string) {
         }),
       );
 
+  const activeTrack =
+    profile?.active_track === "recruiter" ? ("recruiter" as const) : ("interviewer" as const);
+  const allowedTracks = ((profile?.allowed_tracks ?? ["interviewer"]) as string[]).filter(
+    (t): t is "interviewer" | "recruiter" => t === "interviewer" || t === "recruiter",
+  );
+
   return {
     profile,
     roles,
@@ -149,7 +155,10 @@ export async function loadMe(supabase: DB, userId: string) {
     ownsGroup: Boolean(ownedGroup),
     pendingInvites,
     settings: settingsRes.data,
+    activeTrack,
+    allowedTracks: allowedTracks.length ? allowedTracks : (["interviewer"] as const).slice(),
     unlockedWeek: unlockedWeekFor(profile?.created_at),
+
     nextUnlockAt: nextUnlockAt(profile?.created_at),
     responses: responsesRes.data ?? [],
     earned: achRes.data ?? [],

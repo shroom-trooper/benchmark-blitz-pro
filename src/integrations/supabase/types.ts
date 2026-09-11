@@ -284,6 +284,7 @@ export type Database = {
           member_limit: number
           name: string
           owner_id: string
+          track: string
           updated_at: string
         }
         Insert: {
@@ -292,6 +293,7 @@ export type Database = {
           member_limit?: number
           name: string
           owner_id: string
+          track?: string
           updated_at?: string
         }
         Update: {
@@ -300,6 +302,7 @@ export type Database = {
           member_limit?: number
           name?: string
           owner_id?: string
+          track?: string
           updated_at?: string
         }
         Relationships: []
@@ -313,6 +316,7 @@ export type Database = {
           invited_by: string | null
           status: string
           token: string
+          track: string
         }
         Insert: {
           created_at?: string
@@ -322,6 +326,7 @@ export type Database = {
           invited_by?: string | null
           status?: string
           token?: string
+          track?: string
         }
         Update: {
           created_at?: string
@@ -331,6 +336,7 @@ export type Database = {
           invited_by?: string | null
           status?: string
           token?: string
+          track?: string
         }
         Relationships: [
           {
@@ -386,6 +392,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active_track: string
+          allowed_tracks: string[]
           created_at: string
           current_streak: number
           display_name: string | null
@@ -406,6 +414,8 @@ export type Database = {
           total_xp: number
         }
         Insert: {
+          active_track?: string
+          allowed_tracks?: string[]
           created_at?: string
           current_streak?: number
           display_name?: string | null
@@ -426,6 +436,8 @@ export type Database = {
           total_xp?: number
         }
         Update: {
+          active_track?: string
+          allowed_tracks?: string[]
           created_at?: string
           current_streak?: number
           display_name?: string | null
@@ -495,6 +507,74 @@ export type Database = {
             referencedColumns: ["week_number"]
           },
         ]
+      }
+      recruiter_responses: {
+        Row: {
+          answers: Json
+          completed_at: string
+          id: string
+          score: number
+          streak_bonus: number
+          user_id: string
+          week_number: number
+          xp_earned: number
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string
+          id?: string
+          score?: number
+          streak_bonus?: number
+          user_id: string
+          week_number: number
+          xp_earned?: number
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          id?: string
+          score?: number
+          streak_bonus?: number
+          user_id?: string
+          week_number?: number
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruiter_responses_week_number_fkey"
+            columns: ["week_number"]
+            isOneToOne: false
+            referencedRelation: "recruiter_weeks"
+            referencedColumns: ["week_number"]
+          },
+        ]
+      }
+      recruiter_weeks: {
+        Row: {
+          created_at: string
+          fact: string
+          focus: string
+          quarter: number
+          topic: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          fact?: string
+          focus?: string
+          quarter: number
+          topic: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          fact?: string
+          focus?: string
+          quarter?: number
+          topic?: string
+          week_number?: number
+        }
+        Relationships: []
       }
       responses: {
         Row: {
@@ -594,6 +674,42 @@ export type Database = {
           total?: number
           user_id?: string
           xp_earned?: number
+        }
+        Relationships: []
+      }
+      track_progress: {
+        Row: {
+          current_streak: number
+          last_completed_at: string | null
+          last_completed_week: number | null
+          level: number
+          longest_streak: number
+          started_at: string
+          total_xp: number
+          track: string
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          last_completed_at?: string | null
+          last_completed_week?: number | null
+          level?: number
+          longest_streak?: number
+          started_at?: string
+          total_xp?: number
+          track: string
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          last_completed_at?: string | null
+          last_completed_week?: number | null
+          level?: number
+          longest_streak?: number
+          started_at?: string
+          total_xp?: number
+          track?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -710,6 +826,10 @@ export type Database = {
         Returns: string
       }
       create_group: { Args: { _actor: string; _name: string }; Returns: string }
+      create_group_tracked: {
+        Args: { _actor: string; _name: string; _track: string }
+        Returns: string
+      }
       get_group_leaderboard: {
         Args: { _actor: string }
         Returns: {

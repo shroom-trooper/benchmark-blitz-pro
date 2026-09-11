@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789121551326,
+      "tag": "0000_recruiter_track",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789121613823,
+      "tag": "0001_seed_recruiter_weeks",
+      "breakpoints": true
+    }
+  ]
+}
