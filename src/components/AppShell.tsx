@@ -18,6 +18,7 @@ export function useMe() {
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: me } = useMe();
   const router = useRouter();
+  const hubTo = me?.activeTrack === "recruiter" ? "/recruiter" : "/hub";
   const xp = me?.profile?.total_xp ?? 0;
   const lp = levelProgress(xp);
 
