@@ -71,6 +71,13 @@
       "when": 1789140223696,
       "tag": "0009_weekly_unlock_emails_track",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790250119020,
+      "tag": "0010_interview_readiness",
+      "breakpoints": true
     }
   ]
 }

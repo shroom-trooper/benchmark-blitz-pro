@@ -17,6 +17,7 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCapabilityRouteImport } from './routes/_authenticated/capability'
 import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -25,6 +26,10 @@ import { Route as GuidesHowToTrainHiringManagersRouteImport } from './routes/gui
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as AuthenticatedAssessmentIdRouteImport } from './routes/_authenticated/assessment.$id'
 import { Route as AuthenticatedElectivesIndexRouteImport } from './routes/_authenticated/electives.index'
+import { Route as AuthenticatedInterviewsIndexRouteImport } from './routes/_authenticated/interviews.index'
+import { Route as AuthenticatedInterviewsIdRouteImport } from './routes/_authenticated/interviews.$id'
+import { Route as AuthenticatedInterviewsNewRouteImport } from './routes/_authenticated/interviews.new'
+import { Route as AuthenticatedPrepSessionIdRouteImport } from './routes/_authenticated/prep.$sessionId'
 import { Route as AuthenticatedRecruiterIndexRouteImport } from './routes/_authenticated/recruiter.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
@@ -74,6 +79,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCapabilityRoute = AuthenticatedCapabilityRouteImport.update({
+  id: '/capability',
+  path: '/capability',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedElectivesRoute = AuthenticatedElectivesRouteImport.update({
   id: '/electives',
   path: '/electives',
@@ -116,6 +126,30 @@ const AuthenticatedElectivesIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedElectivesRoute,
+  } as any)
+const AuthenticatedInterviewsIndexRoute =
+  AuthenticatedInterviewsIndexRouteImport.update({
+    id: '/interviews/',
+    path: '/interviews/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInterviewsIdRoute =
+  AuthenticatedInterviewsIdRouteImport.update({
+    id: '/interviews/$id',
+    path: '/interviews/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInterviewsNewRoute =
+  AuthenticatedInterviewsNewRouteImport.update({
+    id: '/interviews/new',
+    path: '/interviews/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPrepSessionIdRoute =
+  AuthenticatedPrepSessionIdRouteImport.update({
+    id: '/prep/$sessionId',
+    path: '/prep/$sessionId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedRecruiterIndexRoute =
   AuthenticatedRecruiterIndexRouteImport.update({
@@ -177,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/capability': typeof AuthenticatedCapabilityRoute
   '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -184,8 +219,12 @@ export interface FileRoutesByFullPath {
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
+  '/interviews/$id': typeof AuthenticatedInterviewsIdRoute
+  '/interviews/new': typeof AuthenticatedInterviewsNewRoute
+  '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/electives/': typeof AuthenticatedElectivesIndexRoute
+  '/interviews/': typeof AuthenticatedInterviewsIndexRoute
   '/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
@@ -203,13 +242,18 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/capability': typeof AuthenticatedCapabilityRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
+  '/interviews/$id': typeof AuthenticatedInterviewsIdRoute
+  '/interviews/new': typeof AuthenticatedInterviewsNewRoute
+  '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/electives': typeof AuthenticatedElectivesIndexRoute
+  '/interviews': typeof AuthenticatedInterviewsIndexRoute
   '/recruiter': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
@@ -229,6 +273,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/capability': typeof AuthenticatedCapabilityRoute
   '/_authenticated/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -236,8 +281,12 @@ export interface FileRoutesById {
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
   '/_authenticated/assessment/$id': typeof AuthenticatedAssessmentIdRoute
+  '/_authenticated/interviews/$id': typeof AuthenticatedInterviewsIdRoute
+  '/_authenticated/interviews/new': typeof AuthenticatedInterviewsNewRoute
+  '/_authenticated/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
+  '/_authenticated/interviews/': typeof AuthenticatedInterviewsIndexRoute
   '/_authenticated/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/_authenticated/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
@@ -257,6 +306,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/admin'
+    | '/capability'
     | '/electives'
     | '/hub'
     | '/onboarding'
@@ -264,8 +314,12 @@ export interface FileRouteTypes {
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
     | '/assessment/$id'
+    | '/interviews/$id'
+    | '/interviews/new'
+    | '/prep/$sessionId'
     | '/session/$week'
     | '/electives/'
+    | '/interviews/'
     | '/recruiter/'
     | '/electives/$module/$lesson'
     | '/recruiter/session/$week'
@@ -283,13 +337,18 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/admin'
+    | '/capability'
     | '/hub'
     | '/onboarding'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
     | '/assessment/$id'
+    | '/interviews/$id'
+    | '/interviews/new'
+    | '/prep/$sessionId'
     | '/session/$week'
     | '/electives'
+    | '/interviews'
     | '/recruiter'
     | '/electives/$module/$lesson'
     | '/recruiter/session/$week'
@@ -308,6 +367,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/_authenticated/capability'
     | '/_authenticated/electives'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
@@ -315,8 +375,12 @@ export interface FileRouteTypes {
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
     | '/_authenticated/assessment/$id'
+    | '/_authenticated/interviews/$id'
+    | '/_authenticated/interviews/new'
+    | '/_authenticated/prep/$sessionId'
     | '/_authenticated/session/$week'
     | '/_authenticated/electives/'
+    | '/_authenticated/interviews/'
     | '/_authenticated/recruiter/'
     | '/_authenticated/electives/$module/$lesson'
     | '/_authenticated/recruiter/session/$week'
@@ -402,6 +466,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/capability': {
+      id: '/_authenticated/capability'
+      path: '/capability'
+      fullPath: '/capability'
+      preLoaderRoute: typeof AuthenticatedCapabilityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/electives': {
       id: '/_authenticated/electives'
       path: '/electives'
@@ -457,6 +528,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/electives/'
       preLoaderRoute: typeof AuthenticatedElectivesIndexRouteImport
       parentRoute: typeof AuthenticatedElectivesRoute
+    }
+    '/_authenticated/interviews/': {
+      id: '/_authenticated/interviews/'
+      path: '/interviews'
+      fullPath: '/interviews/'
+      preLoaderRoute: typeof AuthenticatedInterviewsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/interviews/$id': {
+      id: '/_authenticated/interviews/$id'
+      path: '/interviews/$id'
+      fullPath: '/interviews/$id'
+      preLoaderRoute: typeof AuthenticatedInterviewsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/interviews/new': {
+      id: '/_authenticated/interviews/new'
+      path: '/interviews/new'
+      fullPath: '/interviews/new'
+      preLoaderRoute: typeof AuthenticatedInterviewsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prep/$sessionId': {
+      id: '/_authenticated/prep/$sessionId'
+      path: '/prep/$sessionId'
+      fullPath: '/prep/$sessionId'
+      preLoaderRoute: typeof AuthenticatedPrepSessionIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recruiter/': {
       id: '/_authenticated/recruiter/'
@@ -560,22 +659,32 @@ const AuthenticatedRecruiterRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedCapabilityRoute: typeof AuthenticatedCapabilityRoute
   AuthenticatedElectivesRoute: typeof AuthenticatedElectivesRouteWithChildren
   AuthenticatedHubRoute: typeof AuthenticatedHubRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedRecruiterRoute: typeof AuthenticatedRecruiterRouteWithChildren
   AuthenticatedAssessmentIdRoute: typeof AuthenticatedAssessmentIdRoute
+  AuthenticatedInterviewsIdRoute: typeof AuthenticatedInterviewsIdRoute
+  AuthenticatedInterviewsNewRoute: typeof AuthenticatedInterviewsNewRoute
+  AuthenticatedPrepSessionIdRoute: typeof AuthenticatedPrepSessionIdRoute
   AuthenticatedSessionWeekRoute: typeof AuthenticatedSessionWeekRoute
+  AuthenticatedInterviewsIndexRoute: typeof AuthenticatedInterviewsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedCapabilityRoute: AuthenticatedCapabilityRoute,
   AuthenticatedElectivesRoute: AuthenticatedElectivesRouteWithChildren,
   AuthenticatedHubRoute: AuthenticatedHubRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedRecruiterRoute: AuthenticatedRecruiterRouteWithChildren,
   AuthenticatedAssessmentIdRoute: AuthenticatedAssessmentIdRoute,
+  AuthenticatedInterviewsIdRoute: AuthenticatedInterviewsIdRoute,
+  AuthenticatedInterviewsNewRoute: AuthenticatedInterviewsNewRoute,
+  AuthenticatedPrepSessionIdRoute: AuthenticatedPrepSessionIdRoute,
   AuthenticatedSessionWeekRoute: AuthenticatedSessionWeekRoute,
+  AuthenticatedInterviewsIndexRoute: AuthenticatedInterviewsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
