@@ -404,7 +404,7 @@ async function upsertCalendarInterview(
     .maybeSingle();
   if (found) {
     // Never downgrade a confirmed interview back to a draft.
-    if (found.confirmation_status === "confirmed" && fields.confirmation_status === "draft") return found;
+    if (found.confirmation_status === "confirmed" && fields["confirmation_status"] === "draft") return found;
     await a.from("interview_events").update(fields as never).eq("id", found.id);
     return found;
   }

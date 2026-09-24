@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { CalendarPlus, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { listInterviews } from "@/lib/readiness.functions";
+import { listDetectedEvents } from "@/lib/calendar.functions";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PrepStatusBadge } from "@/components/CapabilityGrid";
@@ -111,5 +112,48 @@ function List({ items }: { items: Awaited<ReturnType<typeof listInterviews>> }) 
         </li>
       ))}
     </ul>
+  );
+}
+
+function Detected() {
+  const fn = useServerFn(listDetectedEvents);
+  const q = useQuery({ queryKey: ["detected-events"], queryFn: () => fn(), retry: false });
+  const items = q.data ?? [];
+  if (!items.length) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        <Link to="/settings/calendar" className="underline underline-offset-4 hover:text-foreground">
+          Connect Outlook
+        </Link>{" "}
+        to find upcoming interviews automatically.
+      </p>
+    );
+  }
+  return (
+    <div>
+      <h2 className="mb-3 text-sm uppercase tracking-wide text-muted-foreground">
+        Found in your calendar · needs confirmation
+      </h2>
+      <ul className="divide-y divide-border overflow-hidden rounded-xl border border-primary/40 bg-surface">
+        {items.map((e) => (
+          <li key={e.id}>
+            <Link
+              to="/interviews/confirm/$eventId"
+              params={{ eventId: e.id }}
+              className="flex items-center gap-4 p-4 hover:bg-surface-2"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{e.role ?? e.subject ?? "Calendar event"}</p>
+                <p className="truncate text-sm text-muted-foreground">
+                  {fmtWhen(e.startsAt)} · {e.band === "high" ? "Likely interview" : "Possible interview"}
+                </p>
+              </div>
+              <span className="text-xs text-primary">Review</span>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

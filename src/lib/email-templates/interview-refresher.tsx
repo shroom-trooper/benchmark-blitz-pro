@@ -46,7 +46,7 @@ const Email = ({ firstName, roleTitle, stage, when, reminders, prepUrl }: Props)
 
 export const template = {
   component: Email,
-  subject: (d: Record<string, any>) => `Starting soon: ${d.roleTitle || 'your interview'}`,
+  subject: (d: Record<string, any>) => `Starting soon: ${d['roleTitle'] || 'your interview'}`,
   displayName: 'Interview refresher',
   previewData: { firstName: 'Alex', roleTitle: 'Senior Engineer', stage: 'Technical interview', when: '14:00' },
 } satisfies TemplateEntry

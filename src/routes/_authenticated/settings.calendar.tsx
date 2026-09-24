@@ -203,7 +203,16 @@ function CalendarSettings() {
   );
 }
 
-type PrefsShape = Parameters<typeof updateNotificationPrefs>[0]["data"];
+type PrefsShape = {
+  calendar_detection_enabled: boolean;
+  email_preparation_enabled: boolean;
+  email_refresher_enabled: boolean;
+  preparation_lead_minutes: number;
+  refresher_lead_minutes: number;
+  quiet_hours_start: number | null;
+  quiet_hours_end: number | null;
+  timezone: string;
+};
 
 function PrefsForm({
   prefs,
@@ -246,7 +255,7 @@ function PrefsForm({
     },
     onError: (e: Error) => toast.error(e.message),
   });
-  const row = (label: string, hint: string, key: keyof PrefsShape) => (
+  const row = (label: string, hint: string, key: "calendar_detection_enabled" | "email_preparation_enabled" | "email_refresher_enabled") => (
     <div className="flex items-start justify-between gap-4 py-3">
       <div>
         <Label htmlFor={key}>{label}</Label>

@@ -52,7 +52,7 @@ export const startOutlookConnect = createServerFn({ method: "POST" })
       appUserId: context.userId,
       clientAPIKey: clientKey,
       returnUrl,
-      connectionAPIKey: existing ?? undefined,
+      ...(existing ? { connectionAPIKey: existing } : {}),
       credentialsConfiguration: { scopes: MICROSOFT_SCOPES, prompt: "select_account", domain_hint: "none" },
     });
     return { authorizationUrl };
@@ -205,7 +205,9 @@ export const confirmDetectedInterview = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(({ context, data }) => sync.confirmCalendarInterview(context.userId, data));
+  .handler(({ context, data }) =>
+    sync.confirmCalendarInterview(context.userId, { ...data, responsibility: data.responsibility ?? null }),
+  );
 
 export const dismissDetectedEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
