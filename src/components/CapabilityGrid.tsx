@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 const CONF_LABEL = {
   insufficient: "No evidence yet",
   low: "Low confidence",
-  moderate: "Moderate confidence",
+  medium: "Moderate confidence",
   high: "High confidence",
 } as const;
 
@@ -44,7 +44,7 @@ export function AreaCard({ p }: { p: AreaProgress }) {
       </p>
       {building ? (
         <p className="mt-1 text-xs text-muted-foreground">
-          {p.total_questions} of 5 answers needed
+          {p.total_questions} of 8 answers needed
         </p>
       ) : (
         <>

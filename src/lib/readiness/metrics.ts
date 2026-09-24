@@ -432,7 +432,7 @@ export type Recommendation = {
 export function recommendNext(args: {
   progress: AreaProgress[];
   development: DevelopmentArea[];
-  upcomingStage?: string | null;
+  upcomingStage?: string | null | undefined;
   now: number;
 }): Recommendation {
   const { progress, development, upcomingStage, now } = args;
