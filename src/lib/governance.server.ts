@@ -247,9 +247,27 @@ export async function getQuestion(userId: string, id: string) {
   const reviewers = await eligibleReviewerCount(ctx.orgId);
   return {
     definition: { id: def.id, status: def.current_status as QuestionStatus, statusReason: def.status_reason, createdBy: def.created_by, author: n.get(def.created_by) ?? "Member" },
-    versions: (versions ?? []).map((v: VersionRow) => ({ ...v, options: v.options as string[], author: n.get(v.created_by) ?? "Member" })),
-    reviews: (reviews ?? []).map((r) => ({ ...r, reviewer: n.get(r.reviewer_id) ?? "Reviewer" })),
-    publications: pubs ?? [],
+    versions: (versions ?? []).map((v: VersionRow) => ({
+      id: v.id,
+      version_number: v.version_number,
+      scenario: v.scenario,
+      options: v.options as string[],
+      correct_index: v.correct_index,
+      explanation: v.explanation,
+      capability_area: v.capability_area,
+      sub_skill: v.sub_skill,
+      difficulty: v.difficulty,
+      risk_level: v.risk_level as RiskLevel,
+      generated_by_ai: v.generated_by_ai,
+      sources: (v.source_references as string[]) ?? [],
+      validation: (v.validation as { ok?: boolean; issues?: string[] }) ?? {},
+      locked: v.locked,
+      created_by: v.created_by,
+      created_at: v.created_at,
+      author: n.get(v.created_by) ?? "Member",
+    })),
+    reviews: (reviews ?? []).map((r) => ({ id: r.id, decision: r.decision, feedback: r.feedback, reviewedAt: r.reviewed_at, exception: r.single_reviewer_exception, exceptionReason: r.exception_reason, reviewer: n.get(r.reviewer_id) ?? "Reviewer" })),
+    publications: (pubs ?? []).map((p) => ({ id: p.id, versionId: p.question_version_id, publishedAt: p.published_at, unpublishedAt: p.unpublished_at })),
     flags: flags ?? [],
     permissions: ctx.permissions,
     me: userId,
@@ -323,7 +341,7 @@ const ACTION_PERMISSION: Record<LifecycleAction, Permission> = {
 
 export async function questionAction(
   userId: string,
-  input: { id: string; action: LifecycleAction; reason?: string | null; checklist?: Record<string, boolean>; exceptionReason?: string | null },
+  input: { id: string; action: LifecycleAction; reason?: string | null | undefined; checklist?: Record<string, boolean>; exceptionReason?: string | null },
 ) {
   const ctx = await requirePermission(userId, ACTION_PERMISSION[input.action]);
   const a = await admin();
@@ -389,7 +407,7 @@ export async function questionAction(
 
 /* ---------------- Flags & evidence invalidation ---------------- */
 
-export async function flagQuestion(userId: string, input: { prepQuestionId: string; reason: string; comment?: string | null }) {
+export async function flagQuestion(userId: string, input: { prepQuestionId: string; reason: string; comment?: string | null | undefined }) {
   const a = await admin();
   const { data: q } = await a.from("prep_questions").select("id, prep_session_id, question_version_id").eq("id", input.prepQuestionId).maybeSingle();
   if (!q) fail("Question not found");
@@ -514,7 +532,7 @@ export async function listPrinciples(userId: string) {
   return { principles: data ?? [], canManage: ctx.permissions.includes("principles.manage") };
 }
 
-export async function savePrinciple(userId: string, input: { principleKey?: string | null; title: string; body: string }) {
+export async function savePrinciple(userId: string, input: { principleKey?: string | null | undefined; title: string; body: string }) {
   const ctx = await requirePermission(userId, "principles.manage");
   const a = await admin();
   let version = 1;
@@ -685,7 +703,7 @@ export async function runRetention() {
 
 /* ---------------- Audit viewer ---------------- */
 
-export async function listAudit(userId: string, input: { action?: string | null; before?: string | null }) {
+export async function listAudit(userId: string, input: { action?: string | null | undefined; before?: string | null }) {
   const ctx = await requirePermission(userId, "audit.read");
   const a = await admin();
   let q = a.from("audit_events").select("*").eq("organization_id", ctx.orgId).order("created_at", { ascending: false }).limit(100);
