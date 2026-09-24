@@ -32,8 +32,10 @@ import { Route as AuthenticatedInterviewsNewRouteImport } from './routes/_authen
 import { Route as AuthenticatedPrepSessionIdRouteImport } from './routes/_authenticated/prep.$sessionId'
 import { Route as AuthenticatedRecruiterIndexRouteImport } from './routes/_authenticated/recruiter.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
+import { Route as AuthenticatedSettingsCalendarRouteImport } from './routes/_authenticated/settings.calendar'
 import { Route as OauthOutlookReturnRouteImport } from './routes/oauth/outlook/return'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
+import { Route as AuthenticatedInterviewsConfirmEventIdRouteImport } from './routes/_authenticated/interviews.confirm.$eventId'
 import { Route as AuthenticatedRecruiterSessionWeekRouteImport } from './routes/_authenticated/recruiter.session.$week'
 import { Route as ApiPublicCronCalendarSyncRouteImport } from './routes/api/public/cron/calendar-sync'
 import { Route as ApiPublicCronWeeklyUnlockRouteImport } from './routes/api/public/cron/weekly-unlock'
@@ -165,6 +167,12 @@ const AuthenticatedSessionWeekRoute =
     path: '/session/$week',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSettingsCalendarRoute =
+  AuthenticatedSettingsCalendarRouteImport.update({
+    id: '/settings/calendar',
+    path: '/settings/calendar',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const OauthOutlookReturnRoute = OauthOutlookReturnRouteImport.update({
   id: '/oauth/outlook/return',
   path: '/oauth/outlook/return',
@@ -175,6 +183,12 @@ const AuthenticatedElectivesModuleLessonRoute =
     id: '/$module/$lesson',
     path: '/$module/$lesson',
     getParentRoute: () => AuthenticatedElectivesRoute,
+  } as any)
+const AuthenticatedInterviewsConfirmEventIdRoute =
+  AuthenticatedInterviewsConfirmEventIdRouteImport.update({
+    id: '/interviews/confirm/$eventId',
+    path: '/interviews/confirm/$eventId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedRecruiterSessionWeekRoute =
   AuthenticatedRecruiterSessionWeekRouteImport.update({
@@ -236,11 +250,13 @@ export interface FileRoutesByFullPath {
   '/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
   '/oauth/outlook/return': typeof OauthOutlookReturnRoute
   '/electives/': typeof AuthenticatedElectivesIndexRoute
   '/interviews/': typeof AuthenticatedInterviewsIndexRoute
   '/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
+  '/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
@@ -267,11 +283,13 @@ export interface FileRoutesByTo {
   '/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
   '/oauth/outlook/return': typeof OauthOutlookReturnRoute
   '/electives': typeof AuthenticatedElectivesIndexRoute
   '/interviews': typeof AuthenticatedInterviewsIndexRoute
   '/recruiter': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
+  '/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
@@ -302,11 +320,13 @@ export interface FileRoutesById {
   '/_authenticated/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/_authenticated/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/_authenticated/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
   '/oauth/outlook/return': typeof OauthOutlookReturnRoute
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
   '/_authenticated/interviews/': typeof AuthenticatedInterviewsIndexRoute
   '/_authenticated/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
+  '/_authenticated/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
   '/_authenticated/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
@@ -337,11 +357,13 @@ export interface FileRouteTypes {
     | '/interviews/new'
     | '/prep/$sessionId'
     | '/session/$week'
+    | '/settings/calendar'
     | '/oauth/outlook/return'
     | '/electives/'
     | '/interviews/'
     | '/recruiter/'
     | '/electives/$module/$lesson'
+    | '/interviews/confirm/$eventId'
     | '/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
@@ -368,11 +390,13 @@ export interface FileRouteTypes {
     | '/interviews/new'
     | '/prep/$sessionId'
     | '/session/$week'
+    | '/settings/calendar'
     | '/oauth/outlook/return'
     | '/electives'
     | '/interviews'
     | '/recruiter'
     | '/electives/$module/$lesson'
+    | '/interviews/confirm/$eventId'
     | '/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
@@ -402,11 +426,13 @@ export interface FileRouteTypes {
     | '/_authenticated/interviews/new'
     | '/_authenticated/prep/$sessionId'
     | '/_authenticated/session/$week'
+    | '/_authenticated/settings/calendar'
     | '/oauth/outlook/return'
     | '/_authenticated/electives/'
     | '/_authenticated/interviews/'
     | '/_authenticated/recruiter/'
     | '/_authenticated/electives/$module/$lesson'
+    | '/_authenticated/interviews/confirm/$eventId'
     | '/_authenticated/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
@@ -598,6 +624,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSessionWeekRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings/calendar': {
+      id: '/_authenticated/settings/calendar'
+      path: '/settings/calendar'
+      fullPath: '/settings/calendar'
+      preLoaderRoute: typeof AuthenticatedSettingsCalendarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/oauth/outlook/return': {
       id: '/oauth/outlook/return'
       path: '/oauth/outlook/return'
@@ -611,6 +644,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/electives/$module/$lesson'
       preLoaderRoute: typeof AuthenticatedElectivesModuleLessonRouteImport
       parentRoute: typeof AuthenticatedElectivesRoute
+    }
+    '/_authenticated/interviews/confirm/$eventId': {
+      id: '/_authenticated/interviews/confirm/$eventId'
+      path: '/interviews/confirm/$eventId'
+      fullPath: '/interviews/confirm/$eventId'
+      preLoaderRoute: typeof AuthenticatedInterviewsConfirmEventIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recruiter/session/$week': {
       id: '/_authenticated/recruiter/session/$week'
@@ -710,7 +750,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInterviewsNewRoute: typeof AuthenticatedInterviewsNewRoute
   AuthenticatedPrepSessionIdRoute: typeof AuthenticatedPrepSessionIdRoute
   AuthenticatedSessionWeekRoute: typeof AuthenticatedSessionWeekRoute
+  AuthenticatedSettingsCalendarRoute: typeof AuthenticatedSettingsCalendarRoute
   AuthenticatedInterviewsIndexRoute: typeof AuthenticatedInterviewsIndexRoute
+  AuthenticatedInterviewsConfirmEventIdRoute: typeof AuthenticatedInterviewsConfirmEventIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -725,7 +767,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInterviewsNewRoute: AuthenticatedInterviewsNewRoute,
   AuthenticatedPrepSessionIdRoute: AuthenticatedPrepSessionIdRoute,
   AuthenticatedSessionWeekRoute: AuthenticatedSessionWeekRoute,
+  AuthenticatedSettingsCalendarRoute: AuthenticatedSettingsCalendarRoute,
   AuthenticatedInterviewsIndexRoute: AuthenticatedInterviewsIndexRoute,
+  AuthenticatedInterviewsConfirmEventIdRoute:
+    AuthenticatedInterviewsConfirmEventIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
