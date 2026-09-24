@@ -134,6 +134,13 @@
       "when": 1790284676355,
       "tag": "0018_prepilot_onboarding_bootstrap",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790284868685,
+      "tag": "0019_prepilot_bootstrap_group",
+      "breakpoints": true
     }
   ]
 }
