@@ -64,6 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   async function signOut() {
     resetAnalytics();
+    sessionStorage.removeItem("bm-landed");
     await qc.cancelQueries();
     qc.clear();
     await supabase.auth.signOut();
