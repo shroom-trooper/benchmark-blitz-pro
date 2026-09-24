@@ -213,16 +213,19 @@ export function computeReadinessMetrics(args: {
   const withDone = eligible.filter((i) => latest.get(i.id)?.status === "completed");
   const onTime = eligible.filter((i) => completedBeforeStart(i, latest.get(i.id)));
 
-  const eligibleIds = new Set(eligible.map((i) => i.id));
   const deliveredIds = new Set(
     deliveries
       .filter((d) => d.notification_type === "preparation" && d.status === "delivered")
       .map((d) => d.interview_event_id),
   );
-  // A session counts as delivered when an email was delivered or it was opened in-app (manual flow).
-  const deliveredSessions = [...latest.values()].filter(
-    (s) => eligibleIds.has(s.interview_event_id) && (deliveredIds.has(s.interview_event_id) || s.started_at || s.status !== "generated" || true),
-  );
+  const byId = new Map(eligible.map((i) => [i.id, i]));
+  // Delivered = preparation email delivered, OR generated on demand in the app (manual interviews),
+  // OR already opened by the interviewer.
+  const deliveredSessions = [...latest.values()].filter((s) => {
+    const i = byId.get(s.interview_event_id);
+    if (!i) return false;
+    return deliveredIds.has(i.id) || i.source === "manual" || s.status !== "generated";
+  });
   const started = deliveredSessions.filter((s) => s.started_at || s.status === "started" || s.status === "completed");
   const completed = started.filter((s) => s.status === "completed");
 
@@ -279,7 +282,7 @@ export function computeFunnel(args: {
       .map((d) => d.interview_event_id),
   );
   const generated = eligible.filter((i) => latest.has(i.id));
-  const del = generated.filter((i) => delivered.has(i.id) || latest.get(i.id)!.started_at || latest.get(i.id)!.status !== "generated");
+  const del = generated.filter((i) => delivered.has(i.id) || i.source === "manual" || latest.get(i.id)!.status !== "generated");
   const started = generated.filter((i) => {
     const s = latest.get(i.id)!;
     return s.status === "started" || s.status === "completed";
