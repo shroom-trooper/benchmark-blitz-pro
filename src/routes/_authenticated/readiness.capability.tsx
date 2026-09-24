@@ -40,15 +40,16 @@ function Heatmap() {
   }, []);
   const rows = useMemo(() => {
     if (!data || data.empty) return [];
+    type P = (typeof data.people)[number];
     const now = Date.now();
     const cols = area ? [area] : CAPABILITY_AREAS;
-    const pick = (p: (typeof data.people)[number]) => p.progress.filter((x) => cols.includes(x.capability_area));
+    const pick = (p: P) => p.progress.filter((x) => cols.includes(x.capability_area));
     const filtered = data.people.filter((p) =>
       pick(p).some((x) => (!stage || x.mastery_stage === stage) && (!conf || x.evidence_confidence === conf)),
     );
-    const reliableMin = (p: (typeof data.people)[number]) =>
+    const reliableMin = (p: P) =>
       Math.min(...pick(p).filter((x) => x.evidence_confidence !== "low").map((x) => x.weighted_score), 101);
-    const key: Record<keyof typeof SORTS, (p: (typeof data.people)[number]) => number> = {
+    const key: Record<keyof typeof SORTS, (p: P) => number> = {
       priority: (p) => (p.development.some((d) => d.status === "active") ? 0 : p.development.some((d) => d.status === "emerging") ? 1 : 2),
       lowest: reliableMin,
       stale: (p) => (hasCurrentEvidence(p.lastEvidenceAt, now) ? 1 : 0),

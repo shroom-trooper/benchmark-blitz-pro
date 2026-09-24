@@ -59,8 +59,9 @@ async function inChunks<R>(ids: string[], q: (part: string[]) => PromiseLike<{ d
 }
 
 export type Range = { from: string; to: string };
+export type RangeInput = { from?: string | undefined; to?: string | undefined };
 
-export function normalizeRange(r: Partial<Range> | undefined, now = Date.now()): { from: number; to: number } {
+export function normalizeRange(r: RangeInput | undefined, now = Date.now()): { from: number; to: number } {
   let from = r?.from ? new Date(r.from).getTime() : now - 30 * DAY;
   let to = r?.to ? new Date(r.to).getTime() : now + 30 * DAY;
   if (!Number.isFinite(from)) from = now - 30 * DAY;
@@ -166,6 +167,7 @@ function evidenceByUser(rows: (EvidenceItem & { user_id: string })[]) {
   return m;
 }
 
+const achName = (c: string) => ACHIEVEMENT_NAMES[c] ?? c.replace(/_/g, " ").replace(/^./, (x) => x.toUpperCase());
 const ACHIEVEMENT_NAMES: Record<string, string> = {
   prep_first: "First interview prepared",
   prep_5: "5 interviews prepared",
@@ -177,7 +179,7 @@ const ACHIEVEMENT_NAMES: Record<string, string> = {
 };
 
 /** Full group dashboard. One call powers all five tabs (cached client-side per range). */
-export async function getReadinessDashboard(sb: DB, userId: string, range?: Partial<Range>) {
+export async function getReadinessDashboard(sb: DB, userId: string, range?: RangeInput) {
   const auth = await requireOwnedInterviewerGroup(sb, userId);
   if (!auth) return null;
   const now = Date.now();
@@ -258,8 +260,8 @@ export async function getReadinessDashboard(sb: DB, userId: string, range?: Part
       strongest,
       priority: devPriority?.area ?? priority,
       level: professionalLevel(progress, allDone.length),
-      recognition: ach[0] ? ACHIEVEMENT_NAMES[ach[0].achievement_code] ?? ach[0].achievement_code : null,
-      recognitionAll: ach.map((x) => ({ code: x.achievement_code, name: ACHIEVEMENT_NAMES[x.achievement_code] ?? x.achievement_code, earnedAt: x.earned_at })),
+      recognition: ach[0] ? achName(ach[0].achievement_code) : null,
+      recognitionAll: ach.map((x) => ({ code: x.achievement_code, name: achName(x.achievement_code), earnedAt: x.earned_at })),
       lastEvidenceAt: last,
       currentEvidence: hasCurrentEvidence(last, now),
       building: progress.every((p) => p.mastery_stage === "building"),
@@ -297,7 +299,7 @@ export async function getReadinessDashboard(sb: DB, userId: string, range?: Part
     ...d.sessions
       .filter((s) => s.status === "completed" && s.completed_at)
       .map((s) => ({ at: s.completed_at!, text: `${nameOf.get(s.interviewer_id) ?? "Member"} completed a preparation` })),
-    ...d.achievements.map((x) => ({ at: x.earned_at, text: `${nameOf.get(x.user_id) ?? "Member"} earned “${ACHIEVEMENT_NAMES[x.achievement_code] ?? x.achievement_code}”` })),
+    ...d.achievements.map((x) => ({ at: x.earned_at, text: `${nameOf.get(x.user_id) ?? "Member"} earned “${achName(x.achievement_code)}”` })),
     ...interviewRows
       .filter((r) => r.status === "not_completed" && r.eligible)
       .map((r) => ({ at: r.startsAt, text: `${r.interviewer}'s ${r.stage.toLowerCase()} happened without completed preparation` })),
@@ -513,7 +515,7 @@ async function buildProfile(memberId: string, name: string) {
         contextSources: ((ctxBy.get(i.id)?.context_sources as string[] | null) ?? []).map((x) => String(x)),
       };
     }),
-    recognition: (ach ?? []).map((x) => ({ code: x.achievement_code, name: ACHIEVEMENT_NAMES[x.achievement_code] ?? x.achievement_code, earnedAt: x.earned_at })),
+    recognition: (ach ?? []).map((x) => ({ code: x.achievement_code, name: achName(x.achievement_code), earnedAt: x.earned_at })),
   };
 }
 
@@ -521,7 +523,7 @@ async function buildProfile(memberId: string, name: string) {
 export async function exportReadiness(
   sb: DB,
   userId: string,
-  input: { type: "interview_operations" | "team_capability" | "individual_capability"; from?: string; to?: string },
+  input: { type: "interview_operations" | "team_capability" | "individual_capability"; from?: string | undefined; to?: string | undefined },
 ) {
   const dash = await getReadinessDashboard(sb, userId, input);
   if (!dash) throw new Error("Only group owners can export readiness data");

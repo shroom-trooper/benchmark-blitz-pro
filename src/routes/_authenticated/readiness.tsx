@@ -102,7 +102,7 @@ function ReadinessLayout() {
                 track("readiness_filter_applied", { filter: "range", value: v });
               }}
             >
-              <SelectTrigger className="w-44" aria-label="Reporting period">
+              <SelectTrigger className="w-52" aria-label="Reporting period">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -132,7 +132,7 @@ function ReadinessLayout() {
               search={{ range }}
               activeOptions={{ exact: "exact" in t, includeSearch: false }}
               className="whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
-              activeProps={{ className: "border-primary text-foreground" }}
+              activeProps={{ className: "!border-primary !text-foreground" }}
             >
               {t.label}
             </Link>

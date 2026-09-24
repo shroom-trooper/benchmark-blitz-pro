@@ -48,17 +48,19 @@ describe("taxonomy", () => {
 
 describe("scoring", () => {
   it("confidence thresholds", () => {
-    expect(confidenceFor(0)).toBe("insufficient");
-    expect(confidenceFor(1)).toBe("low");
-    expect(confidenceFor(5)).toBe("moderate");
-    expect(confidenceFor(12)).toBe("high");
+    expect(confidenceFor(0)).toBe("low");
+    expect(confidenceFor(7)).toBe("low");
+    expect(confidenceFor(8)).toBe("medium");
+    expect(confidenceFor(19)).toBe("medium");
+    expect(confidenceFor(20)).toBe("high");
   });
   it("stage needs both score and evidence", () => {
-    expect(stageFor(100, 3)).toBe("building");
-    expect(stageFor(100, 5)).toBe("developing");
-    expect(stageFor(75, 12)).toBe("proficient");
-    expect(stageFor(95, 30)).toBe("expert");
-    expect(stageFor(20, 6)).toBe("emerging");
+    expect(stageFor(100, 7)).toBe("building");
+    expect(stageFor(40, 8)).toBe("foundation");
+    expect(stageFor(70, 10)).toBe("practiced");
+    expect(stageFor(95, 19)).toBe("practiced");
+    expect(stageFor(85, 20)).toBe("calibrated");
+    expect(stageFor(95, 30)).toBe("mastery");
   });
   it("shows building profile with little evidence", () => {
     const p = computeAreaProgress("decision_quality", [ev("decision_quality", true)], now);
@@ -66,9 +68,12 @@ describe("scoring", () => {
     expect(p.weighted_score).toBe(100);
   });
   it("direction detects improvement", () => {
-    const xs = [...Array(5).fill({ is_correct: false }), ...Array(5).fill({ is_correct: true })];
-    expect(directionFor(xs)).toBe("improving");
-    expect(directionFor(xs.slice(0, 4))).toBe("steady");
+    const at = (days: number) => new Date(now - days * 86_400_000).toISOString();
+    const prior = Array.from({ length: 5 }, () => ({ is_correct: false, recorded_at: at(90) }));
+    const recent = Array.from({ length: 5 }, () => ({ is_correct: true, recorded_at: at(10) }));
+    expect(directionFor([...prior, ...recent], now)).toBe("improving");
+    expect(directionFor([...recent, ...recent.map((r) => ({ ...r, recorded_at: at(90) }))], now)).toBe("stable");
+    expect(directionFor(recent, now)).toBe("insufficient_data");
   });
   it("does not name weaknesses at low confidence", () => {
     const prog = computeAllProgress([ev("bias_mitigation", false)], now);
@@ -118,10 +123,12 @@ describe("adaptive selection", () => {
   it("raises difficulty when accuracy is high", () => {
     const p = computeAreaProgress(
       "decision_quality",
-      Array.from({ length: 6 }, (_, i) => ev("decision_quality", true, i)),
+      Array.from({ length: 10 }, (_, i) => ev("decision_quality", true, i)),
       now,
     );
     expect(difficultyFor(p)).toBe("advanced");
+    const few = computeAreaProgress("decision_quality", [ev("decision_quality", true)], now);
+    expect(difficultyFor(few)).toBe("standard");
   });
 });
 
