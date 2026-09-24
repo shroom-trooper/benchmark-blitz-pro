@@ -341,7 +341,7 @@ const ACTION_PERMISSION: Record<LifecycleAction, Permission> = {
 
 export async function questionAction(
   userId: string,
-  input: { id: string; action: LifecycleAction; reason?: string | null | undefined; checklist?: Record<string, boolean>; exceptionReason?: string | null },
+  input: { id: string; action: LifecycleAction; reason?: string | null | undefined; checklist?: Record<string, boolean> | undefined; exceptionReason?: string | null | undefined },
 ) {
   const ctx = await requirePermission(userId, ACTION_PERMISSION[input.action]);
   const a = await admin();
@@ -652,7 +652,7 @@ async function purgeInterviewContext(interviewIds: string[]) {
   return { contexts: ctxRows?.length ?? 0, attachments, events: nceIds.length };
 }
 
-export async function processDeletionRequest(userId: string, input: { id: string; approve: boolean; note?: string | null }) {
+export async function processDeletionRequest(userId: string, input: { id: string; approve: boolean; note?: string | null | undefined }) {
   const ctx = await requirePermission(userId, "deletion.execute");
   const a = await admin();
   const { data: r } = await a.from("deletion_requests").select("*").eq("id", input.id).eq("organization_id", ctx.orgId).maybeSingle();
@@ -673,7 +673,7 @@ export async function processDeletionRequest(userId: string, input: { id: string
     contexts: (result["contexts"] as number) ?? 0,
     attachments: (result["attachments"] as number) ?? 0,
   });
-  return { result };
+  return { result: JSON.parse(JSON.stringify(result)) as { note: string | null; contexts?: number; attachments?: number; events?: number; removed?: string[]; retained?: string[] } };
 }
 
 /** Daily retention job across all organizations. */
@@ -703,7 +703,7 @@ export async function runRetention() {
 
 /* ---------------- Audit viewer ---------------- */
 
-export async function listAudit(userId: string, input: { action?: string | null | undefined; before?: string | null }) {
+export async function listAudit(userId: string, input: { action?: string | null | undefined; before?: string | null | undefined }) {
   const ctx = await requirePermission(userId, "audit.read");
   const a = await admin();
   let q = a.from("audit_events").select("*").eq("organization_id", ctx.orgId).order("created_at", { ascending: false }).limit(100);
