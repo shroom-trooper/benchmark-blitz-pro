@@ -8,7 +8,6 @@ import { STAGE_LABELS } from "@/lib/readiness/scoring";
 import { track } from "@/lib/analytics";
 import { CapabilityGrid, PrepStatusBadge } from "@/components/CapabilityGrid";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—");
 
@@ -94,12 +93,11 @@ export function ReadinessTab() {
         </div>
       </Section>
 
-      <Sheet open={Boolean(member)} onOpenChange={(o) => !o && setOpen(null)}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
-          {member ? (
-            <>
-              <SheetHeader><SheetTitle>{member.name}</SheetTitle></SheetHeader>
-              <div className="mt-4 space-y-4 px-4 pb-6">
+      {member ? (
+        <div className="rounded-xl border border-primary/30 bg-surface p-5">
+          <>
+              <div className="flex items-center justify-between"><h3 className="font-display text-lg">{member.name}</h3><button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={() => setOpen(null)}>Close</button></div>
+              <div className="mt-4 space-y-4">
                 <p className="text-sm text-muted-foreground">Level {member.level.level} · {member.level.title} · {member.completedPreps} preparations · last {fmt(member.lastPrepAt)}</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-lg border border-border p-3"><p className="text-xs text-muted-foreground">Strongest</p>{member.strongest ? AREA_LABELS[member.strongest] : "Building profile"}</div>
@@ -108,9 +106,8 @@ export function ReadinessTab() {
                 <CapabilityGrid progress={member.progress} compact />
               </div>
             </>
-          ) : null}
-        </SheetContent>
-      </Sheet>
+        </div>
+      ) : null}
     </div>
   );
 }
