@@ -1,13 +1,26 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Flame, Trophy, LayoutDashboard, Shield, LogOut, Zap, CalendarClock, Gauge , CalendarDays } from "lucide-react";
-import { FEATURES } from "@/lib/features";
-import { useEffect, type ReactNode } from "react";
+import {
+  Zap,
+  LogOut,
+  Home,
+  CalendarClock,
+  Gauge,
+  CalendarDays,
+  Users,
+  Layers,
+  Activity,
+  BookOpen,
+  Shield,
+  Settings,
+  Menu,
+} from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMe } from "@/lib/benchmark.functions";
-import { levelProgress } from "@/lib/gamification";
-import { Progress } from "@/components/ui/progress";
+import { getMyAccess } from "@/lib/governance.functions";
+import { visibleNav, type NavItem } from "@/lib/authz/navigation";
 import { Button } from "@/components/ui/button";
 import { identifyUser, resetAnalytics } from "@/lib/analytics";
 
@@ -16,110 +29,95 @@ export function useMe() {
   return useQuery({ queryKey: ["me"], queryFn: () => fn({}) });
 }
 
+export function useAccess() {
+  const fn = useServerFn(getMyAccess);
+  return useQuery({ queryKey: ["my-access"], queryFn: () => fn(), staleTime: 60_000 });
+}
+
+const ICONS: Record<NavItem["icon"], typeof Home> = {
+  home: Home,
+  "calendar-clock": CalendarClock,
+  gauge: Gauge,
+  calendar: CalendarDays,
+  users: Users,
+  layers: Layers,
+  activity: Activity,
+  book: BookOpen,
+  shield: Shield,
+  settings: Settings,
+};
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: me } = useMe();
+  const { data: access } = useAccess();
   const router = useRouter();
-  const hubTo = me?.activeTrack === "recruiter" ? "/recruiter" : "/hub";
-  const xp = me?.profile?.total_xp ?? 0;
-  const lp = levelProgress(xp);
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const items = visibleNav(access?.permissions ?? []);
 
   useEffect(() => {
-    const profile = me?.profile;
-    if (profile?.id) {
-      identifyUser(profile.id, {
-        display_name: profile.display_name,
-        level: profile.level,
-        total_xp: profile.total_xp,
-        owns_group: me?.ownsGroup ?? false,
-      });
-    }
-  }, [me?.profile?.id, me?.profile?.level, me?.profile?.total_xp, me?.ownsGroup]);
+    const id = me?.profile?.id;
+    if (id) identifyUser(id, { has_team_access: (access?.permissions ?? []).includes("capability.read_team") });
+  }, [me?.profile?.id, access?.permissions]);
 
   async function signOut() {
     resetAnalytics();
+    await qc.cancelQueries();
+    qc.clear();
     await supabase.auth.signOut();
-    router.navigate({ to: "/auth" });
+    router.navigate({ to: "/auth", replace: true });
   }
 
   return (
     <div className="min-h-dvh bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur">
-        <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:flex sm:gap-4">
-          <div className="flex min-w-0 items-center gap-3">
-          <Link to={hubTo} className="flex shrink-0 items-center gap-2">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+          <Link to="/home" className="flex shrink-0 items-center gap-2">
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <Zap className="size-4" />
             </span>
-            <span className="hidden font-display text-lg sm:inline">Benchmark</span>
+            <span className="font-display text-lg">Benchmark</span>
           </Link>
-
-          <nav className="flex min-w-0 items-center gap-1 text-sm">
-            {FEATURES.interview_readiness && me?.activeTrack !== "recruiter" ? (
-              <>
-                <NavLink to="/interviews" icon={<CalendarClock className="size-4" />} label="Interviews" />
-                <NavLink to="/capability" icon={<Gauge className="size-4" />} label="Capability" />
-                <NavLink to="/settings/calendar" icon={<CalendarDays className="size-4" />} label="Calendar" />
-              </>
-            ) : null}
-            <NavLink to={hubTo} icon={<LayoutDashboard className="size-4" />} label={FEATURES.interview_readiness && me?.activeTrack !== "recruiter" ? "Practice" : "Hub"} />
-            <NavLink
-              to="/leaderboard"
-              icon={<Trophy className="size-4" />}
-              label="Leaderboard"
-            />
-            {me?.ownsGroup ? (
-              <NavLink to="/admin" icon={<Shield className="size-4" />} label="Group" />
-            ) : null}
-            {me?.ownsGroup && FEATURES.interview_readiness && me?.activeTrack !== "recruiter" ? (
-              <NavLink to="/readiness" icon={<Gauge className="size-4" />} label="Readiness" />
-            ) : null}
-            {me?.ownsGroup ? (
-              <NavLink to="/governance" icon={<Shield className="size-4" />} label="Governance" />
-            ) : null}
+          <nav className="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto text-sm lg:flex">
+            {items.map((i) => (
+              <NavLink key={i.to} item={i} />
+            ))}
           </nav>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-4 sm:ml-auto">
-            <div className="hidden min-w-44 sm:block">
-              <div className="mb-1.5 flex items-center justify-between gap-3 text-sm font-medium">
-                <span className="truncate text-foreground">
-                  Lvl {lp.current.level} · {lp.current.title}
-                </span>
-                <span className="shrink-0 text-muted-foreground">{xp} XP</span>
-              </div>
-              <Progress value={lp.pct} className="h-2 w-full" />
-            </div>
-            <div className="flex items-center gap-1 rounded-full bg-warning/15 px-3 py-1 text-sm font-semibold text-warning">
-              <Flame className="size-4" />
-              {me?.profile?.current_streak ?? 0}
-            </div>
+          <div className="ml-auto flex items-center gap-1">
+            {access?.orgName ? (
+              <span className="hidden max-w-40 truncate text-xs text-muted-foreground xl:inline">{access.orgName}</span>
+            ) : null}
+            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu">
+              <Menu className="size-4" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
               <LogOut className="size-4" />
             </Button>
           </div>
         </div>
+        {open ? (
+          <nav className="grid gap-1 border-t border-border px-4 py-3 text-sm lg:hidden" onClick={() => setOpen(false)}>
+            {items.map((i) => (
+              <NavLink key={i.to} item={i} />
+            ))}
+          </nav>
+        ) : null}
       </header>
       <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
     </div>
   );
 }
 
-function NavLink({
-  to,
-  icon,
-  label,
-}: {
-  to: string;
-  icon: ReactNode;
-  label: string;
-}) {
+function NavLink({ item }: { item: NavItem }) {
+  const Icon = ICONS[item.icon];
   return (
     <Link
-      to={to}
-      className="flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground transition-colors hover:bg-surface-2 hover:text-foreground [&.active]:bg-surface-2 [&.active]:text-foreground"
+      to={item.to}
+      activeOptions={{ exact: item.to === "/readiness" || item.to === "/governance" }}
+      className="flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-muted-foreground transition-colors hover:bg-surface-2 hover:text-foreground [&.active]:bg-surface-2 [&.active]:text-foreground"
     >
-      {icon}
-      <span className="hidden sm:inline">{label}</span>
+      <Icon className="size-4" />
+      <span>{item.label}</span>
     </Link>
   );
 }
