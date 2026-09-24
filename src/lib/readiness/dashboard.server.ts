@@ -167,6 +167,7 @@ function evidenceByUser(rows: (EvidenceItem & { user_id: string })[]) {
   return m;
 }
 
+const achName = (c: string) => ACHIEVEMENT_NAMES[c] ?? c.replace(/_/g, " ").replace(/^./, (x) => x.toUpperCase());
 const ACHIEVEMENT_NAMES: Record<string, string> = {
   prep_first: "First interview prepared",
   prep_5: "5 interviews prepared",
@@ -259,8 +260,8 @@ export async function getReadinessDashboard(sb: DB, userId: string, range?: Rang
       strongest,
       priority: devPriority?.area ?? priority,
       level: professionalLevel(progress, allDone.length),
-      recognition: ach[0] ? ACHIEVEMENT_NAMES[ach[0].achievement_code] ?? ach[0].achievement_code : null,
-      recognitionAll: ach.map((x) => ({ code: x.achievement_code, name: ACHIEVEMENT_NAMES[x.achievement_code] ?? x.achievement_code.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()), earnedAt: x.earned_at })),
+      recognition: ach[0] ? achName(ach[0].achievement_code) : null,
+      recognitionAll: ach.map((x) => ({ code: x.achievement_code, name: achName(x.achievement_code), earnedAt: x.earned_at })),
       lastEvidenceAt: last,
       currentEvidence: hasCurrentEvidence(last, now),
       building: progress.every((p) => p.mastery_stage === "building"),
@@ -298,7 +299,7 @@ export async function getReadinessDashboard(sb: DB, userId: string, range?: Rang
     ...d.sessions
       .filter((s) => s.status === "completed" && s.completed_at)
       .map((s) => ({ at: s.completed_at!, text: `${nameOf.get(s.interviewer_id) ?? "Member"} completed a preparation` })),
-    ...d.achievements.map((x) => ({ at: x.earned_at, text: `${nameOf.get(x.user_id) ?? "Member"} earned “${ACHIEVEMENT_NAMES[x.achievement_code] ?? x.achievement_code.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())}”` })),
+    ...d.achievements.map((x) => ({ at: x.earned_at, text: `${nameOf.get(x.user_id) ?? "Member"} earned “${achName(x.achievement_code)}”` })),
     ...interviewRows
       .filter((r) => r.status === "not_completed" && r.eligible)
       .map((r) => ({ at: r.startsAt, text: `${r.interviewer}'s ${r.stage.toLowerCase()} happened without completed preparation` })),
@@ -514,7 +515,7 @@ async function buildProfile(memberId: string, name: string) {
         contextSources: ((ctxBy.get(i.id)?.context_sources as string[] | null) ?? []).map((x) => String(x)),
       };
     }),
-    recognition: (ach ?? []).map((x) => ({ code: x.achievement_code, name: ACHIEVEMENT_NAMES[x.achievement_code] ?? x.achievement_code.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()), earnedAt: x.earned_at })),
+    recognition: (ach ?? []).map((x) => ({ code: x.achievement_code, name: achName(x.achievement_code), earnedAt: x.earned_at })),
   };
 }
 
