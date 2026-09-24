@@ -81,7 +81,7 @@ describe("validation and privacy", () => {
   });
   it("audit metadata never contains emails", () => {
     const out = sanitizeAuditMetadata({ note: "contact jane@corp.com", count: 3 });
-    expect(out.note).toBe("[redacted]");
-    expect(out.count).toBe(3);
+    expect(out["note"]).toBe("[redacted]");
+    expect(out["count"]).toBe(3);
   });
 });
