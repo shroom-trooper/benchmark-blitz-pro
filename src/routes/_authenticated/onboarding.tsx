@@ -64,7 +64,7 @@ function Onboarding() {
     onSuccess: async () => {
       await qc.invalidateQueries();
       toast.success(mode === "group" ? "Group created" : "You're all set");
-      router.navigate({ to: mode === "group" ? "/admin" : "/hub" });
+      router.navigate({ to: mode === "group" ? "/admin" : "/home" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -74,7 +74,7 @@ function Onboarding() {
     onSuccess: async () => {
       await qc.invalidateQueries();
       toast.success("You've joined the group");
-      router.navigate({ to: "/hub" });
+      router.navigate({ to: "/home" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
