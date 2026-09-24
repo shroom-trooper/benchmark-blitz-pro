@@ -190,6 +190,18 @@ export async function getInterview(sb: DB, userId: string, id: string) {
 
 /* ---------------- Evidence & progress ---------------- */
 
+/** Prep questions with an open, unconfirmed flag. */
+export async function disputedQuestionIds(): Promise<Set<string>> {
+  const a = await admin();
+  const { data } = await a
+    .from("question_flags")
+    .select("prep_question_id")
+    .in("status", ["open", "under_review"])
+    .not("prep_question_id", "is", null)
+    .limit(5000);
+  return new Set((data ?? []).map((r) => r.prep_question_id!).filter(Boolean));
+}
+
 async function loadEvidence(userId: string): Promise<EvidenceItem[]> {
   const a = await admin();
   const { data } = await a
@@ -337,7 +349,7 @@ export async function generatePrep(sb: DB, userId: string, interviewId: string) 
   const evidenceForPlan = await loadEvidence(userId);
   const progress = computeAllProgress(evidenceForPlan);
   const planEntries = buildQuestionPlan(progress, undefined, {
-    development: developmentAreas(evidenceForPlan),
+    development: developmentAreas(evidenceForPlan, await disputedQuestionIds()),
     stage: ev.interview_stage,
   });
   const plan: PlanItem[] = planEntries.map(({ area, difficulty }) => ({ area, difficulty }));
@@ -618,7 +630,7 @@ export async function getMyCapability(sb: DB, userId: string) {
       .maybeSingle(),
   ]);
   const progress = computeAllProgress(evidence);
-  const development = developmentAreas(evidence);
+  const development = developmentAreas(evidence, await disputedQuestionIds());
   const codes = (earned ?? []).map((e) => e.achievement_code);
   const { data: ach } = await sb
     .from("achievements")
