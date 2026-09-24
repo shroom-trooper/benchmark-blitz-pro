@@ -235,9 +235,10 @@ export async function getReadinessDashboard(sb: DB, userId: string, range?: Rang
 
   // People.
   const reauthIds = new Set(d.connections.filter((c) => c.status === "needs_reauthorization").map((c) => c.user_id));
+  const disputedSet = await disputedIds();
   const people = auth.members.map((m) => {
     const ev = evBy.get(m.id) ?? [];
-    const { progress, development } = personProgress(ev, now, await disputedIds());
+    const { progress, development } = personProgress(ev, now, disputedSet);
     const mine = d.interviews.filter((i) => i.interviewer_id === m.id);
     const eligible = mine.filter((i) => isEligible(i, members, from, to));
     const done = eligible.filter((i) => latest.get(i.id)?.status === "completed");
