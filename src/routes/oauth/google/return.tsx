@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/oauth/outlook/return")({
+export const Route = createFileRoute("/oauth/google/return")({
   head: () => ({
     meta: [
-      { title: "Connecting Outlook · Benchmark" },
-      { name: "description", content: "Finishing your Outlook calendar connection." },
-      { property: "og:title", content: "Connecting Outlook · Benchmark" },
-      { property: "og:description", content: "Finishing your Outlook calendar connection." },
+      { title: "Connecting Google · Benchmark" },
+      { name: "description", content: "Finishing your Google connection." },
+      { property: "og:title", content: "Connecting Google · Benchmark" },
+      { property: "og:description", content: "Finishing your Google connection." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -21,7 +21,7 @@ function OAuthReturn() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const notify = (type: "appUserConnectorOAuthComplete" | "appUserConnectorOAuthFailed", code?: string) => {
-      window.opener?.postMessage({ type, connectorId: "microsoft_outlook", code: code ?? null }, window.location.origin);
+      window.opener?.postMessage({ type, connectorId: params.get("connector_id") ?? "", code: code ?? null }, window.location.origin);
       window.close();
     };
     if (params.get("success") !== "true") {

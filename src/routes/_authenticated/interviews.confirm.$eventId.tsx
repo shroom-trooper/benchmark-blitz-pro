@@ -81,6 +81,7 @@ function ConfirmInterview() {
         const kind = q.data?.attachments.find((a) => a.id === id)?.kind ?? "other";
         track("attachment_approved", { type: kind });
       }
+      track("invitation_match_result", { result: q.data?.invitation ?? "none" });
       toast.success("Interview confirmed");
       qc.invalidateQueries();
       nav({ to: "/interviews/$id", params: { id: r.interviewId } });
@@ -119,7 +120,7 @@ function ConfirmInterview() {
           ← All interviews
         </Link>
         <div>
-          <p className="text-sm text-muted-foreground">From your Outlook calendar</p>
+          <p className="text-sm text-muted-foreground">From your Google Calendar</p>
           <h1 className="text-3xl">Is this an interview?</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {event.subject ?? "Untitled event"} · {fmtWhen(event.startsAt)}
@@ -168,8 +169,13 @@ function ConfirmInterview() {
 
         <div className="space-y-3 rounded-xl border border-border bg-surface p-5">
           <p className="font-medium">Documents attached to this invite</p>
+          {q.data.gmailConnected && q.data.invitation !== "matched" ? (
+            <p className="text-sm text-muted-foreground">No matching Gmail invitation attachment found.</p>
+          ) : null}
           {attachments.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No attachments on this invitation.</p>
+            <p className="text-sm text-muted-foreground">
+              No files found. You can still add a job description or CV notes by hand after confirming.
+            </p>
           ) : (
             <ul className="space-y-2">
               {attachments.map((a) => (
@@ -185,7 +191,12 @@ function ConfirmInterview() {
                     {a.filename}
                   </label>
                   <span className="text-xs text-muted-foreground">
-                    {a.supported ? KIND_LABEL[a.kind ?? "other"] : "Not supported (PDF, Word or text up to 5 MB)"}
+                    {a.source === "gmail_invitation" ? "Gmail invite · " : a.source === "drive_reference" ? "Calendar link · " : ""}
+                    {a.source === "drive_reference"
+                      ? "Link only — paste its content by hand"
+                      : a.supported
+                        ? KIND_LABEL[a.kind ?? "other"]
+                        : "Not supported (PDF, Word or text up to 5 MB)"}
                   </span>
                 </li>
               ))}

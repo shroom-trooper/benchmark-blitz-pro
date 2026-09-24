@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CalendarCheck2, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
+import { CalendarCheck2, Mail, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  completeOutlookConnect,
-  disconnectOutlook,
+  completeGoogleConnect,
+  disconnectGoogle,
   getCalendarStatus,
-  startOutlookConnect,
+  startGoogleConnect,
   syncCalendarNow,
   updateNotificationPrefs,
 } from "@/lib/calendar.functions";
@@ -25,9 +25,9 @@ export const Route = createFileRoute("/_authenticated/settings/calendar")({
   head: () => ({
     meta: [
       { title: "Calendar & notifications · Benchmark" },
-      { name: "description", content: "Connect Outlook to detect interviews and schedule preparation." },
+      { name: "description", content: "Connect Google Calendar to detect interviews and schedule preparation." },
       { property: "og:title", content: "Calendar & notifications · Benchmark" },
-      { property: "og:description", content: "Automatic interview preparation from your Outlook calendar." },
+      { property: "og:description", content: "Automatic interview preparation from your Google Calendar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/_authenticated/settings/calendar")({
   notFoundComponent: RouteNotFound,
 });
 
-function waitForPopup(popup: Window) {
+function waitForPopup(popup: Window, connectorId: string) {
   return new Promise<string | null>((resolve, reject) => {
     let poll: number | undefined;
     const cleanup = () => {
@@ -49,14 +49,14 @@ function waitForPopup(popup: Window) {
       if (
         event.origin !== window.location.origin ||
         event.source !== popup ||
-        event.data?.connectorId !== "microsoft_outlook" ||
+        event.data?.connectorId !== connectorId ||
         (type !== "appUserConnectorOAuthComplete" && type !== "appUserConnectorOAuthFailed")
       )
         return;
       cleanup();
       if (type === "appUserConnectorOAuthComplete")
         resolve(typeof event.data?.code === "string" ? event.data.code : null);
-      else reject(new Error("The Outlook connection didn't complete."));
+      else reject(new Error("The Google connection didn't complete."));
     };
     window.addEventListener("message", onMessage);
     poll = window.setInterval(() => {
@@ -70,37 +70,47 @@ function waitForPopup(popup: Window) {
 const fmt = (iso: string | null | undefined) =>
   iso ? new Date(iso).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "never";
 
+type Kind = "calendar" | "gmail";
+const CONNECTOR: Record<Kind, string> = { calendar: "google_calendar", gmail: "google_mail" };
+
 function CalendarSettings() {
   const qc = useQueryClient();
   const statusFn = useServerFn(getCalendarStatus);
-  const startFn = useServerFn(startOutlookConnect);
-  const completeFn = useServerFn(completeOutlookConnect);
+  const startFn = useServerFn(startGoogleConnect);
+  const completeFn = useServerFn(completeGoogleConnect);
   const syncFn = useServerFn(syncCalendarNow);
-  const discFn = useServerFn(disconnectOutlook);
+  const discFn = useServerFn(disconnectGoogle);
   const prefsFn = useServerFn(updateNotificationPrefs);
   const q = useQuery({ queryKey: ["calendar-status"], queryFn: () => statusFn() });
+  const [gmailExplained, setGmailExplained] = useState(false);
 
   const connect = useMutation({
-    mutationFn: async () => {
-      const popup = window.open("", "benchmark-outlook", "width=600,height=720");
+    mutationFn: async (kind: Kind) => {
+      const popup = window.open("", "benchmark-google", "width=600,height=720");
       if (!popup) throw new Error("Your browser blocked the sign-in window. Allow popups and try again.");
       let code: string | null;
       try {
-        const { authorizationUrl } = await startFn();
-        const done = waitForPopup(popup);
+        const { authorizationUrl } = await startFn({ data: { kind } });
+        const done = waitForPopup(popup, CONNECTOR[kind]);
         popup.location.href = authorizationUrl;
         code = await done;
       } catch (e) {
         popup.close();
         throw e;
       }
-      if (!code) throw new Error("Background sync needs offline access enabled on the workspace Outlook app.");
-      return completeFn({ data: { code } });
+      if (!code) throw new Error("Background access needs offline access enabled on the workspace Google app.");
+      await completeFn({ data: { kind, code } });
+      return kind;
     },
-    onSuccess: (r) => {
-      const reconnect = Boolean(q.data?.connection);
-      toast.success(reconnect ? "Reconnected to Outlook" : "Outlook connected — we'll look for upcoming interviews.");
-      track("calendar_connected", { provider: "microsoft", reconnect, sync: r.sync });
+    onSuccess: (kind) => {
+      if (kind === "gmail") {
+        toast.success("Gmail invitation attachments turned on");
+        track("gmail_connected", { provider: "google" });
+      } else {
+        toast.success(q.data?.connection ? "Reconnected to Google Calendar" : "Google Calendar connected — we'll look for upcoming interviews.");
+        track("calendar_connected", { provider: "google" });
+      }
+      setGmailExplained(false);
       qc.invalidateQueries();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -111,7 +121,7 @@ function CalendarSettings() {
     onSuccess: (r) => {
       track("calendar_sync_completed", { status: r.status, events: r.processed });
       if (r.status === "ok") toast.success(`Calendar synced (${r.processed} events checked)`);
-      else if (r.status === "needs_reauthorization") toast.error("Your Outlook access needs to be renewed.");
+      else if (r.status === "needs_reauthorization") toast.error("Your Google Calendar access needs to be renewed.");
       else toast.error("Sync didn't complete. We'll retry automatically.");
       qc.invalidateQueries();
     },
@@ -119,10 +129,13 @@ function CalendarSettings() {
   });
 
   const disconnect = useMutation({
-    mutationFn: () => discFn(),
-    onSuccess: () => {
-      track("calendar_disconnected", { provider: "microsoft" });
-      toast.success("Outlook disconnected. Future reminders were cancelled.");
+    mutationFn: async (kind: Kind) => {
+      await discFn({ data: { kind } });
+      return kind;
+    },
+    onSuccess: (kind) => {
+      track(kind === "gmail" ? "gmail_disconnected" : "calendar_disconnected", { provider: "google" });
+      toast.success(kind === "gmail" ? "Gmail disconnected. Invitation attachment text was deleted." : "Google Calendar disconnected. Future reminders were cancelled.");
       qc.invalidateQueries();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -134,7 +147,7 @@ function CalendarSettings() {
         <Skeleton className="mx-auto h-72 max-w-3xl rounded-xl" />
       </AppShell>
     );
-  const { configured, connection } = q.data;
+  const { configured, connection, gmailConfigured, gmailConnected } = q.data;
   const needsReauth = connection?.status === "needs_reauthorization";
 
   return (
@@ -143,7 +156,7 @@ function CalendarSettings() {
         <div>
           <h1 className="text-3xl">Calendar & notifications</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Connect Outlook and Benchmark will spot upcoming interviews, ask you to confirm them, and have your
+            Connect Google Calendar and Benchmark will spot upcoming interviews, ask you to confirm them, and have your
             preparation ready in time. Adding interviews by hand keeps working either way.
           </p>
         </div>
@@ -152,20 +165,20 @@ function CalendarSettings() {
           <div className="flex flex-wrap items-center gap-4">
             <CalendarCheck2 className="size-6 text-primary" />
             <div className="min-w-0 flex-1">
-              <p className="font-medium">Microsoft Outlook</p>
+              <p className="font-medium">Google Calendar</p>
               <p className="text-sm text-muted-foreground">
                 {!configured
-                  ? "Setup needed — a workspace admin must enable the Outlook connection first."
+                  ? "Setup needed — a workspace admin must enable the Google Calendar connection first."
                   : !connection
                     ? "Not connected"
                     : needsReauth
-                      ? "Your Outlook access needs to be renewed."
+                      ? "Your Google Calendar access needs to be renewed."
                       : `Connected${connection.provider_email ? ` as ${connection.provider_email}` : ""} · last sync ${fmt(connection.last_successful_sync_at)}`}
               </p>
             </div>
             {configured && (!connection || needsReauth) ? (
-              <Button onClick={() => connect.mutate()} disabled={connect.isPending}>
-                {connect.isPending ? "Connecting…" : needsReauth ? "Reconnect Outlook" : "Connect Outlook"}
+              <Button onClick={() => connect.mutate("calendar")} disabled={connect.isPending}>
+                {needsReauth ? "Reconnect Google Calendar" : "Connect Google Calendar"}
               </Button>
             ) : null}
             {!configured ? (
@@ -178,7 +191,7 @@ function CalendarSettings() {
                 <Button variant="outline" onClick={() => sync.mutate()} disabled={sync.isPending}>
                   <RefreshCw className={`size-4 ${sync.isPending ? "animate-spin" : ""}`} /> Sync now
                 </Button>
-                <Button variant="ghost" onClick={() => disconnect.mutate()} disabled={disconnect.isPending}>
+                <Button variant="ghost" onClick={() => disconnect.mutate("calendar")} disabled={disconnect.isPending}>
                   <Unplug className="size-4" /> Disconnect
                 </Button>
               </div>
@@ -190,11 +203,62 @@ function CalendarSettings() {
           <div className="mt-4 flex gap-2 rounded-lg bg-surface-2 p-3 text-xs text-muted-foreground">
             <ShieldCheck className="size-4 shrink-0" />
             <p>
-              Read-only calendar access only — no email, files or contacts. We look at the next 30 days, and we only
-              read attachments on an interview invite after you approve them. Attachment text is deleted 7 days after
-              the interview, or straight away if you disconnect.
+              Read-only access to your calendar events for the next 30 days. Files linked from an event (Google Docs or
+              Drive) are shown as links only — they are never opened automatically.
             </p>
           </div>
+        </section>
+
+        <section className="rounded-xl border border-border bg-surface p-5">
+          <div className="flex flex-wrap items-center gap-4">
+            <Mail className="size-6 text-primary" />
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">Gmail invitation attachments <span className="text-xs text-muted-foreground">(optional)</span></p>
+              <p className="text-sm text-muted-foreground">
+                {!gmailConfigured
+                  ? "Setup needed — a workspace admin must enable the Gmail connection first."
+                  : gmailConnected
+                    ? "On — attachments on matching interview invitations can be offered to you."
+                    : "Off"}
+              </p>
+            </div>
+            {gmailConfigured && !gmailConnected && !gmailExplained ? (
+              <Button variant="outline" onClick={() => setGmailExplained(true)} disabled={!connection}>
+                Turn on
+              </Button>
+            ) : null}
+            {gmailConnected ? (
+              <Button variant="ghost" onClick={() => disconnect.mutate("gmail")} disabled={disconnect.isPending}>
+                <Unplug className="size-4" /> Disconnect Gmail
+              </Button>
+            ) : null}
+          </div>
+          {gmailConfigured && !gmailConnected && !connection ? (
+            <p className="mt-2 text-xs text-muted-foreground">Connect Google Calendar first.</p>
+          ) : null}
+          {gmailExplained && !gmailConnected ? (
+            <div className="mt-4 space-y-3 rounded-lg border border-border bg-surface-2 p-4 text-sm">
+              <p className="font-medium">Before you continue</p>
+              <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                <li>This is optional — everything else keeps working without it.</li>
+                <li>Benchmark only looks for the invitation email of an interview it has already found in your calendar.</li>
+                <li>It only takes files attached to that one invitation (such as a CV or job description), and only the ones you approve.</li>
+                <li>It never reads your other emails, threads, replies or recruiter–candidate conversations, never searches by candidate name, and never trains a model on your email.</li>
+                <li>
+                  To be clear: Google's permission for this is read-only access to your whole mailbox. Benchmark limits itself
+                  to the invitation match described above on its own side.
+                </li>
+              </ul>
+              <div className="flex gap-2">
+                <Button onClick={() => connect.mutate("gmail")} disabled={connect.isPending}>
+                  Continue to Google
+                </Button>
+                <Button variant="ghost" onClick={() => setGmailExplained(false)}>
+                  Not now
+                </Button>
+              </div>
+            </div>
+          ) : null}
         </section>
 
         <PrefsForm prefs={q.data.prefs} onSave={(p) => prefsFn({ data: p })} />

@@ -1,6 +1,8 @@
 import { classifyEvent, CLASSIFIER_VERSION } from "./classifier";
 import { decryptConnectionKey, encryptConnectionKey } from "./crypto.server";
-import { microsoftProvider, GATEWAY_BASE_URL } from "./microsoft.server";
+import { googleCalendarProvider as calendarProvider, GATEWAY_BASE_URL } from "./google-calendar.server";
+import { findMatchingInvitation, getInvitationAttachment, GMAIL_CONNECTOR_ID } from "./gmail-invitation.server";
+import { MAX_EXTRACTED_CHARS, verifyFileSignature } from "./filecheck";
 import { DeltaExpiredError, ProviderAuthError, type CalendarProvider, type NormalizedEvent } from "./provider";
 import {
   ATTACHMENT_RETENTION_DAYS,
@@ -24,7 +26,7 @@ async function admin() {
 }
 
 export function providerFor(_p: string): CalendarProvider {
-  return microsoftProvider;
+  return calendarProvider;
 }
 
 /* ---------------- Connection key storage (encrypted, service-role only) ---------------- */
@@ -64,7 +66,7 @@ export async function loadPrefs(userId: string): Promise<Prefs> {
 
 export async function recordConnected(userId: string, key: string) {
   const a = await admin();
-  const provider = microsoftProvider;
+  const provider = calendarProvider;
   let account: { id: string | null; email: string | null } = { id: null, email: null };
   try {
     account = await provider.getAccount(key);
@@ -97,7 +99,7 @@ export async function recordConnected(userId: string, key: string) {
 
 export async function disconnectCalendar(userId: string) {
   const a = await admin();
-  const provider = microsoftProvider;
+  const provider = calendarProvider;
   const key = await getConnectionKey(userId, provider.connectorId);
   if (key) {
     try {
@@ -161,7 +163,7 @@ type SyncResult = { status: "ok" | "needs_reauthorization" | "error" | "not_conn
 
 export async function syncUser(userId: string): Promise<SyncResult> {
   const a = await admin();
-  const provider = microsoftProvider;
+  const provider = calendarProvider;
   const { data: conn } = await a
     .from("calendar_connections")
     .select("id, status, provider_email")
@@ -287,6 +289,7 @@ export async function processEvent(
     is_cancelled: false,
     is_recurring: ev.isRecurring,
     provider_last_modified_at: ev.lastModifiedAt,
+    ical_uid: ev.icalUid ?? null,
     updated_at: new Date().toISOString(),
   };
   const { data: saved } = await a
@@ -326,6 +329,7 @@ export async function processEvent(
             normalized_calendar_event_id: saved.id,
             external_attachment_id: m.externalAttachmentId,
             attachment_type: m.kind,
+            source_kind: m.kind === "reference" ? "drive_reference" : "calendar_event",
             filename: m.filename,
             mime_type: m.mimeType,
             byte_size: m.size,
@@ -386,7 +390,98 @@ export async function processEvent(
       duration_minutes: Math.round((new Date(ev.endsAt).getTime() - new Date(ev.startsAt).getTime()) / 60_000),
     });
     if (draft) await a.from("normalized_calendar_events").update({ linked_interview_event_id: draft.id }).eq("id", saved.id);
+    await matchInvitation(userId, saved.id).catch((e) => {
+      if (e instanceof ProviderAuthError) return;
+      console.error("[gmail] match failed", (e as Error).message.slice(0, 40));
+    });
   }
+}
+
+/* ---------------- Optional Gmail invitation matching ---------------- */
+
+export async function hasGmail(userId: string) {
+  return Boolean(await getConnectionKey(userId, GMAIL_CONNECTOR_ID).catch(() => null));
+}
+
+/** Match one detected/confirmed event to its Gmail invitation. Runs at most once per event. */
+export async function matchInvitation(userId: string, calendarEventId: string) {
+  const a = await admin();
+  const { data: done } = await a.from("invitation_matches").select("status").eq("normalized_calendar_event_id", calendarEventId).maybeSingle();
+  if (done) return done.status;
+  const key = await getConnectionKey(userId, GMAIL_CONNECTOR_ID).catch(() => null);
+  if (!key) return null;
+  const { data: cev } = await a
+    .from("normalized_calendar_events")
+    .select("id, subject, ical_uid")
+    .eq("id", calendarEventId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!cev) return null;
+  let result;
+  try {
+    result = await findMatchingInvitation(key, cev.subject, cev.ical_uid);
+  } catch (e) {
+    if (e instanceof ProviderAuthError) throw e;
+    await a.from("invitation_matches").upsert({ normalized_calendar_event_id: cev.id, user_id: userId, status: "error" });
+    return "error";
+  }
+  if (result.status === "matched") {
+    for (const m of result.attachments) {
+      const sup = attachmentSupport({ filename: m.filename, mimeType: m.mimeType, size: m.size, kind: m.kind });
+      await a.from("calendar_event_attachments").upsert(
+        {
+          normalized_calendar_event_id: cev.id,
+          external_attachment_id: m.externalAttachmentId,
+          attachment_type: m.kind,
+          source_kind: "gmail_invitation",
+          gmail_message_id: result.messageId,
+          filename: m.filename,
+          mime_type: m.mimeType,
+          byte_size: m.size,
+          document_classification: classifyDocument(m.filename),
+          processing_status: sup.ok ? "discovered" : "unsupported",
+          processing_error_code: sup.ok ? null : sup.reason,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "normalized_calendar_event_id,external_attachment_id" },
+      );
+    }
+  }
+  await a.from("invitation_matches").upsert({
+    normalized_calendar_event_id: cev.id,
+    user_id: userId,
+    status: result.status,
+    gmail_message_id: result.status === "matched" ? result.messageId : null,
+  });
+  return result.status;
+}
+
+export async function disconnectGmail(userId: string) {
+  const a = await admin();
+  const key = await getConnectionKey(userId, GMAIL_CONNECTOR_ID).catch(() => null);
+  if (key) {
+    try {
+      await disconnectAppUser({ gatewayBaseUrl: GATEWAY_BASE_URL, connectionAPIKey: key, connectorId: GMAIL_CONNECTOR_ID });
+    } catch (e) {
+      console.error("[gmail] gateway disconnect failed", (e as Error).message.slice(0, 60));
+    }
+  }
+  await a.from("app_user_connections").delete().eq("user_id", userId).eq("connector_id", GMAIL_CONNECTOR_ID);
+  const { data: evs } = await a.from("normalized_calendar_events").select("id").eq("user_id", userId);
+  const evIds = (evs ?? []).map((e) => e.id);
+  if (evIds.length) {
+    const { data: atts } = await a
+      .from("calendar_event_attachments")
+      .select("id")
+      .in("normalized_calendar_event_id", evIds)
+      .eq("source_kind", "gmail_invitation");
+    const ids = (atts ?? []).map((x) => x.id);
+    if (ids.length) {
+      await a.from("calendar_attachment_content").delete().in("attachment_id", ids);
+      await a.from("calendar_event_attachments").delete().in("id", ids);
+    }
+  }
+  await a.from("invitation_matches").delete().eq("user_id", userId);
 }
 
 async function upsertCalendarInterview(
@@ -671,18 +766,23 @@ export async function confirmCalendarInterview(userId: string, input: ConfirmInp
           .neq("processing_status", "unsupported")
       ).data ?? []
     : [];
-  const key = approved.length ? await getConnectionKey(userId, microsoftProvider.connectorId) : null;
+  const gmailKey = approved.some((x) => x.source_kind === "gmail_invitation")
+    ? await getConnectionKey(userId, GMAIL_CONNECTOR_ID).catch(() => null)
+    : null;
   let jd = "";
   let cv = "";
   const retention = new Date(new Date(cev.ends_at).getTime() + ATTACHMENT_RETENTION_DAYS * 86_400_000).toISOString();
   for (const att of approved) {
-    if (!key) break;
     await a.from("calendar_event_attachments").update({ approved_for_generation: true, processing_status: "processing" }).eq("id", att.id);
     try {
-      const file = await microsoftProvider.getAttachment(key, cev.external_event_id, att.external_attachment_id);
-      const sup = file && attachmentSupport({ filename: att.filename, mimeType: file.mime, size: att.byte_size, kind: "file" });
-      if (!file || !sup || !sup.ok) throw new Error("unsupported");
-      const text = await extractText(att.filename, sup.mime, file.base64);
+      if (att.source_kind !== "gmail_invitation" || !gmailKey) throw new Error("unavailable");
+      const file = await getInvitationAttachment(gmailKey, att.external_attachment_id);
+      const raw = file ? Buffer.from(file.base64, "base64") : null;
+      const sup = file && raw && attachmentSupport({ filename: att.filename, mimeType: file.mime, size: raw.length, kind: "file" });
+      if (!file || !raw || !sup || !sup.ok) throw new Error(sup && !sup.ok ? sup.reason : "unsupported");
+      const sig = verifyFileSignature(new Uint8Array(raw), sup.mime);
+      if (!sig.ok) throw new Error(sig.reason);
+      const text = (await extractText(att.filename, sup.mime, file.base64))?.slice(0, MAX_EXTRACTED_CHARS);
       if (!text) throw new Error("empty");
       await a.from("calendar_attachment_content").upsert({ attachment_id: att.id, extracted_text: text, retention_expires_at: retention });
       await a
@@ -707,7 +807,8 @@ export async function confirmCalendarInterview(userId: string, input: ConfirmInp
     jobDescription: jd.trim() || cev.sanitized_description,
     candidateProfile: cv.trim() || null,
   };
-  const sources = ["calendar_invitation", jd ? "job_description" : null, cv ? "candidate_profile" : null].filter(Boolean);
+  const usedGmail = approved.some((x) => x.source_kind === "gmail_invitation");
+  const sources = ["calendar_event", usedGmail ? "gmail_invitation" : null, jd ? "job_description" : null, cv ? "candidate_profile" : null].filter(Boolean);
   await a.from("interview_contexts").upsert(
     {
       interview_event_id: interviewId,

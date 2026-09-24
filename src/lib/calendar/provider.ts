@@ -21,6 +21,7 @@ export type NormalizedEvent = {
   hasAttachments: boolean;
   lastModifiedAt: string | null;
   removed?: boolean;
+  icalUid?: string | null;
 };
 
 export type AttachmentMeta = {
