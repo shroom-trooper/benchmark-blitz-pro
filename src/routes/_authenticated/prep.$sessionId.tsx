@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle2, XCircle, Award } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { CapabilityGrid } from "@/components/CapabilityGrid";
+import { FlagQuestion } from "@/components/FlagQuestion";
 import { completePrep, getPrepSession, submitPrepAnswer } from "@/lib/readiness.functions";
 import { AREA_LABELS, subSkillLabel } from "@/lib/readiness/taxonomy";
 import { STAGE_LABELS } from "@/lib/readiness/scoring";
@@ -214,6 +215,7 @@ function QuestionCard({
   header,
 }: {
   q: {
+    id?: string;
     scenario: string;
     options: string[];
     capabilityArea: keyof typeof AREA_LABELS;
@@ -270,6 +272,7 @@ function QuestionCard({
           <p className="text-body">{answer.explanation}</p>
         </div>
       ) : null}
+      {answer && q.id ? <FlagQuestion prepQuestionId={q.id} /> : null}
     </div>
   );
 }
