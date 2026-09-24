@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { Flame, Trophy, Zap } from "lucide-react";
 import { getPublicProfile } from "@/lib/share.functions";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,10 @@ import { RouteError, RouteNotFound } from "@/components/RouteError";
 const SITE = "https://usebenchmark.app";
 
 export const Route = createFileRoute("/p/$slug")({
+  // Phase 5: retired surface, kept for data history.
+  beforeLoad: () => {
+    throw redirect({ to: "/", replace: true });
+  },
   validateSearch: (search: Record<string, unknown>) => ({
     track: search["track"] === "recruiter" ? ("recruiter" as const) : undefined,
   }),

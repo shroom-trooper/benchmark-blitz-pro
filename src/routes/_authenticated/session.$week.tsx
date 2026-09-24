@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams, redirect } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -24,6 +24,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/session/$week")({
+  // Phase 5: retired surface, kept for data history.
+  beforeLoad: () => {
+    throw redirect({ to: "/home", replace: true });
+  },
   head: () => ({
     meta: [
       { title: "Weekly simulation · Benchmark" },

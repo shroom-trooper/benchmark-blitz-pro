@@ -128,7 +128,7 @@ function GuidePage() {
         </Link>
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost">
-            <Link to="/leaderboard">Leaderboard</Link>
+            <Link to="/">Home</Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/auth">Start free</Link>

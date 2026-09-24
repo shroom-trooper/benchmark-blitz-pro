@@ -29,20 +29,18 @@ export const saveShareCard = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
     z.object({ png: z.string().min(100).max(4_000_000), track: trackSchema }).parse(d),
   )
-  .handler(({ context, data }) =>
-    share.saveShareCard(context.supabase, context.userId, data.png, data.track),
-  );
+  .handler(async (): Promise<never> => {
+    // Phase 5: social sharing and XP bonuses are retired.
+    throw new Error("Sharing is no longer available.");
+  });
 
 export const claimShareBonus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ track: trackSchema }).parse(d ?? {}))
-  .handler(({ context, data }) =>
-    data.track === "recruiter"
-      ? share.awardRecruiterShareBonus(context.supabase, context.userId)
-      : share.awardShareBonus(context.supabase, context.userId),
-  );
-
-/** Public, signed-out readable profile for /p/$slug. */
+  .handler(async (): Promise<never> => {
+    // Phase 5: social sharing and XP bonuses are retired.
+    throw new Error("Sharing is no longer available.");
+  });
 export const getPublicProfile = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {

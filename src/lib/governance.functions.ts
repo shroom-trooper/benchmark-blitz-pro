@@ -147,3 +147,11 @@ export const listAudit = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ action: z.string().max(40).nullish(), before: z.string().max(40).nullish() }).parse(d ?? {}))
   .handler(async ({ context, data }) => (await svc()).listAudit(context.userId, data));
+
+/** Effective permissions for navigation. Server-computed; the client never checks role names. */
+export const getMyAccess = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const ctx = await (await svc()).orgContext(context.userId);
+    return { orgName: ctx?.orgName ?? null, permissions: ctx?.permissions ?? [] };
+  });

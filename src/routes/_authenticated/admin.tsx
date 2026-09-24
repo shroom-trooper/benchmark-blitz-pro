@@ -86,7 +86,7 @@ function AdminPage() {
             Create one from your hub to invite managers and track their progress.
           </p>
           <Button asChild className="mt-4">
-            <Link to="/hub">Go to hub</Link>
+            <Link to="/home">Go to home</Link>
           </Button>
         </div>
       </AppShell>

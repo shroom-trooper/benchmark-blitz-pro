@@ -89,7 +89,7 @@ function AssessmentPage() {
             {(query.error as Error)?.message ?? "This assessment is no longer available."}
           </p>
           <Button asChild className="mt-6">
-            <Link to="/hub">Back to hub</Link>
+            <Link to="/home">Back to home</Link>
           </Button>
         </div>
       </AppShell>
@@ -150,7 +150,7 @@ function AssessmentPage() {
           })}
 
           <Button asChild>
-            <Link to="/hub">Back to hub</Link>
+            <Link to="/home">Back to home</Link>
           </Button>
         </div>
       </AppShell>
@@ -197,7 +197,7 @@ function AssessmentPage() {
             );
           })}
           <Button asChild variant="outline">
-            <Link to="/hub">Back to hub</Link>
+            <Link to="/home">Back to home</Link>
           </Button>
         </div>
       </AppShell>
@@ -213,7 +213,7 @@ function AssessmentPage() {
             Your group lead hasn't added any questions to this assessment.
           </p>
           <Button asChild className="mt-6">
-            <Link to="/hub">Back to hub</Link>
+            <Link to="/home">Back to home</Link>
           </Button>
         </div>
       </AppShell>
