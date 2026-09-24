@@ -28,10 +28,10 @@ export type PrepContext = {
   roleTitle: string;
   stage: string;
   competencies: string[];
-  responsibility?: string | null;
-  jobDescription?: string | null;
-  candidateProfile?: string | null;
-  principles?: string[];
+  responsibility?: string | null | undefined;
+  jobDescription?: string | null | undefined;
+  candidateProfile?: string | null | undefined;
+  principles?: string[] | undefined;
 };
 
 const aiQuestionSchema = z.object({

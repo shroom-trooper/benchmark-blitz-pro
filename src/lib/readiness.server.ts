@@ -38,12 +38,12 @@ export type CreateInterviewInput = {
   candidateDisplayName: string;
   stage: string;
   startsAt: string;
-  durationMinutes?: number | null;
+  durationMinutes?: number | null | undefined;
   competencies: string[];
-  responsibility?: string | null;
-  jobDescription?: string | null;
-  candidateProfile?: string | null;
-  principles?: string[];
+  responsibility?: string | null | undefined;
+  jobDescription?: string | null | undefined;
+  candidateProfile?: string | null | undefined;
+  principles?: string[] | undefined;
 };
 
 export async function createInterview(sb: DB, userId: string, input: CreateInterviewInput) {
@@ -116,7 +116,7 @@ export async function listInterviews(sb: DB, userId: string) {
         .in("interview_event_id", ids)
         .order("generated_at", { ascending: false })
     : { data: [] as { id: string; interview_event_id: string; status: string; completed_at: string | null; generated_at: string }[] };
-  const latest = new Map<string, (typeof sessions)[number]>();
+  const latest = new Map<string, { status: string; completed_at: string | null }>();
   for (const s of sessions ?? []) if (!latest.has(s.interview_event_id)) latest.set(s.interview_event_id, s);
   return (events ?? []).map((e) => ({
     ...e,
@@ -384,7 +384,7 @@ export async function getPrepSession(userId: string, sessionId: string) {
 
 export async function submitPrepAnswer(
   userId: string,
-  input: { sessionId: string; questionId: string; selectedIndex: number; responseTimeSeconds?: number },
+  input: { sessionId: string; questionId: string; selectedIndex: number; responseTimeSeconds?: number | undefined },
 ) {
   const s = await ownSession(userId, input.sessionId);
   if (s.status === "completed" || s.status === "expired") fail("This preparation is already finished");

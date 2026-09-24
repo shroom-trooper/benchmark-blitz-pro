@@ -158,8 +158,8 @@ function QuestionCard({
   q: { scenario: string; options: string[]; capabilityArea: keyof typeof AREA_LABELS; subSkill: string };
   answer: Answer | { selectedIndex: number; isCorrect: boolean; correctIndex: number; explanation: string } | null;
   selected?: number | null;
-  onSelect?: (i: number) => void;
-  header?: string;
+  onSelect?: ((i: number) => void) | undefined;
+  header?: string | undefined;
 }) {
   return (
     <div className="animate-rise rounded-xl border border-border bg-surface p-6">
@@ -196,7 +196,7 @@ function QuestionCard({
   );
 }
 
-function Completion({ done, interviewId }: { done: Done; interviewId?: string }) {
+function Completion({ done, interviewId }: { done: Done; interviewId?: string | undefined }) {
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl space-y-6">
