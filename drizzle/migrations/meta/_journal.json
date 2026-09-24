@@ -99,6 +99,13 @@
       "when": 1790258040045,
       "tag": "0013_calendar_sync_schedule",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790264537585,
+      "tag": "0014_readiness_dashboard_phase3",
+      "breakpoints": true
     }
   ]
 }

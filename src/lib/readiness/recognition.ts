@@ -10,8 +10,9 @@ export type RecognitionInput = {
 };
 
 export const ADVANCE_MINUTES = 60;
-const ORDER = ["proficient", "advanced", "expert"];
-const DEV_PLUS = ["developing", ...ORDER];
+/** Mastery recognition is only possible at High confidence (stages enforce it). */
+const ORDER = ["calibrated", "mastery"];
+const DEV_PLUS = ["foundation", "practiced", ...ORDER];
 
 export const RECOGNITION_RULES: { code: string; test: (i: RecognitionInput) => boolean }[] = [
   { code: "prep_first", test: (i) => i.completedPreps >= 1 },

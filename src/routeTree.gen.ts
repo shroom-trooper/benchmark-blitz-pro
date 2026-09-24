@@ -21,6 +21,7 @@ import { Route as AuthenticatedCapabilityRouteImport } from './routes/_authentic
 import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedRecruiterRouteImport } from './routes/_authenticated/recruiter'
 import { Route as GuidesHowToTrainHiringManagersRouteImport } from './routes/guides/how-to-train-hiring-managers'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
@@ -30,12 +31,19 @@ import { Route as AuthenticatedInterviewsIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedInterviewsIdRouteImport } from './routes/_authenticated/interviews.$id'
 import { Route as AuthenticatedInterviewsNewRouteImport } from './routes/_authenticated/interviews.new'
 import { Route as AuthenticatedPrepSessionIdRouteImport } from './routes/_authenticated/prep.$sessionId'
+import { Route as AuthenticatedReadinessIndexRouteImport } from './routes/_authenticated/readiness.index'
+import { Route as AuthenticatedReadinessCapabilityRouteImport } from './routes/_authenticated/readiness.capability'
+import { Route as AuthenticatedReadinessInterviewsRouteImport } from './routes/_authenticated/readiness.interviews'
+import { Route as AuthenticatedReadinessPeopleRouteImport } from './routes/_authenticated/readiness.people'
+import { Route as AuthenticatedReadinessProgramRouteImport } from './routes/_authenticated/readiness.program'
 import { Route as AuthenticatedRecruiterIndexRouteImport } from './routes/_authenticated/recruiter.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
 import { Route as AuthenticatedSettingsCalendarRouteImport } from './routes/_authenticated/settings.calendar'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
 import { Route as AuthenticatedInterviewsConfirmEventIdRouteImport } from './routes/_authenticated/interviews.confirm.$eventId'
+import { Route as AuthenticatedReadinessCapabilityAreaRouteImport } from './routes/_authenticated/readiness.capability.$area'
+import { Route as AuthenticatedReadinessPeopleUserIdRouteImport } from './routes/_authenticated/readiness.people.$userId'
 import { Route as AuthenticatedRecruiterSessionWeekRouteImport } from './routes/_authenticated/recruiter.session.$week'
 import { Route as ApiPublicCronCalendarSyncRouteImport } from './routes/api/public/cron/calendar-sync'
 import { Route as ApiPublicCronWeeklyUnlockRouteImport } from './routes/api/public/cron/weekly-unlock'
@@ -103,6 +111,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
+  id: '/readiness',
+  path: '/readiness',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRecruiterRoute = AuthenticatedRecruiterRouteImport.update({
   id: '/recruiter',
   path: '/recruiter',
@@ -155,6 +168,36 @@ const AuthenticatedPrepSessionIdRoute =
     path: '/prep/$sessionId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReadinessIndexRoute =
+  AuthenticatedReadinessIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedReadinessRoute,
+  } as any)
+const AuthenticatedReadinessCapabilityRoute =
+  AuthenticatedReadinessCapabilityRouteImport.update({
+    id: '/capability',
+    path: '/capability',
+    getParentRoute: () => AuthenticatedReadinessRoute,
+  } as any)
+const AuthenticatedReadinessInterviewsRoute =
+  AuthenticatedReadinessInterviewsRouteImport.update({
+    id: '/interviews',
+    path: '/interviews',
+    getParentRoute: () => AuthenticatedReadinessRoute,
+  } as any)
+const AuthenticatedReadinessPeopleRoute =
+  AuthenticatedReadinessPeopleRouteImport.update({
+    id: '/people',
+    path: '/people',
+    getParentRoute: () => AuthenticatedReadinessRoute,
+  } as any)
+const AuthenticatedReadinessProgramRoute =
+  AuthenticatedReadinessProgramRouteImport.update({
+    id: '/program',
+    path: '/program',
+    getParentRoute: () => AuthenticatedReadinessRoute,
+  } as any)
 const AuthenticatedRecruiterIndexRoute =
   AuthenticatedRecruiterIndexRouteImport.update({
     id: '/',
@@ -189,6 +232,18 @@ const AuthenticatedInterviewsConfirmEventIdRoute =
     id: '/interviews/confirm/$eventId',
     path: '/interviews/confirm/$eventId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReadinessCapabilityAreaRoute =
+  AuthenticatedReadinessCapabilityAreaRouteImport.update({
+    id: '/$area',
+    path: '/$area',
+    getParentRoute: () => AuthenticatedReadinessCapabilityRoute,
+  } as any)
+const AuthenticatedReadinessPeopleUserIdRoute =
+  AuthenticatedReadinessPeopleUserIdRouteImport.update({
+    id: '/$userId',
+    path: '/$userId',
+    getParentRoute: () => AuthenticatedReadinessPeopleRoute,
   } as any)
 const AuthenticatedRecruiterSessionWeekRoute =
   AuthenticatedRecruiterSessionWeekRouteImport.update({
@@ -242,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/readiness': typeof AuthenticatedReadinessRouteWithChildren
   '/recruiter': typeof AuthenticatedRecruiterRouteWithChildren
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
@@ -249,14 +305,21 @@ export interface FileRoutesByFullPath {
   '/interviews/$id': typeof AuthenticatedInterviewsIdRoute
   '/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
+  '/readiness/capability': typeof AuthenticatedReadinessCapabilityRouteWithChildren
+  '/readiness/interviews': typeof AuthenticatedReadinessInterviewsRoute
+  '/readiness/people': typeof AuthenticatedReadinessPeopleRouteWithChildren
+  '/readiness/program': typeof AuthenticatedReadinessProgramRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/electives/': typeof AuthenticatedElectivesIndexRoute
   '/interviews/': typeof AuthenticatedInterviewsIndexRoute
+  '/readiness/': typeof AuthenticatedReadinessIndexRoute
   '/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
+  '/readiness/capability/$area': typeof AuthenticatedReadinessCapabilityAreaRoute
+  '/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
@@ -282,14 +345,21 @@ export interface FileRoutesByTo {
   '/interviews/$id': typeof AuthenticatedInterviewsIdRoute
   '/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
+  '/readiness/capability': typeof AuthenticatedReadinessCapabilityRouteWithChildren
+  '/readiness/interviews': typeof AuthenticatedReadinessInterviewsRoute
+  '/readiness/people': typeof AuthenticatedReadinessPeopleRouteWithChildren
+  '/readiness/program': typeof AuthenticatedReadinessProgramRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/electives': typeof AuthenticatedElectivesIndexRoute
   '/interviews': typeof AuthenticatedInterviewsIndexRoute
+  '/readiness': typeof AuthenticatedReadinessIndexRoute
   '/recruiter': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
+  '/readiness/capability/$area': typeof AuthenticatedReadinessCapabilityAreaRoute
+  '/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
@@ -312,6 +382,7 @@ export interface FileRoutesById {
   '/_authenticated/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/readiness': typeof AuthenticatedReadinessRouteWithChildren
   '/_authenticated/recruiter': typeof AuthenticatedRecruiterRouteWithChildren
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
@@ -319,14 +390,21 @@ export interface FileRoutesById {
   '/_authenticated/interviews/$id': typeof AuthenticatedInterviewsIdRoute
   '/_authenticated/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/_authenticated/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
+  '/_authenticated/readiness/capability': typeof AuthenticatedReadinessCapabilityRouteWithChildren
+  '/_authenticated/readiness/interviews': typeof AuthenticatedReadinessInterviewsRoute
+  '/_authenticated/readiness/people': typeof AuthenticatedReadinessPeopleRouteWithChildren
+  '/_authenticated/readiness/program': typeof AuthenticatedReadinessProgramRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
   '/_authenticated/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
   '/_authenticated/interviews/': typeof AuthenticatedInterviewsIndexRoute
+  '/_authenticated/readiness/': typeof AuthenticatedReadinessIndexRoute
   '/_authenticated/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/_authenticated/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
+  '/_authenticated/readiness/capability/$area': typeof AuthenticatedReadinessCapabilityAreaRoute
+  '/_authenticated/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/_authenticated/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
@@ -349,6 +427,7 @@ export interface FileRouteTypes {
     | '/electives'
     | '/hub'
     | '/onboarding'
+    | '/readiness'
     | '/recruiter'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
@@ -356,14 +435,21 @@ export interface FileRouteTypes {
     | '/interviews/$id'
     | '/interviews/new'
     | '/prep/$sessionId'
+    | '/readiness/capability'
+    | '/readiness/interviews'
+    | '/readiness/people'
+    | '/readiness/program'
     | '/session/$week'
     | '/settings/calendar'
     | '/oauth/google/return'
     | '/electives/'
     | '/interviews/'
+    | '/readiness/'
     | '/recruiter/'
     | '/electives/$module/$lesson'
     | '/interviews/confirm/$eventId'
+    | '/readiness/capability/$area'
+    | '/readiness/people/$userId'
     | '/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
@@ -389,14 +475,21 @@ export interface FileRouteTypes {
     | '/interviews/$id'
     | '/interviews/new'
     | '/prep/$sessionId'
+    | '/readiness/capability'
+    | '/readiness/interviews'
+    | '/readiness/people'
+    | '/readiness/program'
     | '/session/$week'
     | '/settings/calendar'
     | '/oauth/google/return'
     | '/electives'
     | '/interviews'
+    | '/readiness'
     | '/recruiter'
     | '/electives/$module/$lesson'
     | '/interviews/confirm/$eventId'
+    | '/readiness/capability/$area'
+    | '/readiness/people/$userId'
     | '/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
@@ -418,6 +511,7 @@ export interface FileRouteTypes {
     | '/_authenticated/electives'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
+    | '/_authenticated/readiness'
     | '/_authenticated/recruiter'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
@@ -425,14 +519,21 @@ export interface FileRouteTypes {
     | '/_authenticated/interviews/$id'
     | '/_authenticated/interviews/new'
     | '/_authenticated/prep/$sessionId'
+    | '/_authenticated/readiness/capability'
+    | '/_authenticated/readiness/interviews'
+    | '/_authenticated/readiness/people'
+    | '/_authenticated/readiness/program'
     | '/_authenticated/session/$week'
     | '/_authenticated/settings/calendar'
     | '/oauth/google/return'
     | '/_authenticated/electives/'
     | '/_authenticated/interviews/'
+    | '/_authenticated/readiness/'
     | '/_authenticated/recruiter/'
     | '/_authenticated/electives/$module/$lesson'
     | '/_authenticated/interviews/confirm/$eventId'
+    | '/_authenticated/readiness/capability/$area'
+    | '/_authenticated/readiness/people/$userId'
     | '/_authenticated/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
@@ -547,6 +648,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/readiness': {
+      id: '/_authenticated/readiness'
+      path: '/readiness'
+      fullPath: '/readiness'
+      preLoaderRoute: typeof AuthenticatedReadinessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/recruiter': {
       id: '/_authenticated/recruiter'
       path: '/recruiter'
@@ -610,6 +718,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPrepSessionIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/readiness/': {
+      id: '/_authenticated/readiness/'
+      path: '/'
+      fullPath: '/readiness/'
+      preLoaderRoute: typeof AuthenticatedReadinessIndexRouteImport
+      parentRoute: typeof AuthenticatedReadinessRoute
+    }
+    '/_authenticated/readiness/capability': {
+      id: '/_authenticated/readiness/capability'
+      path: '/capability'
+      fullPath: '/readiness/capability'
+      preLoaderRoute: typeof AuthenticatedReadinessCapabilityRouteImport
+      parentRoute: typeof AuthenticatedReadinessRoute
+    }
+    '/_authenticated/readiness/interviews': {
+      id: '/_authenticated/readiness/interviews'
+      path: '/interviews'
+      fullPath: '/readiness/interviews'
+      preLoaderRoute: typeof AuthenticatedReadinessInterviewsRouteImport
+      parentRoute: typeof AuthenticatedReadinessRoute
+    }
+    '/_authenticated/readiness/people': {
+      id: '/_authenticated/readiness/people'
+      path: '/people'
+      fullPath: '/readiness/people'
+      preLoaderRoute: typeof AuthenticatedReadinessPeopleRouteImport
+      parentRoute: typeof AuthenticatedReadinessRoute
+    }
+    '/_authenticated/readiness/program': {
+      id: '/_authenticated/readiness/program'
+      path: '/program'
+      fullPath: '/readiness/program'
+      preLoaderRoute: typeof AuthenticatedReadinessProgramRouteImport
+      parentRoute: typeof AuthenticatedReadinessRoute
+    }
     '/_authenticated/recruiter/': {
       id: '/_authenticated/recruiter/'
       path: '/'
@@ -651,6 +794,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/interviews/confirm/$eventId'
       preLoaderRoute: typeof AuthenticatedInterviewsConfirmEventIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/readiness/capability/$area': {
+      id: '/_authenticated/readiness/capability/$area'
+      path: '/$area'
+      fullPath: '/readiness/capability/$area'
+      preLoaderRoute: typeof AuthenticatedReadinessCapabilityAreaRouteImport
+      parentRoute: typeof AuthenticatedReadinessCapabilityRoute
+    }
+    '/_authenticated/readiness/people/$userId': {
+      id: '/_authenticated/readiness/people/$userId'
+      path: '/$userId'
+      fullPath: '/readiness/people/$userId'
+      preLoaderRoute: typeof AuthenticatedReadinessPeopleUserIdRouteImport
+      parentRoute: typeof AuthenticatedReadinessPeopleRoute
     }
     '/_authenticated/recruiter/session/$week': {
       id: '/_authenticated/recruiter/session/$week'
@@ -721,6 +878,61 @@ const AuthenticatedElectivesRouteWithChildren =
     AuthenticatedElectivesRouteChildren,
   )
 
+interface AuthenticatedReadinessCapabilityRouteChildren {
+  AuthenticatedReadinessCapabilityAreaRoute: typeof AuthenticatedReadinessCapabilityAreaRoute
+}
+
+const AuthenticatedReadinessCapabilityRouteChildren: AuthenticatedReadinessCapabilityRouteChildren =
+  {
+    AuthenticatedReadinessCapabilityAreaRoute:
+      AuthenticatedReadinessCapabilityAreaRoute,
+  }
+
+const AuthenticatedReadinessCapabilityRouteWithChildren =
+  AuthenticatedReadinessCapabilityRoute._addFileChildren(
+    AuthenticatedReadinessCapabilityRouteChildren,
+  )
+
+interface AuthenticatedReadinessPeopleRouteChildren {
+  AuthenticatedReadinessPeopleUserIdRoute: typeof AuthenticatedReadinessPeopleUserIdRoute
+}
+
+const AuthenticatedReadinessPeopleRouteChildren: AuthenticatedReadinessPeopleRouteChildren =
+  {
+    AuthenticatedReadinessPeopleUserIdRoute:
+      AuthenticatedReadinessPeopleUserIdRoute,
+  }
+
+const AuthenticatedReadinessPeopleRouteWithChildren =
+  AuthenticatedReadinessPeopleRoute._addFileChildren(
+    AuthenticatedReadinessPeopleRouteChildren,
+  )
+
+interface AuthenticatedReadinessRouteChildren {
+  AuthenticatedReadinessCapabilityRoute: typeof AuthenticatedReadinessCapabilityRouteWithChildren
+  AuthenticatedReadinessInterviewsRoute: typeof AuthenticatedReadinessInterviewsRoute
+  AuthenticatedReadinessPeopleRoute: typeof AuthenticatedReadinessPeopleRouteWithChildren
+  AuthenticatedReadinessProgramRoute: typeof AuthenticatedReadinessProgramRoute
+  AuthenticatedReadinessIndexRoute: typeof AuthenticatedReadinessIndexRoute
+}
+
+const AuthenticatedReadinessRouteChildren: AuthenticatedReadinessRouteChildren =
+  {
+    AuthenticatedReadinessCapabilityRoute:
+      AuthenticatedReadinessCapabilityRouteWithChildren,
+    AuthenticatedReadinessInterviewsRoute:
+      AuthenticatedReadinessInterviewsRoute,
+    AuthenticatedReadinessPeopleRoute:
+      AuthenticatedReadinessPeopleRouteWithChildren,
+    AuthenticatedReadinessProgramRoute: AuthenticatedReadinessProgramRoute,
+    AuthenticatedReadinessIndexRoute: AuthenticatedReadinessIndexRoute,
+  }
+
+const AuthenticatedReadinessRouteWithChildren =
+  AuthenticatedReadinessRoute._addFileChildren(
+    AuthenticatedReadinessRouteChildren,
+  )
+
 interface AuthenticatedRecruiterRouteChildren {
   AuthenticatedRecruiterIndexRoute: typeof AuthenticatedRecruiterIndexRoute
   AuthenticatedRecruiterSessionWeekRoute: typeof AuthenticatedRecruiterSessionWeekRoute
@@ -744,6 +956,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedElectivesRoute: typeof AuthenticatedElectivesRouteWithChildren
   AuthenticatedHubRoute: typeof AuthenticatedHubRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRouteWithChildren
   AuthenticatedRecruiterRoute: typeof AuthenticatedRecruiterRouteWithChildren
   AuthenticatedAssessmentIdRoute: typeof AuthenticatedAssessmentIdRoute
   AuthenticatedInterviewsIdRoute: typeof AuthenticatedInterviewsIdRoute
@@ -761,6 +974,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedElectivesRoute: AuthenticatedElectivesRouteWithChildren,
   AuthenticatedHubRoute: AuthenticatedHubRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedReadinessRoute: AuthenticatedReadinessRouteWithChildren,
   AuthenticatedRecruiterRoute: AuthenticatedRecruiterRouteWithChildren,
   AuthenticatedAssessmentIdRoute: AuthenticatedAssessmentIdRoute,
   AuthenticatedInterviewsIdRoute: AuthenticatedInterviewsIdRoute,
