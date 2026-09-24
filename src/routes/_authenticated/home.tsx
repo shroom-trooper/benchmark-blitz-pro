@@ -8,6 +8,7 @@ import { CapabilityGrid } from "@/components/CapabilityGrid";
 import { getMyCapability, listInterviews } from "@/lib/readiness.functions";
 import { listDetectedEvents } from "@/lib/calendar.functions";
 import { landingFor } from "@/lib/authz/navigation";
+import { getOnboarding } from "@/lib/onboarding.functions";
 import { AREA_LABELS } from "@/lib/readiness/taxonomy";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,10 +47,21 @@ function HomePage() {
   const cap = useQuery({ queryKey: ["capability"], queryFn: () => capFn() });
   const detected = useQuery({ queryKey: ["detected-events"], queryFn: () => detectedFn(), retry: false });
 
+  const onboardingFn = useServerFn(getOnboarding);
+  const onboarding = useQuery({ queryKey: ["onboarding"], queryFn: () => onboardingFn() });
   const perms = access.data?.permissions;
   useEffect(() => {
-    if (perms && perms.length && landingFor(perms) === "/readiness") navigate({ to: "/readiness", replace: true });
-  }, [perms, navigate]);
+    if (onboarding.data && !onboarding.data.completed) {
+      navigate({ to: "/onboarding", replace: true });
+      return;
+    }
+    // Staff land on their operational screen once per session; "My training" links back here.
+    if (perms && perms.length && typeof window !== "undefined" && !sessionStorage.getItem("bm-landed")) {
+      sessionStorage.setItem("bm-landed", "1");
+      const to = landingFor(perms);
+      if (to !== "/home") navigate({ to, replace: true });
+    }
+  }, [perms, navigate, onboarding.data]);
 
   if (interviews.isLoading || cap.isLoading) {
     return (

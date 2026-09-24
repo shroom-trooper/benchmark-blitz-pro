@@ -20,7 +20,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMe } from "@/lib/benchmark.functions";
 import { getMyAccess } from "@/lib/governance.functions";
-import { visibleNav, type NavItem } from "@/lib/authz/navigation";
+import { visibleNav, personalLink, type NavItem } from "@/lib/authz/navigation";
 import { Button } from "@/components/ui/button";
 import { identifyUser, resetAnalytics } from "@/lib/analytics";
 
@@ -53,7 +53,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const items = visibleNav(access?.permissions ?? []);
+  const perms = access?.permissions ?? [];
+  const personal = personalLink(perms);
+  const items = personal ? [...visibleNav(perms), personal] : visibleNav(perms);
 
   useEffect(() => {
     const id = me?.profile?.id;
@@ -62,6 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   async function signOut() {
     resetAnalytics();
+    sessionStorage.removeItem("bm-landed");
     await qc.cancelQueries();
     qc.clear();
     await supabase.auth.signOut();

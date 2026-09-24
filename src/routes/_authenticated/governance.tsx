@@ -30,12 +30,14 @@ export function useGovernance() {
 
 const TABS: { to: string; label: string; perm: Permission | null; exact?: boolean }[] = [
   { to: "/governance", label: "Overview", perm: null, exact: true },
-  { to: "/governance/roles", label: "Roles", perm: "members.read" },
+  { to: "/admin", label: "Members & invitations", perm: "members.manage" },
+  { to: "/governance/roles", label: "Roles & access", perm: "members.read" },
   { to: "/governance/content", label: "Content library", perm: "content.read" },
   { to: "/governance/review", label: "Review queue", perm: "content.review" },
   { to: "/governance/flags", label: "Flags", perm: "question_flags.read" },
-  { to: "/governance/principles", label: "Principles", perm: null },
-  { to: "/governance/retention", label: "Retention", perm: "retention.manage" },
+  { to: "/governance/principles", label: "Organization settings", perm: null },
+  { to: "/settings/calendar", label: "Integrations", perm: "integrations.view_health" },
+  { to: "/governance/retention", label: "Retention & deletion", perm: "retention.manage" },
   { to: "/governance/audit", label: "Audit log", perm: "audit.read" },
 ];
 
@@ -47,7 +49,7 @@ function GovernanceLayout() {
       <AppShell>
         <div className="mx-auto max-w-xl rounded-xl border border-border bg-surface p-6 text-center">
           <h1 className="text-xl">Governance</h1>
-          <p className="mt-2 text-sm text-muted-foreground">You aren't part of an organization yet. Creating a group makes you its organization admin.</p>
+          <p className="mt-2 text-sm text-muted-foreground">You aren't part of an organization yet. Ask your organization admin to invite you.</p>
         </div>
       </AppShell>
     );

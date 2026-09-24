@@ -23,6 +23,7 @@ import { Route as AuthenticatedGovernanceRouteImport } from './routes/_authentic
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticated/progress'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedRecruiterRouteImport } from './routes/_authenticated/recruiter'
 import { Route as GuidesHowToTrainHiringManagersRouteImport } from './routes/guides/how-to-train-hiring-managers'
@@ -131,6 +132,11 @@ const AuthenticatedHubRoute = AuthenticatedHubRouteImport.update({
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProgressRoute = AuthenticatedProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
@@ -380,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof AuthenticatedHomeRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/progress': typeof AuthenticatedProgressRoute
   '/readiness': typeof AuthenticatedReadinessRouteWithChildren
   '/recruiter': typeof AuthenticatedRecruiterRouteWithChildren
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
@@ -433,6 +440,7 @@ export interface FileRoutesByTo {
   '/home': typeof AuthenticatedHomeRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/progress': typeof AuthenticatedProgressRoute
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
@@ -488,6 +496,7 @@ export interface FileRoutesById {
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/progress': typeof AuthenticatedProgressRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRouteWithChildren
   '/_authenticated/recruiter': typeof AuthenticatedRecruiterRouteWithChildren
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
@@ -545,6 +554,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/hub'
     | '/onboarding'
+    | '/progress'
     | '/readiness'
     | '/recruiter'
     | '/guides/how-to-train-hiring-managers'
@@ -598,6 +608,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/hub'
     | '/onboarding'
+    | '/progress'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
     | '/assessment/$id'
@@ -652,6 +663,7 @@ export interface FileRouteTypes {
     | '/_authenticated/home'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
+    | '/_authenticated/progress'
     | '/_authenticated/readiness'
     | '/_authenticated/recruiter'
     | '/guides/how-to-train-hiring-managers'
@@ -812,6 +824,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/progress': {
+      id: '/_authenticated/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof AuthenticatedProgressRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/readiness': {
@@ -1240,6 +1259,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedHubRoute: typeof AuthenticatedHubRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRouteWithChildren
   AuthenticatedRecruiterRoute: typeof AuthenticatedRecruiterRouteWithChildren
   AuthenticatedAssessmentIdRoute: typeof AuthenticatedAssessmentIdRoute
@@ -1260,6 +1280,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedHubRoute: AuthenticatedHubRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedProgressRoute: AuthenticatedProgressRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRouteWithChildren,
   AuthenticatedRecruiterRoute: AuthenticatedRecruiterRouteWithChildren,
   AuthenticatedAssessmentIdRoute: AuthenticatedAssessmentIdRoute,
