@@ -396,7 +396,6 @@ export async function flagQuestion(userId: string, input: { prepQuestionId: stri
   const { data: s } = await a.from("prep_sessions").select("interviewer_id").eq("id", q.prep_session_id).single();
   if (s?.interviewer_id !== userId) fail("You can only flag questions from your own preparation.");
   const ctx = await orgContext(userId);
-  if (ctx && !ctx.permissions.includes("questions.flag") && !ctx.roles.length) fail("You don't have permission to do that.");
   const { error } = await a.from("question_flags").upsert(
     {
       organization_id: ctx?.orgId ?? null,
