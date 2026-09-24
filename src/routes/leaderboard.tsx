@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -20,6 +20,10 @@ import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 
 export const Route = createFileRoute("/leaderboard")({
+  // Phase 5: retired surface, kept for data history.
+  beforeLoad: () => {
+    throw redirect({ to: "/", replace: true });
+  },
   head: () => ({
     meta: [
       { title: "Global hiring capability leaderboard · Benchmark" },
