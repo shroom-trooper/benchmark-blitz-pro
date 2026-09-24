@@ -33,7 +33,7 @@ import { Route as AuthenticatedPrepSessionIdRouteImport } from './routes/_authen
 import { Route as AuthenticatedRecruiterIndexRouteImport } from './routes/_authenticated/recruiter.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
 import { Route as AuthenticatedSettingsCalendarRouteImport } from './routes/_authenticated/settings.calendar'
-import { Route as OauthOutlookReturnRouteImport } from './routes/oauth/outlook/return'
+import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
 import { Route as AuthenticatedInterviewsConfirmEventIdRouteImport } from './routes/_authenticated/interviews.confirm.$eventId'
 import { Route as AuthenticatedRecruiterSessionWeekRouteImport } from './routes/_authenticated/recruiter.session.$week'
@@ -173,9 +173,9 @@ const AuthenticatedSettingsCalendarRoute =
     path: '/settings/calendar',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const OauthOutlookReturnRoute = OauthOutlookReturnRouteImport.update({
-  id: '/oauth/outlook/return',
-  path: '/oauth/outlook/return',
+const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
+  id: '/oauth/google/return',
+  path: '/oauth/google/return',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedElectivesModuleLessonRoute =
@@ -251,7 +251,7 @@ export interface FileRoutesByFullPath {
   '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
-  '/oauth/outlook/return': typeof OauthOutlookReturnRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/electives/': typeof AuthenticatedElectivesIndexRoute
   '/interviews/': typeof AuthenticatedInterviewsIndexRoute
   '/recruiter/': typeof AuthenticatedRecruiterIndexRoute
@@ -284,7 +284,7 @@ export interface FileRoutesByTo {
   '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
   '/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
-  '/oauth/outlook/return': typeof OauthOutlookReturnRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/electives': typeof AuthenticatedElectivesIndexRoute
   '/interviews': typeof AuthenticatedInterviewsIndexRoute
   '/recruiter': typeof AuthenticatedRecruiterIndexRoute
@@ -321,7 +321,7 @@ export interface FileRoutesById {
   '/_authenticated/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
   '/_authenticated/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
-  '/oauth/outlook/return': typeof OauthOutlookReturnRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
   '/_authenticated/interviews/': typeof AuthenticatedInterviewsIndexRoute
   '/_authenticated/recruiter/': typeof AuthenticatedRecruiterIndexRoute
@@ -358,7 +358,7 @@ export interface FileRouteTypes {
     | '/prep/$sessionId'
     | '/session/$week'
     | '/settings/calendar'
-    | '/oauth/outlook/return'
+    | '/oauth/google/return'
     | '/electives/'
     | '/interviews/'
     | '/recruiter/'
@@ -391,7 +391,7 @@ export interface FileRouteTypes {
     | '/prep/$sessionId'
     | '/session/$week'
     | '/settings/calendar'
-    | '/oauth/outlook/return'
+    | '/oauth/google/return'
     | '/electives'
     | '/interviews'
     | '/recruiter'
@@ -427,7 +427,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prep/$sessionId'
     | '/_authenticated/session/$week'
     | '/_authenticated/settings/calendar'
-    | '/oauth/outlook/return'
+    | '/oauth/google/return'
     | '/_authenticated/electives/'
     | '/_authenticated/interviews/'
     | '/_authenticated/recruiter/'
@@ -452,7 +452,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   GuidesHowToTrainHiringManagersRoute: typeof GuidesHowToTrainHiringManagersRoute
   PSlugRoute: typeof PSlugRoute
-  OauthOutlookReturnRoute: typeof OauthOutlookReturnRoute
+  OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
   ApiPublicCronCalendarSyncRoute: typeof ApiPublicCronCalendarSyncRoute
   ApiPublicCronWeeklyUnlockRoute: typeof ApiPublicCronWeeklyUnlockRoute
   ApiPublicOgSlugRoute: typeof ApiPublicOgSlugRoute
@@ -631,11 +631,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsCalendarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/oauth/outlook/return': {
-      id: '/oauth/outlook/return'
-      path: '/oauth/outlook/return'
-      fullPath: '/oauth/outlook/return'
-      preLoaderRoute: typeof OauthOutlookReturnRouteImport
+    '/oauth/google/return': {
+      id: '/oauth/google/return'
+      path: '/oauth/google/return'
+      fullPath: '/oauth/google/return'
+      preLoaderRoute: typeof OauthGoogleReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/electives/$module/$lesson': {
@@ -786,7 +786,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   GuidesHowToTrainHiringManagersRoute: GuidesHowToTrainHiringManagersRoute,
   PSlugRoute: PSlugRoute,
-  OauthOutlookReturnRoute: OauthOutlookReturnRoute,
+  OauthGoogleReturnRoute: OauthGoogleReturnRoute,
   ApiPublicCronCalendarSyncRoute: ApiPublicCronCalendarSyncRoute,
   ApiPublicCronWeeklyUnlockRoute: ApiPublicCronWeeklyUnlockRoute,
   ApiPublicOgSlugRoute: ApiPublicOgSlugRoute,

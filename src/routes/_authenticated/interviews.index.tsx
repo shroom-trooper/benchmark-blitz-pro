@@ -123,7 +123,7 @@ function Detected() {
     return (
       <p className="text-sm text-muted-foreground">
         <Link to="/settings/calendar" className="underline underline-offset-4 hover:text-foreground">
-          Connect Outlook
+          Connect Google Calendar
         </Link>{" "}
         to find upcoming interviews automatically.
       </p>
