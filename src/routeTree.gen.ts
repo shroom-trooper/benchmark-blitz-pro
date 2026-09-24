@@ -20,6 +20,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedCapabilityRouteImport } from './routes/_authenticated/capability'
 import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
 import { Route as AuthenticatedGovernanceRouteImport } from './routes/_authenticated/governance'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
@@ -115,6 +116,11 @@ const AuthenticatedElectivesRoute = AuthenticatedElectivesRouteImport.update({
 const AuthenticatedGovernanceRoute = AuthenticatedGovernanceRouteImport.update({
   id: '/governance',
   path: '/governance',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHubRoute = AuthenticatedHubRouteImport.update({
@@ -371,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/capability': typeof AuthenticatedCapabilityRoute
   '/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/governance': typeof AuthenticatedGovernanceRouteWithChildren
+  '/home': typeof AuthenticatedHomeRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/readiness': typeof AuthenticatedReadinessRouteWithChildren
@@ -423,6 +430,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/capability': typeof AuthenticatedCapabilityRoute
+  '/home': typeof AuthenticatedHomeRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
@@ -477,6 +485,7 @@ export interface FileRoutesById {
   '/_authenticated/capability': typeof AuthenticatedCapabilityRoute
   '/_authenticated/electives': typeof AuthenticatedElectivesRouteWithChildren
   '/_authenticated/governance': typeof AuthenticatedGovernanceRouteWithChildren
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRouteWithChildren
@@ -533,6 +542,7 @@ export interface FileRouteTypes {
     | '/capability'
     | '/electives'
     | '/governance'
+    | '/home'
     | '/hub'
     | '/onboarding'
     | '/readiness'
@@ -585,6 +595,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/capability'
+    | '/home'
     | '/hub'
     | '/onboarding'
     | '/guides/how-to-train-hiring-managers'
@@ -638,6 +649,7 @@ export interface FileRouteTypes {
     | '/_authenticated/capability'
     | '/_authenticated/electives'
     | '/_authenticated/governance'
+    | '/_authenticated/home'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
     | '/_authenticated/readiness'
@@ -779,6 +791,13 @@ declare module '@tanstack/react-router' {
       path: '/governance'
       fullPath: '/governance'
       preLoaderRoute: typeof AuthenticatedGovernanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hub': {
@@ -1218,6 +1237,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCapabilityRoute: typeof AuthenticatedCapabilityRoute
   AuthenticatedElectivesRoute: typeof AuthenticatedElectivesRouteWithChildren
   AuthenticatedGovernanceRoute: typeof AuthenticatedGovernanceRouteWithChildren
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedHubRoute: typeof AuthenticatedHubRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRouteWithChildren
@@ -1237,6 +1257,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCapabilityRoute: AuthenticatedCapabilityRoute,
   AuthenticatedElectivesRoute: AuthenticatedElectivesRouteWithChildren,
   AuthenticatedGovernanceRoute: AuthenticatedGovernanceRouteWithChildren,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedHubRoute: AuthenticatedHubRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRouteWithChildren,
