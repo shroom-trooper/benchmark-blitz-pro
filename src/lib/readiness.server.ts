@@ -1,3 +1,4 @@
+import { buildProvenance, ctxSourceTypes, validateQuestion } from "@/lib/governance/validation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { buildQuestionPlan } from "./readiness/selection";
@@ -194,6 +195,7 @@ async function loadEvidence(userId: string): Promise<EvidenceItem[]> {
   const { data } = await a
     .from("capability_evidence")
     .select("capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
+      .is("invalidated_at", null)
     .eq("user_id", userId);
   return (data ?? []) as EvidenceItem[];
 }
@@ -372,6 +374,16 @@ export async function generatePrep(sb: DB, userId: string, interviewId: string) 
       difficulty: q.difficulty,
       context_source: q.contextSource,
       selection_reason: planEntries[i]?.reason ?? "fallback",
+      provenance: buildProvenance({
+        generatedByAi: q.contextSource === "ai",
+        generatorVersion: usedFallback ? "v1-library" : "v1-ai",
+        capability: q.capabilityArea,
+        subSkill: q.subSkill,
+        contextSources: ctxSourceTypes(ctx),
+        candidateContextUsed: !!ctx.candidateProfile,
+        principlesUsed: !!ctx.principles?.length,
+        validation: validateQuestion({ scenario: q.scenario, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation, capabilityArea: q.capabilityArea, subSkill: q.subSkill }),
+      }),
     })),
   );
   if (qErr) {

@@ -119,6 +119,7 @@ async function loadGroupData(memberIds: string[], from: number, to: number) {
       a
         .from("capability_evidence")
         .select("user_id, capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
+        .is("invalidated_at", null)
         .in("user_id", ids)
         .gte("recorded_at", new Date(now - EVIDENCE_LOOKBACK_DAYS * DAY).toISOString())
         .limit(50000),
@@ -368,6 +369,7 @@ export async function getCapabilityDetail(sb: DB, userId: string, area: Capabili
     a
       .from("capability_evidence")
       .select("user_id, capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
+        .is("invalidated_at", null)
       .in("user_id", ids)
       .eq("capability_area", area)
       .gte("recorded_at", new Date(now - EVIDENCE_LOOKBACK_DAYS * DAY).toISOString()),
@@ -455,6 +457,7 @@ async function buildProfile(memberId: string, name: string) {
     a
       .from("capability_evidence")
       .select("capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
+      .is("invalidated_at", null)
       .eq("user_id", memberId)
       .gte("recorded_at", new Date(now - EVIDENCE_LOOKBACK_DAYS * DAY).toISOString()),
     a.from("user_achievements").select("achievement_code, earned_at").eq("user_id", memberId),
