@@ -12,6 +12,8 @@ export const Route = createFileRoute('/api/public/og/$slug')({
   server: {
     handlers: {
       GET: async ({ params, request }) => {
+        // Phase 5: public share cards are retired.
+        if (params || request) return new Response(null, { status: 302, headers: { Location: '/favicon.png' } })
         const slug = params.slug.replace(/\.png$/, '')
         const track =
           new URL(request.url).searchParams.get('track') === 'recruiter'
