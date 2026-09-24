@@ -14,6 +14,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/assessment/$id")({
+  beforeLoad: () => {
+    // Retired weekly/group assessments; training is now interview-triggered.
+    throw redirect({ to: "/home", replace: true });
+  },
   head: () => ({
     meta: [
       { title: "Group assessment · Benchmark" },
