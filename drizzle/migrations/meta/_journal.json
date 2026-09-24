@@ -85,6 +85,13 @@
       "when": 1790252561468,
       "tag": "0011_calendar_automation",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790257864744,
+      "tag": "0012_google_calendar_gmail_invitations",
+      "breakpoints": true
     }
   ]
 }

@@ -284,12 +284,14 @@ export type Database = {
           external_attachment_id: string
           extraction_metadata: Json
           filename: string
+          gmail_message_id: string | null
           id: string
           mime_type: string | null
           normalized_calendar_event_id: string
           processing_error_code: string | null
           processing_status: string
           retention_expires_at: string | null
+          source_kind: string
           updated_at: string
         }
         Insert: {
@@ -301,12 +303,14 @@ export type Database = {
           external_attachment_id: string
           extraction_metadata?: Json
           filename: string
+          gmail_message_id?: string | null
           id?: string
           mime_type?: string | null
           normalized_calendar_event_id: string
           processing_error_code?: string | null
           processing_status?: string
           retention_expires_at?: string | null
+          source_kind?: string
           updated_at?: string
         }
         Update: {
@@ -318,12 +322,14 @@ export type Database = {
           external_attachment_id?: string
           extraction_metadata?: Json
           filename?: string
+          gmail_message_id?: string | null
           id?: string
           mime_type?: string | null
           normalized_calendar_event_id?: string
           processing_error_code?: string | null
           processing_status?: string
           retention_expires_at?: string | null
+          source_kind?: string
           updated_at?: string
         }
         Relationships: [
@@ -758,6 +764,38 @@ export type Database = {
           },
         ]
       }
+      invitation_matches: {
+        Row: {
+          gmail_message_id: string | null
+          matched_at: string
+          normalized_calendar_event_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          gmail_message_id?: string | null
+          matched_at?: string
+          normalized_calendar_event_id: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          gmail_message_id?: string | null
+          matched_at?: string
+          normalized_calendar_event_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_matches_normalized_calendar_event_id_fkey"
+            columns: ["normalized_calendar_event_id"]
+            isOneToOne: true
+            referencedRelation: "normalized_calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invites: {
         Row: {
           created_at: string
@@ -808,6 +846,7 @@ export type Database = {
           ends_at: string
           external_calendar_id: string
           external_event_id: string
+          ical_uid: string | null
           id: string
           is_cancelled: boolean
           is_recurring: boolean
@@ -830,6 +869,7 @@ export type Database = {
           ends_at: string
           external_calendar_id?: string
           external_event_id: string
+          ical_uid?: string | null
           id?: string
           is_cancelled?: boolean
           is_recurring?: boolean
@@ -852,6 +892,7 @@ export type Database = {
           ends_at?: string
           external_calendar_id?: string
           external_event_id?: string
+          ical_uid?: string | null
           id?: string
           is_cancelled?: boolean
           is_recurring?: boolean
