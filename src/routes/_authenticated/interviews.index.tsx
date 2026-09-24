@@ -61,6 +61,8 @@ function InterviewsPage() {
           </Button>
         </div>
 
+        <Detected />
+
         {q.isLoading ? (
           <Skeleton className="h-40 w-full rounded-xl" />
         ) : upcoming.length === 0 ? (
