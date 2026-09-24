@@ -1097,6 +1097,7 @@ export type Database = {
           position: number
           prep_session_id: string
           scenario: string
+          selection_reason: string | null
           sub_skill: string
         }
         Insert: {
@@ -1112,6 +1113,7 @@ export type Database = {
           position: number
           prep_session_id: string
           scenario: string
+          selection_reason?: string | null
           sub_skill: string
         }
         Update: {
@@ -1127,6 +1129,7 @@ export type Database = {
           position?: number
           prep_session_id?: string
           scenario?: string
+          selection_reason?: string | null
           sub_skill?: string
         }
         Relationships: [
@@ -1421,6 +1424,47 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "curriculum_weeks"
             referencedColumns: ["week_number"]
+          },
+        ]
+      }
+      readiness_exports: {
+        Row: {
+          created_at: string
+          export_type: string
+          group_id: string | null
+          id: string
+          range_from: string | null
+          range_to: string | null
+          row_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          export_type: string
+          group_id?: string | null
+          id?: string
+          range_from?: string | null
+          range_to?: string | null
+          row_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          export_type?: string
+          group_id?: string | null
+          id?: string
+          range_from?: string | null
+          range_to?: string | null
+          row_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "readiness_exports_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
           },
         ]
       }
