@@ -366,7 +366,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Train solo, or create a group and invite 1 manager and 1 recruiter — free.
+          Short, gamified training right before your real interviews.
         </p>
       </div>
     </div>
