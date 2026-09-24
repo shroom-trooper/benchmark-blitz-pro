@@ -47,7 +47,11 @@ export type CreateInterviewInput = {
 };
 
 export async function createInterview(sb: DB, userId: string, input: CreateInterviewInput) {
-  const { data: prof } = await sb.from("profiles").select("group_id").eq("id", userId).maybeSingle();
+  const { data: prof } = await sb
+    .from("profiles")
+    .select("group_id")
+    .eq("id", userId)
+    .maybeSingle();
   let groupId = prof?.group_id ?? null;
   if (!groupId) {
     const { data: owned } = await sb
@@ -115,9 +119,18 @@ export async function listInterviews(sb: DB, userId: string) {
         .select("id, interview_event_id, status, completed_at, generated_at")
         .in("interview_event_id", ids)
         .order("generated_at", { ascending: false })
-    : { data: [] as { id: string; interview_event_id: string; status: string; completed_at: string | null; generated_at: string }[] };
+    : {
+        data: [] as {
+          id: string;
+          interview_event_id: string;
+          status: string;
+          completed_at: string | null;
+          generated_at: string;
+        }[],
+      };
   const latest = new Map<string, { status: string; completed_at: string | null }>();
-  for (const s of sessions ?? []) if (!latest.has(s.interview_event_id)) latest.set(s.interview_event_id, s);
+  for (const s of sessions ?? [])
+    if (!latest.has(s.interview_event_id)) latest.set(s.interview_event_id, s);
   return (events ?? []).map((e) => ({
     ...e,
     prepStatus: prepStatusOf(latest.get(e.id)?.status),
@@ -125,7 +138,9 @@ export async function listInterviews(sb: DB, userId: string) {
   }));
 }
 
-export function prepStatusOf(s: string | undefined | null): "not_started" | "in_progress" | "completed" {
+export function prepStatusOf(
+  s: string | undefined | null,
+): "not_started" | "in_progress" | "completed" {
   if (s === "completed") return "completed";
   if (s === "started" || s === "generated") return "in_progress";
   return "not_started";
@@ -141,12 +156,16 @@ export async function getInterview(sb: DB, userId: string, id: string) {
   if (!ev) fail("Interview not found");
   const { data: ctx } = await sb
     .from("interview_contexts")
-    .select("interviewer_responsibility, competencies, company_principles, context_completeness_score, job_description_text, candidate_profile_text")
+    .select(
+      "interviewer_responsibility, competencies, company_principles, context_completeness_score, job_description_text, candidate_profile_text",
+    )
     .eq("interview_event_id", id)
     .maybeSingle();
   const { data: session } = await sb
     .from("prep_sessions")
-    .select("id, status, completed_at, correct_answers, total_questions, overall_score, used_fallback")
+    .select(
+      "id, status, completed_at, correct_answers, total_questions, overall_score, used_fallback",
+    )
     .eq("interview_event_id", id)
     .order("generated_at", { ascending: false })
     .limit(1)
@@ -188,7 +207,10 @@ async function persistProgress(userId: string, progress: AreaProgress[]) {
 
 /* ---------------- Generation ---------------- */
 
-async function generateWithAi(ctx: PrepContext, plan: PlanItem[]): Promise<PrepQuestionDraft[] | null> {
+async function generateWithAi(
+  ctx: PrepContext,
+  plan: PlanItem[],
+): Promise<PrepQuestionDraft[] | null> {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return null;
   try {
@@ -230,7 +252,14 @@ async function generateWithAi(ctx: PrepContext, plan: PlanItem[]): Promise<PrepQ
                         capabilityArea: { type: "string", enum: [...CAPABILITY_AREAS] },
                         subSkill: { type: "string", enum: Object.values(SUB_SKILLS).flat() },
                       },
-                      required: ["scenario", "options", "correctIndex", "explanation", "capabilityArea", "subSkill"],
+                      required: [
+                        "scenario",
+                        "options",
+                        "correctIndex",
+                        "explanation",
+                        "capabilityArea",
+                        "subSkill",
+                      ],
                       additionalProperties: false,
                     },
                   },
@@ -348,8 +377,15 @@ export async function getPrepSession(userId: string, sessionId: string) {
   const a = await admin();
   const [{ data: qs }, { data: rs }, { data: ev }] = await Promise.all([
     a.from("prep_questions").select("*").eq("prep_session_id", sessionId).order("position"),
-    a.from("prep_responses").select("prep_question_id, selected_index, is_correct").eq("prep_session_id", sessionId),
-    a.from("interview_events").select("id, role_title, interview_stage, starts_at").eq("id", s.interview_event_id).maybeSingle(),
+    a
+      .from("prep_responses")
+      .select("prep_question_id, selected_index, is_correct")
+      .eq("prep_session_id", sessionId),
+    a
+      .from("interview_events")
+      .select("id, role_title, interview_stage, starts_at")
+      .eq("id", s.interview_event_id)
+      .maybeSingle(),
   ]);
   const answered = new Map((rs ?? []).map((r) => [r.prep_question_id, r]));
   return {
@@ -375,7 +411,12 @@ export async function getPrepSession(userId: string, sessionId: string) {
         difficulty: q.difficulty,
         // Answer key only revealed after the question is answered.
         answer: r
-          ? { selectedIndex: r.selected_index, isCorrect: r.is_correct, correctIndex: q.correct_index, explanation: q.explanation }
+          ? {
+              selectedIndex: r.selected_index,
+              isCorrect: r.is_correct,
+              correctIndex: q.correct_index,
+              explanation: q.explanation,
+            }
           : null,
       };
     }),
@@ -384,10 +425,16 @@ export async function getPrepSession(userId: string, sessionId: string) {
 
 export async function submitPrepAnswer(
   userId: string,
-  input: { sessionId: string; questionId: string; selectedIndex: number; responseTimeSeconds?: number | undefined },
+  input: {
+    sessionId: string;
+    questionId: string;
+    selectedIndex: number;
+    responseTimeSeconds?: number | undefined;
+  },
 ) {
   const s = await ownSession(userId, input.sessionId);
-  if (s.status === "completed" || s.status === "expired") fail("This preparation is already finished");
+  if (s.status === "completed" || s.status === "expired")
+    fail("This preparation is already finished");
   const a = await admin();
   const { data: q } = await a
     .from("prep_questions")
@@ -421,7 +468,10 @@ export async function submitPrepAnswer(
     });
   }
   if (s.status === "generated") {
-    await a.from("prep_sessions").update({ status: "started", started_at: new Date().toISOString() }).eq("id", s.id);
+    await a
+      .from("prep_sessions")
+      .update({ status: "started", started_at: new Date().toISOString() })
+      .eq("id", s.id);
   }
   return { isCorrect, correctIndex: q.correct_index, explanation: q.explanation };
 }
@@ -466,9 +516,16 @@ export async function completePrep(userId: string, sessionId: string) {
   const startMap = new Map((evs ?? []).map((e) => [e.id, e.starts_at]));
   const advancePreps = (done ?? []).filter((d) => {
     const st = startMap.get(d.interview_event_id);
-    return st && d.completed_at && new Date(st).getTime() - new Date(d.completed_at).getTime() >= ADVANCE_MINUTES * 60_000;
+    return (
+      st &&
+      d.completed_at &&
+      new Date(st).getTime() - new Date(d.completed_at).getTime() >= ADVANCE_MINUTES * 60_000
+    );
   }).length;
-  const { data: earnedRows } = await a.from("user_achievements").select("achievement_code").eq("user_id", userId);
+  const { data: earnedRows } = await a
+    .from("user_achievements")
+    .select("achievement_code")
+    .eq("user_id", userId);
   const newCodes = evaluateRecognition({
     completedPreps: done?.length ?? 0,
     advancePreps,
@@ -492,7 +549,11 @@ export async function completePrep(userId: string, sessionId: string) {
 
   const stageChanges = progress
     .filter((p, i) => p.mastery_stage !== before[i]!.mastery_stage)
-    .map((p) => ({ area: p.capability_area, from: before.find((b) => b.capability_area === p.capability_area)!.mastery_stage, to: p.mastery_stage }));
+    .map((p) => ({
+      area: p.capability_area,
+      from: before.find((b) => b.capability_area === p.capability_area)!.mastery_stage,
+      to: p.mastery_stage,
+    }));
 
   return {
     correct,
@@ -510,7 +571,11 @@ export async function completePrep(userId: string, sessionId: string) {
 export async function getMyCapability(sb: DB, userId: string) {
   const [{ data: rows }, { count }, { data: earned }] = await Promise.all([
     sb.from("user_capability_progress").select("*").eq("user_id", userId),
-    sb.from("prep_sessions").select("id", { count: "exact", head: true }).eq("interviewer_id", userId).eq("status", "completed"),
+    sb
+      .from("prep_sessions")
+      .select("id", { count: "exact", head: true })
+      .eq("interviewer_id", userId)
+      .eq("status", "completed"),
     sb.from("user_achievements").select("achievement_code, earned_at").eq("user_id", userId),
   ]);
   const byArea = new Map((rows ?? []).map((r) => [r.capability_area, r]));
@@ -530,13 +595,18 @@ export async function getMyCapability(sb: DB, userId: string) {
       : computeAllProgress([]).find((p) => p.capability_area === area)!;
   });
   const codes = (earned ?? []).map((e) => e.achievement_code);
-  const { data: ach } = await sb.from("achievements").select("code, name, description").in("code", codes.length ? codes : ["_"]);
+  const { data: ach } = await sb
+    .from("achievements")
+    .select("code, name, description")
+    .in("code", codes.length ? codes : ["_"]);
   return {
     progress,
     completedPreps: count ?? 0,
     level: professionalLevel(progress, count ?? 0),
     ...strongestAndPriority(progress),
-    recognition: (ach ?? []).filter((a) => a.code.startsWith("prep_") || a.code.startsWith("area_") || a.code.startsWith("all_")),
+    recognition: (ach ?? []).filter(
+      (a) => a.code.startsWith("prep_") || a.code.startsWith("area_") || a.code.startsWith("all_"),
+    ),
   };
 }
 
@@ -557,7 +627,14 @@ export async function getGroupReadiness(sb: DB, userId: string) {
     .eq("group_id", group.id)
     .neq("id", userId);
   const memberIds = (members ?? []).map((m) => m.id);
-  if (!memberIds.length) return { group, members: [], upcoming: [], attention: [], goals: { upcoming: 0, prepared: 0, activeThisMonth: 0, members: 0 } };
+  if (!memberIds.length)
+    return {
+      group,
+      members: [],
+      upcoming: [],
+      attention: [],
+      goals: { upcoming: 0, prepared: 0, activeThisMonth: 0, members: 0 },
+    };
 
   const now = new Date();
   const [{ data: events }, { data: sessions }, { data: prog }] = await Promise.all([
@@ -576,7 +653,8 @@ export async function getGroupReadiness(sb: DB, userId: string) {
   ]);
 
   const latestByEvent = new Map<string, { status: string; completed_at: string | null }>();
-  for (const s of sessions ?? []) if (!latestByEvent.has(s.interview_event_id)) latestByEvent.set(s.interview_event_id, s);
+  for (const s of sessions ?? [])
+    if (!latestByEvent.has(s.interview_event_id)) latestByEvent.set(s.interview_event_id, s);
   const name = (id: string) => {
     const m = members!.find((x) => x.id === id);
     return m?.display_name || m?.full_name || m?.email || "Member";
@@ -595,8 +673,14 @@ export async function getGroupReadiness(sb: DB, userId: string) {
 
   const monthAgo = now.getTime() - 30 * 86_400_000;
   const memberRows = (members ?? []).map((m) => {
-    const done = (sessions ?? []).filter((s) => s.interviewer_id === m.id && s.status === "completed");
-    const last = done.map((d) => d.completed_at!).sort().at(-1) ?? null;
+    const done = (sessions ?? []).filter(
+      (s) => s.interviewer_id === m.id && s.status === "completed",
+    );
+    const last =
+      done
+        .map((d) => d.completed_at!)
+        .sort()
+        .at(-1) ?? null;
     const progress: AreaProgress[] = CAPABILITY_AREAS.map((area) => {
       const r = (prog ?? []).find((p) => p.user_id === m.id && p.capability_area === area);
       return r
@@ -627,11 +711,24 @@ export async function getGroupReadiness(sb: DB, userId: string) {
   const in48h = now.getTime() + 48 * 3_600_000;
   const attention = [
     ...upcoming
-      .filter((u) => u.prepStatus !== "completed" && new Date(u.startsAt).getTime() <= in48h && new Date(u.startsAt).getTime() >= now.getTime())
-      .map((u) => ({ kind: "unprepared" as const, text: `${u.interviewer} has an interview for ${u.roleTitle} soon without completed preparation`, at: u.startsAt })),
+      .filter(
+        (u) =>
+          u.prepStatus !== "completed" &&
+          new Date(u.startsAt).getTime() <= in48h &&
+          new Date(u.startsAt).getTime() >= now.getTime(),
+      )
+      .map((u) => ({
+        kind: "unprepared" as const,
+        text: `${u.interviewer} has an interview for ${u.roleTitle} soon without completed preparation`,
+        at: u.startsAt,
+      })),
     ...memberRows
       .filter((m) => !m.lastPrepAt || new Date(m.lastPrepAt).getTime() < monthAgo)
-      .map((m) => ({ kind: "inactive" as const, text: `${m.name} has not completed a preparation in the last 30 days`, at: m.lastPrepAt })),
+      .map((m) => ({
+        kind: "inactive" as const,
+        text: `${m.name} has not completed a preparation in the last 30 days`,
+        at: m.lastPrepAt,
+      })),
   ];
   const future = upcoming.filter((u) => new Date(u.startsAt).getTime() >= now.getTime());
   return {
@@ -642,7 +739,9 @@ export async function getGroupReadiness(sb: DB, userId: string) {
     goals: {
       upcoming: future.length,
       prepared: future.filter((u) => u.prepStatus === "completed").length,
-      activeThisMonth: memberRows.filter((m) => m.lastPrepAt && new Date(m.lastPrepAt).getTime() >= monthAgo).length,
+      activeThisMonth: memberRows.filter(
+        (m) => m.lastPrepAt && new Date(m.lastPrepAt).getTime() >= monthAgo,
+      ).length,
       members: memberRows.length,
     },
   };

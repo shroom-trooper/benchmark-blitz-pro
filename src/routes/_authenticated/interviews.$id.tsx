@@ -44,19 +44,34 @@ function InterviewDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (q.isLoading) return <AppShell><Skeleton className="h-64 w-full rounded-xl" /></AppShell>;
-  if (q.error || !q.data) return <AppShell><p className="text-center text-muted-foreground">Interview not found.</p></AppShell>;
+  if (q.isLoading)
+    return (
+      <AppShell>
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </AppShell>
+    );
+  if (q.error || !q.data)
+    return (
+      <AppShell>
+        <p className="text-center text-muted-foreground">Interview not found.</p>
+      </AppShell>
+    );
   const { event, context, session } = q.data;
   const completed = session?.status === "completed";
 
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl space-y-6">
-        <Link to="/interviews" className="text-sm text-muted-foreground hover:text-foreground">← All interviews</Link>
+        <Link to="/interviews" className="text-sm text-muted-foreground hover:text-foreground">
+          ← All interviews
+        </Link>
         <div>
           <p className="text-sm text-muted-foreground">{event.interview_stage}</p>
           <h1 className="text-3xl">{event.role_title}</h1>
-          <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground"><Clock className="size-4" /> {fmtWhen(event.starts_at)} · with {event.candidate_display_name}</p>
+          <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="size-4" /> {fmtWhen(event.starts_at)} · with{" "}
+            {event.candidate_display_name}
+          </p>
         </div>
 
         <div className="rounded-xl border border-border bg-surface p-5">
@@ -66,20 +81,33 @@ function InterviewDetail() {
               <div className="flex-1">
                 <p className="font-medium">Preparation complete</p>
                 <p className="text-sm text-muted-foreground">
-                  {session!.correct_answers}/{session!.total_questions} decisions aligned with best practice · {fmtWhen(session!.completed_at!)}
+                  {session!.correct_answers}/{session!.total_questions} decisions aligned with best
+                  practice · {fmtWhen(session!.completed_at!)}
                 </p>
               </div>
-              <Button asChild variant="outline"><Link to="/prep/$sessionId" params={{ sessionId: session!.id }}>Review</Link></Button>
+              <Button asChild variant="outline">
+                <Link to="/prep/$sessionId" params={{ sessionId: session!.id }}>
+                  Review
+                </Link>
+              </Button>
             </div>
           ) : (
             <div className="flex flex-wrap items-center gap-4">
               <Sparkles className="size-6 text-primary" />
               <div className="flex-1">
-                <p className="font-medium">{session ? "Preparation in progress" : "Ready to prepare"}</p>
-                <p className="text-sm text-muted-foreground">4–6 scenarios built around this role and stage · about 4 minutes</p>
+                <p className="font-medium">
+                  {session ? "Preparation in progress" : "Ready to prepare"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  4–6 scenarios built around this role and stage · about 4 minutes
+                </p>
               </div>
               <Button onClick={() => m.mutate()} disabled={m.isPending}>
-                {m.isPending ? "Preparing questions…" : session ? "Resume preparation" : "Start preparation"}
+                {m.isPending
+                  ? "Preparing questions…"
+                  : session
+                    ? "Resume preparation"
+                    : "Start preparation"}
               </Button>
             </div>
           )}
@@ -88,17 +116,30 @@ function InterviewDetail() {
         {context ? (
           <div className="space-y-4 rounded-xl border border-border bg-surface p-5">
             <div>
-              <div className="mb-1 flex justify-between text-sm"><span>Context completeness</span><span className="text-muted-foreground">{context.completeness}%</span></div>
+              <div className="mb-1 flex justify-between text-sm">
+                <span>Context completeness</span>
+                <span className="text-muted-foreground">{context.completeness}%</span>
+              </div>
               <Progress value={context.completeness} className="h-1.5" />
             </div>
             {context.competencies.length ? (
               <div className="flex flex-wrap gap-2">
-                {context.competencies.map((c) => <span key={c} className="rounded-full bg-surface-2 px-3 py-1 text-xs">{c}</span>)}
+                {context.competencies.map((c) => (
+                  <span key={c} className="rounded-full bg-surface-2 px-3 py-1 text-xs">
+                    {c}
+                  </span>
+                ))}
               </div>
             ) : null}
-            {context.responsibility ? <p className="text-sm"><span className="text-muted-foreground">Your focus: </span>{context.responsibility}</p> : null}
+            {context.responsibility ? (
+              <p className="text-sm">
+                <span className="text-muted-foreground">Your focus: </span>
+                {context.responsibility}
+              </p>
+            ) : null}
             <p className="text-xs text-muted-foreground">
-              {context.hasJobDescription ? "Job description added" : "No job description"} · {context.hasCandidateProfile ? "CV notes added (private to you)" : "No CV notes"}
+              {context.hasJobDescription ? "Job description added" : "No job description"} ·{" "}
+              {context.hasCandidateProfile ? "CV notes added (private to you)" : "No CV notes"}
             </p>
           </div>
         ) : null}

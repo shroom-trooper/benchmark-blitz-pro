@@ -21,9 +21,20 @@ export const CONFIDENCE_THRESHOLDS = { low: 1, moderate: 5, high: 12 } as const;
 export type Confidence = "insufficient" | "low" | "moderate" | "high";
 
 /** Capability stages require BOTH a weighted score and enough evidence. */
-export const STAGES = ["building", "emerging", "developing", "proficient", "advanced", "expert"] as const;
+export const STAGES = [
+  "building",
+  "emerging",
+  "developing",
+  "proficient",
+  "advanced",
+  "expert",
+] as const;
 export type Stage = (typeof STAGES)[number];
-export const STAGE_THRESHOLDS: { stage: Exclude<Stage, "building">; minScore: number; minEvidence: number }[] = [
+export const STAGE_THRESHOLDS: {
+  stage: Exclude<Stage, "building">;
+  minScore: number;
+  minEvidence: number;
+}[] = [
   { stage: "expert", minScore: 90, minEvidence: 30 },
   { stage: "advanced", minScore: 80, minEvidence: 18 },
   { stage: "proficient", minScore: 70, minEvidence: 12 },
@@ -58,7 +69,8 @@ export function confidenceFor(count: number): Confidence {
 }
 
 export function stageFor(score: number, count: number): Stage {
-  for (const t of STAGE_THRESHOLDS) if (score >= t.minScore && count >= t.minEvidence) return t.stage;
+  for (const t of STAGE_THRESHOLDS)
+    if (score >= t.minScore && count >= t.minEvidence) return t.stage;
   return "building";
 }
 
@@ -138,7 +150,12 @@ export const PROFESSIONAL_LEVELS = [
   { level: 6, title: "Bar raiser", minPoints: 21 },
 ] as const;
 const STAGE_POINTS: Record<Stage, number> = {
-  building: 0, emerging: 1, developing: 2, proficient: 3, advanced: 4, expert: 5,
+  building: 0,
+  emerging: 1,
+  developing: 2,
+  proficient: 3,
+  advanced: 4,
+  expert: 5,
 };
 
 export function professionalLevel(progress: AreaProgress[], completedPreps: number) {

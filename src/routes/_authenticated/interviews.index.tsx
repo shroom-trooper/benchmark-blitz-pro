@@ -26,7 +26,13 @@ export const Route = createFileRoute("/_authenticated/interviews/")({
 });
 
 export function fmtWhen(iso: string) {
-  return new Date(iso).toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleString(undefined, {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function InterviewsPage() {
@@ -34,7 +40,9 @@ function InterviewsPage() {
   const q = useQuery({ queryKey: ["interviews"], queryFn: () => fn() });
   const now = Date.now();
   const upcoming = (q.data ?? []).filter((i) => new Date(i.starts_at).getTime() >= now - 3_600_000);
-  const past = (q.data ?? []).filter((i) => new Date(i.starts_at).getTime() < now - 3_600_000).reverse();
+  const past = (q.data ?? [])
+    .filter((i) => new Date(i.starts_at).getTime() < now - 3_600_000)
+    .reverse();
 
   return (
     <AppShell>
@@ -42,10 +50,14 @@ function InterviewsPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl">Upcoming interviews</h1>
-            <p className="mt-1 text-sm text-muted-foreground">A short, focused preparation before every interview you run.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              A short, focused preparation before every interview you run.
+            </p>
           </div>
           <Button asChild>
-            <Link to="/interviews/new"><CalendarPlus className="size-4" /> Add interview</Link>
+            <Link to="/interviews/new">
+              <CalendarPlus className="size-4" /> Add interview
+            </Link>
           </Button>
         </div>
 
@@ -54,7 +66,9 @@ function InterviewsPage() {
         ) : upcoming.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border p-10 text-center">
             <p className="font-display text-lg">No upcoming interviews</p>
-            <p className="mt-1 text-sm text-muted-foreground">Add your next interview to get a 3–5 minute preparation tailored to it.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Add your next interview to get a 3–5 minute preparation tailored to it.
+            </p>
           </div>
         ) : (
           <List items={upcoming} />
@@ -76,10 +90,18 @@ function List({ items }: { items: Awaited<ReturnType<typeof listInterviews>> }) 
     <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
       {items.map((i) => (
         <li key={i.id}>
-          <Link to="/interviews/$id" params={{ id: i.id }} className="flex items-center gap-4 p-4 hover:bg-surface-2">
+          <Link
+            to="/interviews/$id"
+            params={{ id: i.id }}
+            className="flex items-center gap-4 p-4 hover:bg-surface-2"
+          >
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{i.role_title} · {i.interview_stage}</p>
-              <p className="truncate text-sm text-muted-foreground">{fmtWhen(i.starts_at)} · {i.candidate_display_name}</p>
+              <p className="truncate font-medium">
+                {i.role_title} · {i.interview_stage}
+              </p>
+              <p className="truncate text-sm text-muted-foreground">
+                {fmtWhen(i.starts_at)} · {i.candidate_display_name}
+              </p>
             </div>
             <PrepStatusBadge status={i.prepStatus} />
             <ChevronRight className="size-4 text-muted-foreground" />

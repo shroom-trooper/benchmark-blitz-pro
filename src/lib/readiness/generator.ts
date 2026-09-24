@@ -43,7 +43,8 @@ const aiQuestionSchema = z.object({
   subSkill: z.string(),
 });
 
-const BANNED = /\b(should (not )?(be )?hire|hire (this|the) candidate|reject (this|the) candidate|recommend hiring)\b/i;
+const BANNED =
+  /\b(should (not )?(be )?hire|hire (this|the) candidate|reject (this|the) candidate|recommend hiring)\b/i;
 
 /** Validates and normalises AI output against the plan. Returns null if unusable. */
 export function validateAiQuestions(raw: unknown, plan: PlanItem[]): PrepQuestionDraft[] | null {
@@ -100,13 +101,23 @@ export function libraryPool(): LibraryQ[] {
 }
 
 /** Deterministic-with-seed fallback selection from the curated library. Never empty. */
-export function selectFallback(plan: PlanItem[], exclude: Set<string> = new Set(), rand = Math.random) {
+export function selectFallback(
+  plan: PlanItem[],
+  exclude: Set<string> = new Set(),
+  rand = Math.random,
+) {
   const pool = libraryPool().filter((q) => !exclude.has(q.key));
   const used = new Set<string>();
   return plan.map((p) => {
-    const exact = pool.filter((q) => q.capabilityArea === p.area && q.difficulty === p.difficulty && !used.has(q.key));
+    const exact = pool.filter(
+      (q) => q.capabilityArea === p.area && q.difficulty === p.difficulty && !used.has(q.key),
+    );
     const areaOnly = pool.filter((q) => q.capabilityArea === p.area && !used.has(q.key));
-    const list = exact.length ? exact : areaOnly.length ? areaOnly : pool.filter((q) => !used.has(q.key));
+    const list = exact.length
+      ? exact
+      : areaOnly.length
+        ? areaOnly
+        : pool.filter((q) => !used.has(q.key));
     const pick = list[Math.floor(rand() * list.length)]!;
     used.add(pick.key);
     const { key: _k, ...rest } = pick;
@@ -131,14 +142,19 @@ export function buildPrompt(c: PrepContext, plan: PlanItem[]): string {
     `Interview stage: ${c.stage}`,
     `Competencies this interviewer assesses: ${c.competencies.join(", ") || "not specified"}`,
     c.responsibility ? `Interviewer responsibility: ${c.responsibility}` : "",
-    c.principles?.length ? `Company interviewing principles (use only these, never invent others): ${c.principles.join("; ")}` : "Company principles: none supplied — do not invent company policies.",
+    c.principles?.length
+      ? `Company interviewing principles (use only these, never invent others): ${c.principles.join("; ")}`
+      : "Company principles: none supplied — do not invent company policies.",
     c.jobDescription ? `Job description (excerpt):\n${c.jobDescription.slice(0, 6000)}` : "",
     c.candidateProfile
       ? `Candidate CV context (excerpt; use only for fair, job-relevant probing; never repeat personal details, never infer protected characteristics such as age, gender, ethnicity, religion, disability, family status):\n${c.candidateProfile.slice(0, 4000)}`
       : "",
     "",
     "Question plan (one per line, in order):",
-    ...plan.map((p, i) => `${i + 1}. capabilityArea=${p.area}, difficulty=${p.difficulty}, subSkill one of: ${SUB_SKILLS[p.area].join(", ")}`),
+    ...plan.map(
+      (p, i) =>
+        `${i + 1}. capabilityArea=${p.area}, difficulty=${p.difficulty}, subSkill one of: ${SUB_SKILLS[p.area].join(", ")}`,
+    ),
     "",
     "Rules: each question presents a realistic decision the INTERVIEWER must make; 3 plausible options (2–4 allowed); exactly one clearly defensible best answer; explanation of 1–2 sentences.",
     "Never recommend whether to hire, never score or rank the candidate, never predict outcomes, never suggest discriminatory or illegal questions.",

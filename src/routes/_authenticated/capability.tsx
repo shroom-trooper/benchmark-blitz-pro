@@ -29,9 +29,18 @@ export const Route = createFileRoute("/_authenticated/capability")({
 function CapabilityPage() {
   const fn = useServerFn(getMyCapability);
   const q = useQuery({ queryKey: ["capability"], queryFn: () => fn() });
-  if (q.isLoading || !q.data) return <AppShell><Skeleton className="h-72 w-full rounded-xl" /></AppShell>;
+  if (q.isLoading || !q.data)
+    return (
+      <AppShell>
+        <Skeleton className="h-72 w-full rounded-xl" />
+      </AppShell>
+    );
   const d = q.data;
-  const pct = d.level.next ? Math.round(((d.level.points - d.level.minPoints) / (d.level.next.minPoints - d.level.minPoints)) * 100) : 100;
+  const pct = d.level.next
+    ? Math.round(
+        ((d.level.points - d.level.minPoints) / (d.level.next.minPoints - d.level.minPoints)) * 100,
+      )
+    : 100;
   return (
     <AppShell>
       <div className="mx-auto max-w-5xl space-y-6">
@@ -40,22 +49,39 @@ function CapabilityPage() {
           <h1 className="text-3xl">{d.level.title}</h1>
           <Progress value={pct} className="mt-4 h-2" />
           <p className="mt-2 text-xs text-muted-foreground">
-            {d.level.next ? `Next: ${d.level.next.title} — grow across more areas and keep preparing` : "Highest level reached"} · {d.completedPreps} preparations completed
+            {d.level.next
+              ? `Next: ${d.level.next.title} — grow across more areas and keep preparing`
+              : "Highest level reached"}{" "}
+            · {d.completedPreps} preparations completed
           </p>
         </div>
         <CapabilityGrid progress={d.progress} />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Info label="Strongest area" value={d.strongest ? AREA_LABELS[d.strongest] : "Building profile"} />
-          <Info label="Priority development area" value={d.priority ? AREA_LABELS[d.priority] : "Building profile"} />
+          <Info
+            label="Strongest area"
+            value={d.strongest ? AREA_LABELS[d.strongest] : "Building profile"}
+          />
+          <Info
+            label="Priority development area"
+            value={d.priority ? AREA_LABELS[d.priority] : "Building profile"}
+          />
         </div>
         {d.recognition.length ? (
           <div>
-            <h2 className="mb-3 text-sm uppercase tracking-wide text-muted-foreground">Recognition</h2>
+            <h2 className="mb-3 text-sm uppercase tracking-wide text-muted-foreground">
+              Recognition
+            </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {d.recognition.map((r) => (
-                <div key={r.code} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-4">
+                <div
+                  key={r.code}
+                  className="flex items-center gap-3 rounded-xl border border-border bg-surface p-4"
+                >
                   <Award className="size-5 text-warning" />
-                  <div><p className="text-sm font-medium">{r.name}</p><p className="text-xs text-muted-foreground">{r.description}</p></div>
+                  <div>
+                    <p className="text-sm font-medium">{r.name}</p>
+                    <p className="text-xs text-muted-foreground">{r.description}</p>
+                  </div>
                 </div>
               ))}
             </div>

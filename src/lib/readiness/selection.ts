@@ -23,7 +23,8 @@ export function prioritizeAreas(progress: AreaProgress[]): CapabilityArea[] {
 }
 
 export function difficultyFor(p: AreaProgress | undefined): Difficulty {
-  if (!p || p.evidence_confidence === "insufficient" || p.evidence_confidence === "low") return "standard";
+  if (!p || p.evidence_confidence === "insufficient" || p.evidence_confidence === "low")
+    return "standard";
   if (p.weighted_score >= ADVANCE_DIFFICULTY_AT) return "advanced";
   if (p.weighted_score < FOUNDATION_BELOW) return "foundation";
   return "standard";

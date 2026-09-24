@@ -22,7 +22,8 @@ export const RECOGNITION_RULES: { code: string; test: (i: RecognitionInput) => b
   { code: "area_proficient", test: (i) => i.progress.some((p) => ORDER.includes(p.mastery_stage)) },
   {
     code: "all_areas_developing",
-    test: (i) => i.progress.length === 4 && i.progress.every((p) => DEV_PLUS.includes(p.mastery_stage)),
+    test: (i) =>
+      i.progress.length === 4 && i.progress.every((p) => DEV_PLUS.includes(p.mastery_stage)),
   },
 ];
 

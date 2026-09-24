@@ -1,14 +1,35 @@
 import { describe, expect, it } from "vitest";
-import { CAPABILITY_AREAS, SUB_SKILLS, isValidSubSkill, capabilityAreaSchema } from "@/lib/readiness/taxonomy";
-import { computeAllProgress, computeAreaProgress, confidenceFor, stageFor, directionFor, professionalLevel, strongestAndPriority, type EvidenceItem } from "@/lib/readiness/scoring";
+import {
+  CAPABILITY_AREAS,
+  SUB_SKILLS,
+  isValidSubSkill,
+  capabilityAreaSchema,
+} from "@/lib/readiness/taxonomy";
+import {
+  computeAllProgress,
+  computeAreaProgress,
+  confidenceFor,
+  stageFor,
+  directionFor,
+  professionalLevel,
+  strongestAndPriority,
+  type EvidenceItem,
+} from "@/lib/readiness/scoring";
 import { evaluateRecognition } from "@/lib/readiness/recognition";
 import { buildQuestionPlan, difficultyFor } from "@/lib/readiness/selection";
-import { selectFallback, validateAiQuestions, contextCompleteness, buildPrompt } from "@/lib/readiness/generator";
+import {
+  selectFallback,
+  validateAiQuestions,
+  contextCompleteness,
+  buildPrompt,
+} from "@/lib/readiness/generator";
 import { prepStatusOf } from "@/lib/readiness.server";
 
 const now = Date.parse("2026-09-24T12:00:00Z");
 const ev = (area: EvidenceItem["capability_area"], correct: boolean, i = 0): EvidenceItem => ({
-  capability_area: area, is_correct: correct, difficulty: "standard",
+  capability_area: area,
+  is_correct: correct,
+  difficulty: "standard",
   recorded_at: new Date(now - (100 - i) * 60_000).toISOString(),
 });
 
@@ -55,13 +76,21 @@ describe("scoring", () => {
   });
   it("professional level is not XP-based", () => {
     expect(professionalLevel(computeAllProgress([]), 0).level).toBe(1);
-    const lots = CAPABILITY_AREAS.flatMap((a) => Array.from({ length: 12 }, (_, i) => ev(a, true, i)));
+    const lots = CAPABILITY_AREAS.flatMap((a) =>
+      Array.from({ length: 12 }, (_, i) => ev(a, true, i)),
+    );
     expect(professionalLevel(computeAllProgress(lots, now), 9).level).toBeGreaterThanOrEqual(4);
   });
 });
 
 describe("recognition", () => {
-  const base = { completedPreps: 1, advancePreps: 0, lastSessionPerfect: false, progress: computeAllProgress([]), alreadyEarned: new Set<string>() };
+  const base = {
+    completedPreps: 1,
+    advancePreps: 0,
+    lastSessionPerfect: false,
+    progress: computeAllProgress([]),
+    alreadyEarned: new Set<string>(),
+  };
   it("awards first prep once", () => {
     expect(evaluateRecognition(base)).toEqual(["prep_first"]);
     expect(evaluateRecognition({ ...base, alreadyEarned: new Set(["prep_first"]) })).toEqual([]);
@@ -82,11 +111,16 @@ describe("adaptive selection", () => {
   });
   it("prioritises the lowest-confidence area", () => {
     const evs = ["structured_evaluation", "candidate_experience", "decision_quality"].flatMap((a) =>
-      Array.from({ length: 6 }, (_, i) => ev(a as EvidenceItem["capability_area"], true, i)));
+      Array.from({ length: 6 }, (_, i) => ev(a as EvidenceItem["capability_area"], true, i)),
+    );
     expect(buildQuestionPlan(computeAllProgress(evs, now))[0]!.area).toBe("bias_mitigation");
   });
   it("raises difficulty when accuracy is high", () => {
-    const p = computeAreaProgress("decision_quality", Array.from({ length: 6 }, (_, i) => ev("decision_quality", true, i)), now);
+    const p = computeAreaProgress(
+      "decision_quality",
+      Array.from({ length: 6 }, (_, i) => ev("decision_quality", true, i)),
+      now,
+    );
     expect(difficultyFor(p)).toBe("advanced");
   });
 });
@@ -107,11 +141,24 @@ describe("generator", () => {
     expect(validateAiQuestions([{ scenario: "x" }], plan)).toBeNull();
   });
   it("filters hire recommendations and bad indexes", () => {
-    const good = (area: string) => ({ scenario: "The candidate gives a vague answer about a past project. What do you do?", options: ["Probe for specifics", "Move on", "Assume competence"], correctIndex: 0, explanation: "Behavioural probing gathers evidence.", capabilityArea: area, subSkill: "behavioural_probing" });
+    const good = (area: string) => ({
+      scenario: "The candidate gives a vague answer about a past project. What do you do?",
+      options: ["Probe for specifics", "Move on", "Assume competence"],
+      correctIndex: 0,
+      explanation: "Behavioural probing gathers evidence.",
+      capabilityArea: area,
+      subSkill: "behavioural_probing",
+    });
     const raw = [
-      good("structured_evaluation"), good("bias_mitigation"), good("structured_evaluation"), good("decision_quality"),
+      good("structured_evaluation"),
+      good("bias_mitigation"),
+      good("structured_evaluation"),
+      good("decision_quality"),
       { ...good("structured_evaluation"), correctIndex: 7 },
-      { ...good("structured_evaluation"), explanation: "You should hire this candidate immediately." },
+      {
+        ...good("structured_evaluation"),
+        explanation: "You should hire this candidate immediately.",
+      },
     ];
     const out = validateAiQuestions(raw, plan)!;
     expect(out).toHaveLength(4);
@@ -119,13 +166,26 @@ describe("generator", () => {
     expect(isValidSubSkill("bias_mitigation", out[1]!.subSkill)).toBe(true);
   });
   it("prompt forbids candidate evaluation and caps context", () => {
-    const p = buildPrompt({ roleTitle: "PM", stage: "Panel", competencies: [], candidateProfile: "x".repeat(10000) }, plan);
+    const p = buildPrompt(
+      { roleTitle: "PM", stage: "Panel", competencies: [], candidateProfile: "x".repeat(10000) },
+      plan,
+    );
     expect(p).toMatch(/Never recommend whether to hire/);
     expect(p.length).toBeLessThan(8000);
   });
   it("context completeness", () => {
     expect(contextCompleteness({ roleTitle: "a", stage: "b", competencies: [] })).toBe(40);
-    expect(contextCompleteness({ roleTitle: "a", stage: "b", competencies: ["x"], responsibility: "r", jobDescription: "j", candidateProfile: "c", principles: ["p"] })).toBe(100);
+    expect(
+      contextCompleteness({
+        roleTitle: "a",
+        stage: "b",
+        competencies: ["x"],
+        responsibility: "r",
+        jobDescription: "j",
+        candidateProfile: "c",
+        principles: ["p"],
+      }),
+    ).toBe(100);
   });
 });
 
