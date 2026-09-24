@@ -348,7 +348,7 @@ export async function questionAction(
         risk: v.risk_level as RiskLevel,
         reviewerIsAuthor: v.created_by === userId || def.created_by === userId,
         eligibleReviewers: await eligibleReviewerCount(ctx.orgId),
-        exceptionReason: input.exceptionReason,
+        exceptionReason: input.exceptionReason ?? null,
       });
       if (!sod.ok) fail(sod.error);
       exception = sod.exception;
@@ -360,7 +360,7 @@ export async function questionAction(
       review_checklist: input.checklist ?? {},
       feedback: input.reason ?? null,
       single_reviewer_exception: exception,
-      exception_reason: exception ? input.exceptionReason : null,
+      exception_reason: exception ? input.exceptionReason ?? null : null,
     });
     if (input.action === "request_changes") await a.from("question_versions").update({ locked: false }).eq("id", v.id);
   }

@@ -46,6 +46,7 @@ import { Route as AuthenticatedReadinessCapabilityAreaRouteImport } from './rout
 import { Route as AuthenticatedReadinessPeopleUserIdRouteImport } from './routes/_authenticated/readiness.people.$userId'
 import { Route as AuthenticatedRecruiterSessionWeekRouteImport } from './routes/_authenticated/recruiter.session.$week'
 import { Route as ApiPublicCronCalendarSyncRouteImport } from './routes/api/public/cron/calendar-sync'
+import { Route as ApiPublicCronRetentionRouteImport } from './routes/api/public/cron/retention'
 import { Route as ApiPublicCronWeeklyUnlockRouteImport } from './routes/api/public/cron/weekly-unlock'
 import { Route as ApiPublicOgSlugRouteImport } from './routes/api/public/og/$slug'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -257,6 +258,11 @@ const ApiPublicCronCalendarSyncRoute =
     path: '/api/public/cron/calendar-sync',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronRetentionRoute = ApiPublicCronRetentionRouteImport.update({
+  id: '/api/public/cron/retention',
+  path: '/api/public/cron/retention',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronWeeklyUnlockRoute =
   ApiPublicCronWeeklyUnlockRouteImport.update({
     id: '/api/public/cron/weekly-unlock',
@@ -322,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
+  '/api/public/cron/retention': typeof ApiPublicCronRetentionRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -362,6 +369,7 @@ export interface FileRoutesByTo {
   '/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
+  '/api/public/cron/retention': typeof ApiPublicCronRetentionRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -407,6 +415,7 @@ export interface FileRoutesById {
   '/_authenticated/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/_authenticated/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
   '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
+  '/api/public/cron/retention': typeof ApiPublicCronRetentionRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -452,6 +461,7 @@ export interface FileRouteTypes {
     | '/readiness/people/$userId'
     | '/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
+    | '/api/public/cron/retention'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -492,6 +502,7 @@ export interface FileRouteTypes {
     | '/readiness/people/$userId'
     | '/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
+    | '/api/public/cron/retention'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -536,6 +547,7 @@ export interface FileRouteTypes {
     | '/_authenticated/readiness/people/$userId'
     | '/_authenticated/recruiter/session/$week'
     | '/api/public/cron/calendar-sync'
+    | '/api/public/cron/retention'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -555,6 +567,7 @@ export interface RootRouteChildren {
   PSlugRoute: typeof PSlugRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
   ApiPublicCronCalendarSyncRoute: typeof ApiPublicCronCalendarSyncRoute
+  ApiPublicCronRetentionRoute: typeof ApiPublicCronRetentionRoute
   ApiPublicCronWeeklyUnlockRoute: typeof ApiPublicCronWeeklyUnlockRoute
   ApiPublicOgSlugRoute: typeof ApiPublicOgSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -823,6 +836,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronCalendarSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/retention': {
+      id: '/api/public/cron/retention'
+      path: '/api/public/cron/retention'
+      fullPath: '/api/public/cron/retention'
+      preLoaderRoute: typeof ApiPublicCronRetentionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/weekly-unlock': {
       id: '/api/public/cron/weekly-unlock'
       path: '/api/public/cron/weekly-unlock'
@@ -1002,6 +1022,7 @@ const rootRouteChildren: RootRouteChildren = {
   PSlugRoute: PSlugRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
   ApiPublicCronCalendarSyncRoute: ApiPublicCronCalendarSyncRoute,
+  ApiPublicCronRetentionRoute: ApiPublicCronRetentionRoute,
   ApiPublicCronWeeklyUnlockRoute: ApiPublicCronWeeklyUnlockRoute,
   ApiPublicOgSlugRoute: ApiPublicOgSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
