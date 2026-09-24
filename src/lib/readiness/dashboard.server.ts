@@ -59,8 +59,9 @@ async function inChunks<R>(ids: string[], q: (part: string[]) => PromiseLike<{ d
 }
 
 export type Range = { from: string; to: string };
+export type RangeInput = { from?: string | undefined; to?: string | undefined };
 
-export function normalizeRange(r: Partial<Range> | undefined, now = Date.now()): { from: number; to: number } {
+export function normalizeRange(r: RangeInput | undefined, now = Date.now()): { from: number; to: number } {
   let from = r?.from ? new Date(r.from).getTime() : now - 30 * DAY;
   let to = r?.to ? new Date(r.to).getTime() : now + 30 * DAY;
   if (!Number.isFinite(from)) from = now - 30 * DAY;
@@ -177,7 +178,7 @@ const ACHIEVEMENT_NAMES: Record<string, string> = {
 };
 
 /** Full group dashboard. One call powers all five tabs (cached client-side per range). */
-export async function getReadinessDashboard(sb: DB, userId: string, range?: Partial<Range>) {
+export async function getReadinessDashboard(sb: DB, userId: string, range?: RangeInput) {
   const auth = await requireOwnedInterviewerGroup(sb, userId);
   if (!auth) return null;
   const now = Date.now();
@@ -521,7 +522,7 @@ async function buildProfile(memberId: string, name: string) {
 export async function exportReadiness(
   sb: DB,
   userId: string,
-  input: { type: "interview_operations" | "team_capability" | "individual_capability"; from?: string; to?: string },
+  input: { type: "interview_operations" | "team_capability" | "individual_capability"; from?: string | undefined; to?: string | undefined },
 ) {
   const dash = await getReadinessDashboard(sb, userId, input);
   if (!dash) throw new Error("Only group owners can export readiness data");

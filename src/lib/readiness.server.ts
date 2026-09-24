@@ -708,6 +708,8 @@ export async function getGroupReadiness(sb: DB, userId: string) {
             mastery_stage: r.mastery_stage as AreaProgress["mastery_stage"],
             last_evidence_at: r.last_evidence_at,
             recent_direction: r.recent_direction as AreaProgress["recent_direction"],
+            raw_percentage: r.total_questions ? Math.round((r.correct_answers / r.total_questions) * 100) : 0,
+            next_stage: null,
           }
         : computeAllProgress([]).find((p) => p.capability_area === area)!;
     });

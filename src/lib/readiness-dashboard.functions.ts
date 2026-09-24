@@ -7,7 +7,7 @@ const rangeSchema = z.object({ from: z.string().max(40).optional(), to: z.string
 
 export const getReadinessDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => rangeSchema.parse(d ?? {}) as { from?: string; to?: string })
+  .inputValidator((d: unknown) => rangeSchema.parse(d ?? {}))
   .handler(async ({ data, context }) => {
     const m = await import("@/lib/readiness/dashboard.server");
     return m.getReadinessDashboard(context.supabase, context.userId, data);
