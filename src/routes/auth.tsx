@@ -9,6 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 
+// Email links must always land on the real site, never the editor preview.
+function siteOrigin() {
+  const { hostname, origin } = window.location;
+  if (hostname === "localhost" || hostname === "127.0.0.1") return origin;
+  return "https://usebenchmark.app";
+}
+
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -109,7 +116,7 @@ function AuthPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/hub`,
+        emailRedirectTo: `${siteOrigin()}/hub`,
         data: { full_name: fullName },
       },
     });
@@ -138,7 +145,7 @@ function AuthPage() {
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: signedUpEmail,
-      options: { emailRedirectTo: `${window.location.origin}/hub` },
+      options: { emailRedirectTo: `${siteOrigin()}/hub` },
     });
     setLoading(false);
     if (error) {
@@ -154,7 +161,7 @@ function AuthPage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/hub` },
+      options: { shouldCreateUser: false, emailRedirectTo: `${siteOrigin()}/hub` },
     });
     setLoading(false);
     if (error) {
@@ -168,7 +175,7 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${siteOrigin()}/reset-password`,
     });
     setLoading(false);
     if (error) {
