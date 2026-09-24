@@ -73,6 +73,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             {me?.ownsGroup && FEATURES.interview_readiness && me?.activeTrack !== "recruiter" ? (
               <NavLink to="/readiness" icon={<Gauge className="size-4" />} label="Readiness" />
             ) : null}
+            {me?.ownsGroup ? (
+              <NavLink to="/governance" icon={<Shield className="size-4" />} label="Governance" />
+            ) : null}
           </nav>
           </div>
 
