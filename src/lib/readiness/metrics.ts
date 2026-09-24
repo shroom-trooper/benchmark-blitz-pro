@@ -348,7 +348,12 @@ export type DevelopmentArea = {
  *  - repeated answers to the same question are collapsed (one miss per question)
  * A single wrong answer never creates a development area.
  */
-export function developmentAreas(evidence: EvidenceItem[]): DevelopmentArea[] {
+/**
+ * `disputed` = prep_question_ids with an open (unconfirmed) flag. Their evidence still counts toward
+ * scores but can never create a development area on its own.
+ */
+export function developmentAreas(allEvidence: EvidenceItem[], disputed?: ReadonlySet<string>): DevelopmentArea[] {
+  const evidence = disputed?.size ? allEvidence.filter((e) => !e.prep_question_id || !disputed.has(e.prep_question_id)) : allEvidence;
   const out: DevelopmentArea[] = [];
   for (const area of CAPABILITY_AREAS) {
     const areaItems = evidence.filter((e) => e.capability_area === area);
@@ -540,9 +545,9 @@ export function aggregateTeam(
 /* Per-person summary & attention                                      */
 /* ------------------------------------------------------------------ */
 
-export function personProgress(evidence: EvidenceItem[], now: number) {
+export function personProgress(evidence: EvidenceItem[], now: number, disputed?: ReadonlySet<string>) {
   const progress = computeAllProgress(evidence, now);
-  return { progress, development: developmentAreas(evidence) };
+  return { progress, development: developmentAreas(evidence, disputed) };
 }
 
 export type AttentionItem = {
