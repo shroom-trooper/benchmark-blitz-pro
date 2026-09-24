@@ -1,7 +1,8 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Flame, Trophy, LayoutDashboard, Shield, LogOut, Zap } from "lucide-react";
+import { Flame, Trophy, LayoutDashboard, Shield, LogOut, Zap, CalendarClock, Gauge } from "lucide-react";
+import { FEATURES } from "@/lib/features";
 import { useEffect, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMe } from "@/lib/benchmark.functions";
@@ -53,7 +54,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
 
           <nav className="flex min-w-0 items-center gap-1 text-sm">
-            <NavLink to={hubTo} icon={<LayoutDashboard className="size-4" />} label="Hub" />
+            {FEATURES.interview_readiness && me?.activeTrack !== "recruiter" ? (
+              <>
+                <NavLink to="/interviews" icon={<CalendarClock className="size-4" />} label="Interviews" />
+                <NavLink to="/capability" icon={<Gauge className="size-4" />} label="Capability" />
+              </>
+            ) : null}
+            <NavLink to={hubTo} icon={<LayoutDashboard className="size-4" />} label={FEATURES.interview_readiness && me?.activeTrack !== "recruiter" ? "Practice" : "Hub"} />
             <NavLink
               to="/leaderboard"
               icon={<Trophy className="size-4" />}
