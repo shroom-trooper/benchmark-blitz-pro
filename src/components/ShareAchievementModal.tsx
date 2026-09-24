@@ -46,7 +46,7 @@ export function ShareAchievementModal({
   const bonus = useMutation({
     mutationFn: () => bonusFn({ data: { track } }),
     onSuccess: (res) => {
-      if (res.awarded) {
+      if ((res as { awarded?: boolean }).awarded) {
         toast.success("+50 XP for sharing your achievement");
         void qc.invalidateQueries({ queryKey: ["me"] });
         void qc.invalidateQueries({ queryKey: ["public-leaderboard"] });
