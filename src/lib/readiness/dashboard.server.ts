@@ -37,6 +37,11 @@ const DAY = 86_400_000;
 /** Evidence older than this is ignored (its recency weight is already < 7%). */
 const EVIDENCE_LOOKBACK_DAYS = 365;
 
+async function disputedIds() {
+  const m = await import("@/lib/readiness.server");
+  return m.disputedQuestionIds();
+}
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -119,6 +124,7 @@ async function loadGroupData(memberIds: string[], from: number, to: number) {
       a
         .from("capability_evidence")
         .select("user_id, capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
+        .is("invalidated_at", null)
         .in("user_id", ids)
         .gte("recorded_at", new Date(now - EVIDENCE_LOOKBACK_DAYS * DAY).toISOString())
         .limit(50000),
@@ -229,9 +235,10 @@ export async function getReadinessDashboard(sb: DB, userId: string, range?: Rang
 
   // People.
   const reauthIds = new Set(d.connections.filter((c) => c.status === "needs_reauthorization").map((c) => c.user_id));
+  const disputedSet = await disputedIds();
   const people = auth.members.map((m) => {
     const ev = evBy.get(m.id) ?? [];
-    const { progress, development } = personProgress(ev, now);
+    const { progress, development } = personProgress(ev, now, disputedSet);
     const mine = d.interviews.filter((i) => i.interviewer_id === m.id);
     const eligible = mine.filter((i) => isEligible(i, members, from, to));
     const done = eligible.filter((i) => latest.get(i.id)?.status === "completed");
@@ -368,6 +375,7 @@ export async function getCapabilityDetail(sb: DB, userId: string, area: Capabili
     a
       .from("capability_evidence")
       .select("user_id, capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
+        .is("invalidated_at", null)
       .in("user_id", ids)
       .eq("capability_area", area)
       .gte("recorded_at", new Date(now - EVIDENCE_LOOKBACK_DAYS * DAY).toISOString()),
@@ -376,7 +384,8 @@ export async function getCapabilityDetail(sb: DB, userId: string, area: Capabili
   const qs = await inChunks(qIds, (ids) => a.from("prep_questions").select("id, interview_stage").in("id", ids));
   const stageOf = new Map(qs.map((q) => [q.id, q.interview_stage ?? "Unspecified"]));
   const by = evidenceByUser(ev);
-  const people = memberIds.map((id) => ({ ...personProgress(by.get(id) ?? [], now), evidence: by.get(id) ?? [] }));
+  const disputed = await disputedIds();
+  const people = memberIds.map((id) => ({ ...personProgress(by.get(id) ?? [], now, disputed), evidence: by.get(id) ?? [] }));
   const [team] = aggregateTeam(people.map((p) => ({ progress: p.progress.filter((x) => x.capability_area === area).concat(p.progress.filter((x) => x.capability_area !== area)), evidence: p.evidence }))).filter((t) => t.area === area);
   if (!team || team.suppressed) return { area, suppressed: true, contributors: team?.contributors ?? 0, evidence: ev.length, confidence: team?.confidence } as const;
 
@@ -455,6 +464,7 @@ async function buildProfile(memberId: string, name: string) {
     a
       .from("capability_evidence")
       .select("capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
+      .is("invalidated_at", null)
       .eq("user_id", memberId)
       .gte("recorded_at", new Date(now - EVIDENCE_LOOKBACK_DAYS * DAY).toISOString()),
     a.from("user_achievements").select("achievement_code, earned_at").eq("user_id", memberId),
@@ -468,7 +478,7 @@ async function buildProfile(memberId: string, name: string) {
   const interviews: InterviewRow[] = (ivs ?? []).map((i) => ({ ...i, context_score: ctxBy.get(i.id)?.context_completeness_score ?? null }));
   const latest = latestSessions(sessions as SessionRow[]);
   const evidence = (ev ?? []) as EvidenceItem[];
-  const { progress, development } = personProgress(evidence, now);
+  const { progress, development } = personProgress(evidence, now, await disputedIds());
   const members = new Set([memberId]);
   const from = now - MAX_RANGE_DAYS * DAY;
   const eligible = interviews.filter((i) => isEligible(i, members, from, now + 365 * DAY));

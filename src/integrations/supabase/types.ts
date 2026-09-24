@@ -194,6 +194,47 @@ export type Database = {
           },
         ]
       }
+      audit_events: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          organization_id: string | null
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string | null
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          organization_id?: string | null
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_attachment_content: {
         Row: {
           attachment_id: string
@@ -392,6 +433,8 @@ export type Database = {
           difficulty: string
           evidence_weight: number
           id: string
+          invalidated_at: string | null
+          invalidation_id: string | null
           is_correct: boolean
           prep_question_id: string | null
           prep_session_id: string | null
@@ -404,6 +447,8 @@ export type Database = {
           difficulty?: string
           evidence_weight?: number
           id?: string
+          invalidated_at?: string | null
+          invalidation_id?: string | null
           is_correct: boolean
           prep_question_id?: string | null
           prep_session_id?: string | null
@@ -416,6 +461,8 @@ export type Database = {
           difficulty?: string
           evidence_weight?: number
           id?: string
+          invalidated_at?: string | null
+          invalidation_id?: string | null
           is_correct?: boolean
           prep_question_id?: string | null
           prep_session_id?: string | null
@@ -424,6 +471,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "capability_evidence_invalidation_id_fkey"
+            columns: ["invalidation_id"]
+            isOneToOne: false
+            referencedRelation: "evidence_invalidations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "capability_evidence_prep_question_id_fkey"
             columns: ["prep_question_id"]
@@ -436,6 +490,50 @@ export type Database = {
             columns: ["prep_session_id"]
             isOneToOne: false
             referencedRelation: "prep_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_principles: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          id: string
+          organization_id: string
+          principle_key: string
+          status: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by: string
+          id?: string
+          organization_id: string
+          principle_key?: string
+          status?: string
+          title: string
+          version_number?: number
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          organization_id?: string
+          principle_key?: string
+          status?: string
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_principles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -488,6 +586,56 @@ export type Database = {
         }
         Relationships: []
       }
+      deletion_requests: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          processed_at: string | null
+          processed_by: string | null
+          reason: string
+          requested_by: string
+          result: Json
+          status: string
+          subject_id: string
+          subject_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason: string
+          requested_by: string
+          result?: Json
+          status?: string
+          subject_id: string
+          subject_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string
+          requested_by?: string
+          result?: Json
+          status?: string
+          subject_id?: string
+          subject_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deletion_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       elective_responses: {
         Row: {
           answers: Json
@@ -520,6 +668,77 @@ export type Database = {
           xp_earned?: number
         }
         Relationships: []
+      }
+      evidence_invalidations: {
+        Row: {
+          affected_evidence: number
+          created_at: string
+          flag_id: string | null
+          id: string
+          invalidated_by: string
+          organization_id: string | null
+          prep_question_id: string | null
+          question_version_id: string | null
+          reason: string
+          reversed_at: string | null
+          reversed_by: string | null
+        }
+        Insert: {
+          affected_evidence?: number
+          created_at?: string
+          flag_id?: string | null
+          id?: string
+          invalidated_by: string
+          organization_id?: string | null
+          prep_question_id?: string | null
+          question_version_id?: string | null
+          reason: string
+          reversed_at?: string | null
+          reversed_by?: string | null
+        }
+        Update: {
+          affected_evidence?: number
+          created_at?: string
+          flag_id?: string | null
+          id?: string
+          invalidated_by?: string
+          organization_id?: string | null
+          prep_question_id?: string | null
+          question_version_id?: string | null
+          reason?: string
+          reversed_at?: string | null
+          reversed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_invalidations_flag_id_fkey"
+            columns: ["flag_id"]
+            isOneToOne: false
+            referencedRelation: "question_flags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_invalidations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_invalidations_prep_question_id_fkey"
+            columns: ["prep_question_id"]
+            isOneToOne: false
+            referencedRelation: "prep_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_invalidations_question_version_id_fkey"
+            columns: ["question_version_id"]
+            isOneToOne: false
+            referencedRelation: "question_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       group_electives: {
         Row: {
@@ -556,6 +775,7 @@ export type Database = {
           id: string
           member_limit: number
           name: string
+          organization_id: string | null
           owner_id: string
           track: string
           updated_at: string
@@ -565,6 +785,7 @@ export type Database = {
           id?: string
           member_limit?: number
           name: string
+          organization_id?: string | null
           owner_id: string
           track?: string
           updated_at?: string
@@ -574,11 +795,20 @@ export type Database = {
           id?: string
           member_limit?: number
           name?: string
+          organization_id?: string | null
           owner_id?: string
           track?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "groups_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       interview_classifications: {
         Row: {
@@ -1068,6 +1298,68 @@ export type Database = {
         }
         Relationships: []
       }
+      organization_roles: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          organization_id: string
+          role: Database["public"]["Enums"]["org_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          organization_id: string
+          role: Database["public"]["Enums"]["org_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          organization_id?: string
+          role?: Database["public"]["Enums"]["org_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_roles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          single_reviewer_exception: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          single_reviewer_exception?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          single_reviewer_exception?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_admins: {
         Row: {
           created_at: string
@@ -1096,6 +1388,8 @@ export type Database = {
           options: Json
           position: number
           prep_session_id: string
+          provenance: Json
+          question_version_id: string | null
           scenario: string
           selection_reason: string | null
           sub_skill: string
@@ -1112,6 +1406,8 @@ export type Database = {
           options: Json
           position: number
           prep_session_id: string
+          provenance?: Json
+          question_version_id?: string | null
           scenario: string
           selection_reason?: string | null
           sub_skill: string
@@ -1128,6 +1424,8 @@ export type Database = {
           options?: Json
           position?: number
           prep_session_id?: string
+          provenance?: Json
+          question_version_id?: string | null
           scenario?: string
           selection_reason?: string | null
           sub_skill?: string
@@ -1138,6 +1436,13 @@ export type Database = {
             columns: ["prep_session_id"]
             isOneToOne: false
             referencedRelation: "prep_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prep_questions_question_version_id_fkey"
+            columns: ["question_version_id"]
+            isOneToOne: false
+            referencedRelation: "question_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -1386,6 +1691,124 @@ export type Database = {
           },
         ]
       }
+      question_definitions: {
+        Row: {
+          content_scope: string
+          created_at: string
+          created_by: string
+          current_status: string
+          id: string
+          lineage_question_id: string | null
+          organization_id: string | null
+          status_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          content_scope?: string
+          created_at?: string
+          created_by: string
+          current_status?: string
+          id?: string
+          lineage_question_id?: string | null
+          organization_id?: string | null
+          status_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content_scope?: string
+          created_at?: string
+          created_by?: string
+          current_status?: string
+          id?: string
+          lineage_question_id?: string | null
+          organization_id?: string | null
+          status_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_definitions_lineage_question_id_fkey"
+            columns: ["lineage_question_id"]
+            isOneToOne: false
+            referencedRelation: "question_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_definitions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_flags: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          organization_id: string | null
+          prep_question_id: string | null
+          question_version_id: string | null
+          reason: string
+          reporter_id: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          prep_question_id?: string | null
+          question_version_id?: string | null
+          reason: string
+          reporter_id: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          prep_question_id?: string | null
+          question_version_id?: string | null
+          reason?: string
+          reporter_id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_flags_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_flags_prep_question_id_fkey"
+            columns: ["prep_question_id"]
+            isOneToOne: false
+            referencedRelation: "prep_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_flags_question_version_id_fkey"
+            columns: ["question_version_id"]
+            isOneToOne: false
+            referencedRelation: "question_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       question_overrides: {
         Row: {
           correct_index: number
@@ -1424,6 +1847,165 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "curriculum_weeks"
             referencedColumns: ["week_number"]
+          },
+        ]
+      }
+      question_publications: {
+        Row: {
+          id: string
+          published_at: string
+          published_by: string
+          question_version_id: string
+          scope: string
+          unpublished_at: string | null
+        }
+        Insert: {
+          id?: string
+          published_at?: string
+          published_by: string
+          question_version_id: string
+          scope?: string
+          unpublished_at?: string | null
+        }
+        Update: {
+          id?: string
+          published_at?: string
+          published_by?: string
+          question_version_id?: string
+          scope?: string
+          unpublished_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_publications_question_version_id_fkey"
+            columns: ["question_version_id"]
+            isOneToOne: false
+            referencedRelation: "question_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_reviews: {
+        Row: {
+          decision: string
+          exception_reason: string | null
+          feedback: string | null
+          id: string
+          question_version_id: string
+          review_checklist: Json
+          reviewed_at: string
+          reviewer_id: string
+          single_reviewer_exception: boolean
+        }
+        Insert: {
+          decision: string
+          exception_reason?: string | null
+          feedback?: string | null
+          id?: string
+          question_version_id: string
+          review_checklist?: Json
+          reviewed_at?: string
+          reviewer_id: string
+          single_reviewer_exception?: boolean
+        }
+        Update: {
+          decision?: string
+          exception_reason?: string | null
+          feedback?: string | null
+          id?: string
+          question_version_id?: string
+          review_checklist?: Json
+          reviewed_at?: string
+          reviewer_id?: string
+          single_reviewer_exception?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_reviews_question_version_id_fkey"
+            columns: ["question_version_id"]
+            isOneToOne: false
+            referencedRelation: "question_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      question_versions: {
+        Row: {
+          capability_area: string
+          correct_index: number
+          created_at: string
+          created_by: string
+          difficulty: string
+          explanation: string
+          generated_by_ai: boolean
+          generation_version: string | null
+          id: string
+          interview_stages: Json
+          locked: boolean
+          options: Json
+          provenance: Json
+          question_definition_id: string
+          risk_level: string
+          role_families: Json
+          scenario: string
+          source_references: Json
+          sub_skill: string
+          validation: Json
+          version_number: number
+        }
+        Insert: {
+          capability_area: string
+          correct_index: number
+          created_at?: string
+          created_by: string
+          difficulty?: string
+          explanation: string
+          generated_by_ai?: boolean
+          generation_version?: string | null
+          id?: string
+          interview_stages?: Json
+          locked?: boolean
+          options: Json
+          provenance?: Json
+          question_definition_id: string
+          risk_level?: string
+          role_families?: Json
+          scenario: string
+          source_references?: Json
+          sub_skill: string
+          validation?: Json
+          version_number: number
+        }
+        Update: {
+          capability_area?: string
+          correct_index?: number
+          created_at?: string
+          created_by?: string
+          difficulty?: string
+          explanation?: string
+          generated_by_ai?: boolean
+          generation_version?: string | null
+          id?: string
+          interview_stages?: Json
+          locked?: boolean
+          options?: Json
+          provenance?: Json
+          question_definition_id?: string
+          risk_level?: string
+          role_families?: Json
+          scenario?: string
+          source_references?: Json
+          sub_skill?: string
+          validation?: Json
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_versions_question_definition_id_fkey"
+            columns: ["question_definition_id"]
+            isOneToOne: false
+            referencedRelation: "question_definitions"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1577,6 +2159,44 @@ export type Database = {
           },
         ]
       }
+      retention_policies: {
+        Row: {
+          attachment_text_days: number
+          audit_days: number
+          calendar_details_days: number
+          candidate_context_days: number
+          organization_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          attachment_text_days?: number
+          audit_days?: number
+          calendar_details_days?: number
+          candidate_context_days?: number
+          organization_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          attachment_text_days?: number
+          audit_days?: number
+          calendar_details_days?: number
+          candidate_context_days?: number
+          organization_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retention_policies_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       share_cards: {
         Row: {
           png_base64: string
@@ -1639,6 +2259,50 @@ export type Database = {
           xp_earned?: number
         }
         Relationships: []
+      }
+      support_access_grants: {
+        Row: {
+          approved_by: string
+          created_at: string
+          expires_at: string
+          id: string
+          organization_id: string
+          reason: string
+          revoked_at: string | null
+          scope: string
+          support_user_id: string
+        }
+        Insert: {
+          approved_by: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          organization_id: string
+          reason: string
+          revoked_at?: string | null
+          scope?: string
+          support_user_id: string
+        }
+        Update: {
+          approved_by?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          organization_id?: string
+          reason?: string
+          revoked_at?: string | null
+          scope?: string
+          support_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_access_grants_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       track_progress: {
         Row: {
@@ -1933,6 +2597,10 @@ export type Database = {
         Args: { p_slug: string; p_track: string }
         Returns: string
       }
+      has_org_permission: {
+        Args: { _org: string; _perm: string; _user: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1944,12 +2612,22 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
+      is_org_member: { Args: { _org: string; _user: string }; Returns: boolean }
       is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
       leave_group: { Args: { _actor: string }; Returns: undefined }
       make_share_slug: { Args: { _seed: string }; Returns: string }
+      org_role_permissions: {
+        Args: { _role: Database["public"]["Enums"]["org_role"] }
+        Returns: string[]
+      }
     }
     Enums: {
       app_role: "ta_admin" | "hiring_manager"
+      org_role:
+        | "participant"
+        | "ta_admin"
+        | "content_reviewer"
+        | "organization_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2078,6 +2756,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["ta_admin", "hiring_manager"],
+      org_role: [
+        "participant",
+        "ta_admin",
+        "content_reviewer",
+        "organization_admin",
+      ],
     },
   },
 } as const

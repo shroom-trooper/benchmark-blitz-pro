@@ -1,3 +1,4 @@
+import { buildProvenance, ctxSourceTypes, validateQuestion } from "@/lib/governance/validation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { buildQuestionPlan } from "./readiness/selection";
@@ -189,11 +190,24 @@ export async function getInterview(sb: DB, userId: string, id: string) {
 
 /* ---------------- Evidence & progress ---------------- */
 
+/** Prep questions with an open, unconfirmed flag. */
+export async function disputedQuestionIds(): Promise<Set<string>> {
+  const a = await admin();
+  const { data } = await a
+    .from("question_flags")
+    .select("prep_question_id")
+    .in("status", ["open", "under_review"])
+    .not("prep_question_id", "is", null)
+    .limit(5000);
+  return new Set((data ?? []).map((r) => r.prep_question_id!).filter(Boolean));
+}
+
 async function loadEvidence(userId: string): Promise<EvidenceItem[]> {
   const a = await admin();
   const { data } = await a
     .from("capability_evidence")
     .select("capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
+      .is("invalidated_at", null)
     .eq("user_id", userId);
   return (data ?? []) as EvidenceItem[];
 }
@@ -335,7 +349,7 @@ export async function generatePrep(sb: DB, userId: string, interviewId: string) 
   const evidenceForPlan = await loadEvidence(userId);
   const progress = computeAllProgress(evidenceForPlan);
   const planEntries = buildQuestionPlan(progress, undefined, {
-    development: developmentAreas(evidenceForPlan),
+    development: developmentAreas(evidenceForPlan, await disputedQuestionIds()),
     stage: ev.interview_stage,
   });
   const plan: PlanItem[] = planEntries.map(({ area, difficulty }) => ({ area, difficulty }));
@@ -372,6 +386,16 @@ export async function generatePrep(sb: DB, userId: string, interviewId: string) 
       difficulty: q.difficulty,
       context_source: q.contextSource,
       selection_reason: planEntries[i]?.reason ?? "fallback",
+      provenance: buildProvenance({
+        generatedByAi: q.contextSource === "ai",
+        generatorVersion: usedFallback ? "v1-library" : "v1-ai",
+        capability: q.capabilityArea,
+        subSkill: q.subSkill,
+        contextSources: ctxSourceTypes(ctx),
+        candidateContextUsed: !!ctx.candidateProfile,
+        principlesUsed: !!ctx.principles?.length,
+        validation: validateQuestion({ scenario: q.scenario, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation, capabilityArea: q.capabilityArea, subSkill: q.subSkill }),
+      }),
     })),
   );
   if (qErr) {
@@ -606,7 +630,7 @@ export async function getMyCapability(sb: DB, userId: string) {
       .maybeSingle(),
   ]);
   const progress = computeAllProgress(evidence);
-  const development = developmentAreas(evidence);
+  const development = developmentAreas(evidence, await disputedQuestionIds());
   const codes = (earned ?? []).map((e) => e.achievement_code);
   const { data: ach } = await sb
     .from("achievements")
