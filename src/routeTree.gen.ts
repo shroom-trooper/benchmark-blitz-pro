@@ -32,8 +32,10 @@ import { Route as AuthenticatedInterviewsNewRouteImport } from './routes/_authen
 import { Route as AuthenticatedPrepSessionIdRouteImport } from './routes/_authenticated/prep.$sessionId'
 import { Route as AuthenticatedRecruiterIndexRouteImport } from './routes/_authenticated/recruiter.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
+import { Route as OauthOutlookReturnRouteImport } from './routes/oauth/outlook/return'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
 import { Route as AuthenticatedRecruiterSessionWeekRouteImport } from './routes/_authenticated/recruiter.session.$week'
+import { Route as ApiPublicCronCalendarSyncRouteImport } from './routes/api/public/cron/calendar-sync'
 import { Route as ApiPublicCronWeeklyUnlockRouteImport } from './routes/api/public/cron/weekly-unlock'
 import { Route as ApiPublicOgSlugRouteImport } from './routes/api/public/og/$slug'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -163,6 +165,11 @@ const AuthenticatedSessionWeekRoute =
     path: '/session/$week',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const OauthOutlookReturnRoute = OauthOutlookReturnRouteImport.update({
+  id: '/oauth/outlook/return',
+  path: '/oauth/outlook/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedElectivesModuleLessonRoute =
   AuthenticatedElectivesModuleLessonRouteImport.update({
     id: '/$module/$lesson',
@@ -174,6 +181,12 @@ const AuthenticatedRecruiterSessionWeekRoute =
     id: '/session/$week',
     path: '/session/$week',
     getParentRoute: () => AuthenticatedRecruiterRoute,
+  } as any)
+const ApiPublicCronCalendarSyncRoute =
+  ApiPublicCronCalendarSyncRouteImport.update({
+    id: '/api/public/cron/calendar-sync',
+    path: '/api/public/cron/calendar-sync',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicCronWeeklyUnlockRoute =
   ApiPublicCronWeeklyUnlockRouteImport.update({
@@ -223,11 +236,13 @@ export interface FileRoutesByFullPath {
   '/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/oauth/outlook/return': typeof OauthOutlookReturnRoute
   '/electives/': typeof AuthenticatedElectivesIndexRoute
   '/interviews/': typeof AuthenticatedInterviewsIndexRoute
   '/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
+  '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -252,11 +267,13 @@ export interface FileRoutesByTo {
   '/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/oauth/outlook/return': typeof OauthOutlookReturnRoute
   '/electives': typeof AuthenticatedElectivesIndexRoute
   '/interviews': typeof AuthenticatedInterviewsIndexRoute
   '/recruiter': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
+  '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -285,11 +302,13 @@ export interface FileRoutesById {
   '/_authenticated/interviews/new': typeof AuthenticatedInterviewsNewRoute
   '/_authenticated/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
+  '/oauth/outlook/return': typeof OauthOutlookReturnRoute
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
   '/_authenticated/interviews/': typeof AuthenticatedInterviewsIndexRoute
   '/_authenticated/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
   '/_authenticated/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
+  '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -318,11 +337,13 @@ export interface FileRouteTypes {
     | '/interviews/new'
     | '/prep/$sessionId'
     | '/session/$week'
+    | '/oauth/outlook/return'
     | '/electives/'
     | '/interviews/'
     | '/recruiter/'
     | '/electives/$module/$lesson'
     | '/recruiter/session/$week'
+    | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -347,11 +368,13 @@ export interface FileRouteTypes {
     | '/interviews/new'
     | '/prep/$sessionId'
     | '/session/$week'
+    | '/oauth/outlook/return'
     | '/electives'
     | '/interviews'
     | '/recruiter'
     | '/electives/$module/$lesson'
     | '/recruiter/session/$week'
+    | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -379,11 +402,13 @@ export interface FileRouteTypes {
     | '/_authenticated/interviews/new'
     | '/_authenticated/prep/$sessionId'
     | '/_authenticated/session/$week'
+    | '/oauth/outlook/return'
     | '/_authenticated/electives/'
     | '/_authenticated/interviews/'
     | '/_authenticated/recruiter/'
     | '/_authenticated/electives/$module/$lesson'
     | '/_authenticated/recruiter/session/$week'
+    | '/api/public/cron/calendar-sync'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -401,6 +426,8 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   GuidesHowToTrainHiringManagersRoute: typeof GuidesHowToTrainHiringManagersRoute
   PSlugRoute: typeof PSlugRoute
+  OauthOutlookReturnRoute: typeof OauthOutlookReturnRoute
+  ApiPublicCronCalendarSyncRoute: typeof ApiPublicCronCalendarSyncRoute
   ApiPublicCronWeeklyUnlockRoute: typeof ApiPublicCronWeeklyUnlockRoute
   ApiPublicOgSlugRoute: typeof ApiPublicOgSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -571,6 +598,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSessionWeekRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/oauth/outlook/return': {
+      id: '/oauth/outlook/return'
+      path: '/oauth/outlook/return'
+      fullPath: '/oauth/outlook/return'
+      preLoaderRoute: typeof OauthOutlookReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/electives/$module/$lesson': {
       id: '/_authenticated/electives/$module/$lesson'
       path: '/$module/$lesson'
@@ -584,6 +618,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiter/session/$week'
       preLoaderRoute: typeof AuthenticatedRecruiterSessionWeekRouteImport
       parentRoute: typeof AuthenticatedRecruiterRoute
+    }
+    '/api/public/cron/calendar-sync': {
+      id: '/api/public/cron/calendar-sync'
+      path: '/api/public/cron/calendar-sync'
+      fullPath: '/api/public/cron/calendar-sync'
+      preLoaderRoute: typeof ApiPublicCronCalendarSyncRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/cron/weekly-unlock': {
       id: '/api/public/cron/weekly-unlock'
@@ -700,6 +741,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   GuidesHowToTrainHiringManagersRoute: GuidesHowToTrainHiringManagersRoute,
   PSlugRoute: PSlugRoute,
+  OauthOutlookReturnRoute: OauthOutlookReturnRoute,
+  ApiPublicCronCalendarSyncRoute: ApiPublicCronCalendarSyncRoute,
   ApiPublicCronWeeklyUnlockRoute: ApiPublicCronWeeklyUnlockRoute,
   ApiPublicOgSlugRoute: ApiPublicOgSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
