@@ -17,6 +17,7 @@ import {
   type AreaProgress,
   type EvidenceItem,
 } from "./readiness/scoring";
+import { developmentAreas, recommendNext } from "./readiness/metrics";
 import { ADVANCE_MINUTES, evaluateRecognition } from "./readiness/recognition";
 import { CAPABILITY_AREAS, SUB_SKILLS, type CapabilityArea } from "./readiness/taxonomy";
 
@@ -192,7 +193,7 @@ async function loadEvidence(userId: string): Promise<EvidenceItem[]> {
   const a = await admin();
   const { data } = await a
     .from("capability_evidence")
-    .select("capability_area, is_correct, difficulty, recorded_at")
+    .select("capability_area, sub_skill, is_correct, difficulty, recorded_at, prep_session_id, prep_question_id")
     .eq("user_id", userId);
   return (data ?? []) as EvidenceItem[];
 }
@@ -200,7 +201,18 @@ async function loadEvidence(userId: string): Promise<EvidenceItem[]> {
 async function persistProgress(userId: string, progress: AreaProgress[]) {
   const a = await admin();
   await a.from("user_capability_progress").upsert(
-    progress.map((p) => ({ user_id: userId, ...p, updated_at: new Date().toISOString() })),
+    progress.map((p) => ({
+      user_id: userId,
+      capability_area: p.capability_area,
+      total_questions: p.total_questions,
+      correct_answers: p.correct_answers,
+      weighted_score: p.weighted_score,
+      evidence_confidence: p.evidence_confidence,
+      mastery_stage: p.mastery_stage,
+      last_evidence_at: p.last_evidence_at,
+      recent_direction: p.recent_direction,
+      updated_at: new Date().toISOString(),
+    })),
     { onConflict: "user_id,capability_area" },
   );
 }
@@ -320,8 +332,13 @@ export async function generatePrep(sb: DB, userId: string, interviewId: string) 
     principles: (ctxRow?.company_principles as string[]) ?? [],
   };
 
-  const progress = computeAllProgress(await loadEvidence(userId));
-  const plan = buildQuestionPlan(progress);
+  const evidenceForPlan = await loadEvidence(userId);
+  const progress = computeAllProgress(evidenceForPlan);
+  const planEntries = buildQuestionPlan(progress, undefined, {
+    development: developmentAreas(evidenceForPlan),
+    stage: ev.interview_stage,
+  });
+  const plan: PlanItem[] = planEntries.map(({ area, difficulty }) => ({ area, difficulty }));
   let questions = await generateWithAi(ctx, plan);
   const usedFallback = !questions;
   if (!questions) questions = selectFallback(plan);
@@ -354,6 +371,7 @@ export async function generatePrep(sb: DB, userId: string, interviewId: string) 
       interview_stage: ev.interview_stage,
       difficulty: q.difficulty,
       context_source: q.contextSource,
+      selection_reason: planEntries[i]?.reason ?? "fallback",
     })),
   );
   if (qErr) {
@@ -569,31 +587,26 @@ export async function completePrep(userId: string, sessionId: string) {
 /* ---------------- Capability profile ---------------- */
 
 export async function getMyCapability(sb: DB, userId: string) {
-  const [{ data: rows }, { count }, { data: earned }] = await Promise.all([
-    sb.from("user_capability_progress").select("*").eq("user_id", userId),
+  const [evidence, { count }, { data: earned }, { data: next }] = await Promise.all([
+    loadEvidence(userId),
     sb
       .from("prep_sessions")
       .select("id", { count: "exact", head: true })
       .eq("interviewer_id", userId)
       .eq("status", "completed"),
     sb.from("user_achievements").select("achievement_code, earned_at").eq("user_id", userId),
+    sb
+      .from("interview_events")
+      .select("interview_stage, starts_at")
+      .eq("interviewer_id", userId)
+      .neq("status", "cancelled")
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at")
+      .limit(1)
+      .maybeSingle(),
   ]);
-  const byArea = new Map((rows ?? []).map((r) => [r.capability_area, r]));
-  const progress: AreaProgress[] = CAPABILITY_AREAS.map((area) => {
-    const r = byArea.get(area);
-    return r
-      ? {
-          capability_area: area,
-          total_questions: r.total_questions,
-          correct_answers: r.correct_answers,
-          weighted_score: r.weighted_score,
-          evidence_confidence: r.evidence_confidence as AreaProgress["evidence_confidence"],
-          mastery_stage: r.mastery_stage as AreaProgress["mastery_stage"],
-          last_evidence_at: r.last_evidence_at,
-          recent_direction: r.recent_direction as AreaProgress["recent_direction"],
-        }
-      : computeAllProgress([]).find((p) => p.capability_area === area)!;
-  });
+  const progress = computeAllProgress(evidence);
+  const development = developmentAreas(evidence);
   const codes = (earned ?? []).map((e) => e.achievement_code);
   const { data: ach } = await sb
     .from("achievements")
@@ -601,6 +614,8 @@ export async function getMyCapability(sb: DB, userId: string) {
     .in("code", codes.length ? codes : ["_"]);
   return {
     progress,
+    development,
+    recommendation: recommendNext({ progress, development, upcomingStage: next?.interview_stage, now: Date.now() }),
     completedPreps: count ?? 0,
     level: professionalLevel(progress, count ?? 0),
     ...strongestAndPriority(progress),
