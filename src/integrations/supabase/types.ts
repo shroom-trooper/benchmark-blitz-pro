@@ -35,6 +35,33 @@ export type Database = {
         }
         Relationships: []
       }
+      app_user_connections: {
+        Row: {
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          connection_key_ciphertext?: string
+          connector_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       assessment_questions: {
         Row: {
           assessment_id: string
@@ -163,6 +190,192 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_attachment_content: {
+        Row: {
+          attachment_id: string
+          created_at: string
+          extracted_text: string
+          retention_expires_at: string
+        }
+        Insert: {
+          attachment_id: string
+          created_at?: string
+          extracted_text: string
+          retention_expires_at: string
+        }
+        Update: {
+          attachment_id?: string
+          created_at?: string
+          extracted_text?: string
+          retention_expires_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_attachment_content_attachment_id_fkey"
+            columns: ["attachment_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_event_attachments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_connections: {
+        Row: {
+          connected_at: string
+          created_at: string
+          id: string
+          last_error_at: string | null
+          last_error_code: string | null
+          last_successful_sync_at: string | null
+          last_sync_attempt_at: string | null
+          provider: string
+          provider_account_id: string | null
+          provider_email: string | null
+          scopes: Json
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          connected_at?: string
+          created_at?: string
+          id?: string
+          last_error_at?: string | null
+          last_error_code?: string | null
+          last_successful_sync_at?: string | null
+          last_sync_attempt_at?: string | null
+          provider: string
+          provider_account_id?: string | null
+          provider_email?: string | null
+          scopes?: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          connected_at?: string
+          created_at?: string
+          id?: string
+          last_error_at?: string | null
+          last_error_code?: string | null
+          last_successful_sync_at?: string | null
+          last_sync_attempt_at?: string | null
+          provider?: string
+          provider_account_id?: string | null
+          provider_email?: string | null
+          scopes?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      calendar_event_attachments: {
+        Row: {
+          approved_for_generation: boolean
+          attachment_type: string
+          byte_size: number | null
+          created_at: string
+          document_classification: string | null
+          external_attachment_id: string
+          extraction_metadata: Json
+          filename: string
+          id: string
+          mime_type: string | null
+          normalized_calendar_event_id: string
+          processing_error_code: string | null
+          processing_status: string
+          retention_expires_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_for_generation?: boolean
+          attachment_type: string
+          byte_size?: number | null
+          created_at?: string
+          document_classification?: string | null
+          external_attachment_id: string
+          extraction_metadata?: Json
+          filename: string
+          id?: string
+          mime_type?: string | null
+          normalized_calendar_event_id: string
+          processing_error_code?: string | null
+          processing_status?: string
+          retention_expires_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_for_generation?: boolean
+          attachment_type?: string
+          byte_size?: number | null
+          created_at?: string
+          document_classification?: string | null
+          external_attachment_id?: string
+          extraction_metadata?: Json
+          filename?: string
+          id?: string
+          mime_type?: string | null
+          normalized_calendar_event_id?: string
+          processing_error_code?: string | null
+          processing_status?: string
+          retention_expires_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_event_attachments_normalized_calendar_event_id_fkey"
+            columns: ["normalized_calendar_event_id"]
+            isOneToOne: false
+            referencedRelation: "normalized_calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_sync_state: {
+        Row: {
+          calendar_connection_id: string
+          created_at: string
+          delta_token: string | null
+          external_calendar_id: string
+          id: string
+          last_successful_sync_at: string | null
+          last_window_end: string | null
+          last_window_start: string | null
+          updated_at: string
+        }
+        Insert: {
+          calendar_connection_id: string
+          created_at?: string
+          delta_token?: string | null
+          external_calendar_id?: string
+          id?: string
+          last_successful_sync_at?: string | null
+          last_window_end?: string | null
+          last_window_start?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calendar_connection_id?: string
+          created_at?: string
+          delta_token?: string | null
+          external_calendar_id?: string
+          id?: string
+          last_successful_sync_at?: string | null
+          last_window_end?: string | null
+          last_window_start?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_sync_state_calendar_connection_id_fkey"
+            columns: ["calendar_connection_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_connections"
             referencedColumns: ["id"]
           },
         ]
@@ -361,6 +574,65 @@ export type Database = {
         }
         Relationships: []
       }
+      interview_classifications: {
+        Row: {
+          classification: string
+          classifier_version: string
+          confidence_score: number
+          confirmed_at: string | null
+          confirmed_by_user: boolean
+          created_at: string
+          detected_candidate_display_name: string | null
+          detected_competencies: Json
+          detected_interview_stage: string | null
+          detected_role_title: string | null
+          detection_reasons: Json
+          id: string
+          normalized_calendar_event_id: string
+          updated_at: string
+        }
+        Insert: {
+          classification: string
+          classifier_version: string
+          confidence_score?: number
+          confirmed_at?: string | null
+          confirmed_by_user?: boolean
+          created_at?: string
+          detected_candidate_display_name?: string | null
+          detected_competencies?: Json
+          detected_interview_stage?: string | null
+          detected_role_title?: string | null
+          detection_reasons?: Json
+          id?: string
+          normalized_calendar_event_id: string
+          updated_at?: string
+        }
+        Update: {
+          classification?: string
+          classifier_version?: string
+          confidence_score?: number
+          confirmed_at?: string | null
+          confirmed_by_user?: boolean
+          created_at?: string
+          detected_candidate_display_name?: string | null
+          detected_competencies?: Json
+          detected_interview_stage?: string | null
+          detected_role_title?: string | null
+          detection_reasons?: Json
+          id?: string
+          normalized_calendar_event_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_classifications_normalized_calendar_event_id_fkey"
+            columns: ["normalized_calendar_event_id"]
+            isOneToOne: true
+            referencedRelation: "normalized_calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interview_contexts: {
         Row: {
           candidate_profile_text: string | null
@@ -414,6 +686,7 @@ export type Database = {
       interview_events: {
         Row: {
           candidate_display_name: string
+          confirmation_status: string
           created_at: string
           created_by: string
           duration_minutes: number | null
@@ -425,12 +698,14 @@ export type Database = {
           interviewer_id: string
           role_title: string
           source: string
+          source_calendar_event_id: string | null
           starts_at: string
           status: string
           updated_at: string
         }
         Insert: {
           candidate_display_name: string
+          confirmation_status?: string
           created_at?: string
           created_by: string
           duration_minutes?: number | null
@@ -442,12 +717,14 @@ export type Database = {
           interviewer_id: string
           role_title: string
           source?: string
+          source_calendar_event_id?: string | null
           starts_at: string
           status?: string
           updated_at?: string
         }
         Update: {
           candidate_display_name?: string
+          confirmation_status?: string
           created_at?: string
           created_by?: string
           duration_minutes?: number | null
@@ -459,6 +736,7 @@ export type Database = {
           interviewer_id?: string
           role_title?: string
           source?: string
+          source_calendar_event_id?: string | null
           starts_at?: string
           status?: string
           updated_at?: string
@@ -469,6 +747,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_events_source_calendar_event_id_fkey"
+            columns: ["source_calendar_event_id"]
+            isOneToOne: false
+            referencedRelation: "normalized_calendar_events"
             referencedColumns: ["id"]
           },
         ]
@@ -513,6 +798,207 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      normalized_calendar_events: {
+        Row: {
+          attendee_count: number | null
+          calendar_connection_id: string
+          classification_status: string
+          created_at: string
+          ends_at: string
+          external_calendar_id: string
+          external_event_id: string
+          id: string
+          is_cancelled: boolean
+          is_recurring: boolean
+          linked_interview_event_id: string | null
+          meeting_url: string | null
+          organizer_identifier: string | null
+          provider_last_modified_at: string | null
+          sanitized_description: string | null
+          starts_at: string
+          subject: string | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attendee_count?: number | null
+          calendar_connection_id: string
+          classification_status?: string
+          created_at?: string
+          ends_at: string
+          external_calendar_id?: string
+          external_event_id: string
+          id?: string
+          is_cancelled?: boolean
+          is_recurring?: boolean
+          linked_interview_event_id?: string | null
+          meeting_url?: string | null
+          organizer_identifier?: string | null
+          provider_last_modified_at?: string | null
+          sanitized_description?: string | null
+          starts_at: string
+          subject?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attendee_count?: number | null
+          calendar_connection_id?: string
+          classification_status?: string
+          created_at?: string
+          ends_at?: string
+          external_calendar_id?: string
+          external_event_id?: string
+          id?: string
+          is_cancelled?: boolean
+          is_recurring?: boolean
+          linked_interview_event_id?: string | null
+          meeting_url?: string | null
+          organizer_identifier?: string | null
+          provider_last_modified_at?: string | null
+          sanitized_description?: string | null
+          starts_at?: string
+          subject?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "normalized_calendar_events_calendar_connection_id_fkey"
+            columns: ["calendar_connection_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "normalized_calendar_events_linked_interview_event_id_fkey"
+            columns: ["linked_interview_event_id"]
+            isOneToOne: false
+            referencedRelation: "interview_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_deliveries: {
+        Row: {
+          attempted_at: string | null
+          channel: string
+          created_at: string
+          delivered_at: string | null
+          error_code: string | null
+          failed_at: string | null
+          id: string
+          idempotency_key: string
+          interview_event_id: string
+          notification_type: string
+          prep_session_id: string | null
+          provider_message_id: string | null
+          retry_count: number
+          scheduled_for: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempted_at?: string | null
+          channel?: string
+          created_at?: string
+          delivered_at?: string | null
+          error_code?: string | null
+          failed_at?: string | null
+          id?: string
+          idempotency_key: string
+          interview_event_id: string
+          notification_type: string
+          prep_session_id?: string | null
+          provider_message_id?: string | null
+          retry_count?: number
+          scheduled_for: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempted_at?: string | null
+          channel?: string
+          created_at?: string
+          delivered_at?: string | null
+          error_code?: string | null
+          failed_at?: string | null
+          id?: string
+          idempotency_key?: string
+          interview_event_id?: string
+          notification_type?: string
+          prep_session_id?: string | null
+          provider_message_id?: string | null
+          retry_count?: number
+          scheduled_for?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_interview_event_id_fkey"
+            columns: ["interview_event_id"]
+            isOneToOne: false
+            referencedRelation: "interview_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_deliveries_prep_session_id_fkey"
+            columns: ["prep_session_id"]
+            isOneToOne: false
+            referencedRelation: "prep_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          calendar_detection_enabled: boolean
+          created_at: string
+          email_preparation_enabled: boolean
+          email_refresher_enabled: boolean
+          preparation_lead_minutes: number
+          quiet_hours_end: number | null
+          quiet_hours_start: number | null
+          refresher_lead_minutes: number
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calendar_detection_enabled?: boolean
+          created_at?: string
+          email_preparation_enabled?: boolean
+          email_refresher_enabled?: boolean
+          preparation_lead_minutes?: number
+          quiet_hours_end?: number | null
+          quiet_hours_start?: number | null
+          refresher_lead_minutes?: number
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calendar_detection_enabled?: boolean
+          created_at?: string
+          email_preparation_enabled?: boolean
+          email_refresher_enabled?: boolean
+          preparation_lead_minutes?: number
+          quiet_hours_end?: number | null
+          quiet_hours_start?: number | null
+          refresher_lead_minutes?: number
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       org_settings: {
         Row: {
@@ -718,6 +1204,60 @@ export type Database = {
             columns: ["interview_event_id"]
             isOneToOne: false
             referencedRelation: "interview_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      preparation_schedules: {
+        Row: {
+          created_at: string
+          id: string
+          interview_event_id: string
+          prep_session_id: string | null
+          preparation_delivery_at: string
+          preparation_status: string
+          refresher_delivery_at: string | null
+          refresher_status: string
+          source_timezone: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interview_event_id: string
+          prep_session_id?: string | null
+          preparation_delivery_at: string
+          preparation_status?: string
+          refresher_delivery_at?: string | null
+          refresher_status?: string
+          source_timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interview_event_id?: string
+          prep_session_id?: string | null
+          preparation_delivery_at?: string
+          preparation_status?: string
+          refresher_delivery_at?: string | null
+          refresher_status?: string
+          source_timezone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preparation_schedules_interview_event_id_fkey"
+            columns: ["interview_event_id"]
+            isOneToOne: true
+            referencedRelation: "interview_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preparation_schedules_prep_session_id_fkey"
+            columns: ["prep_session_id"]
+            isOneToOne: false
+            referencedRelation: "prep_sessions"
             referencedColumns: ["id"]
           },
         ]

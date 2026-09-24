@@ -1,7 +1,7 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Flame, Trophy, LayoutDashboard, Shield, LogOut, Zap, CalendarClock, Gauge } from "lucide-react";
+import { Flame, Trophy, LayoutDashboard, Shield, LogOut, Zap, CalendarClock, Gauge , CalendarDays } from "lucide-react";
 import { FEATURES } from "@/lib/features";
 import { useEffect, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,6 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <>
                 <NavLink to="/interviews" icon={<CalendarClock className="size-4" />} label="Interviews" />
                 <NavLink to="/capability" icon={<Gauge className="size-4" />} label="Capability" />
+                <NavLink to="/settings/calendar" icon={<CalendarDays className="size-4" />} label="Calendar" />
               </>
             ) : null}
             <NavLink to={hubTo} icon={<LayoutDashboard className="size-4" />} label={FEATURES.interview_readiness && me?.activeTrack !== "recruiter" ? "Practice" : "Hub"} />

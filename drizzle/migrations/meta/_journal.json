@@ -78,6 +78,13 @@
       "when": 1790250119020,
       "tag": "0010_interview_readiness",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790252561468,
+      "tag": "0011_calendar_automation",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,8 @@
 import type { ComponentType } from 'react'
 import { template as groupInviteTemplate } from './group-invite'
 import { template as weeklyUnlockTemplate } from './weekly-unlock'
+import { template as interviewPrepTemplate } from './interview-prep'
+import { template as interviewRefresherTemplate } from './interview-refresher'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -18,4 +20,6 @@ export interface TemplateEntry {
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'group-invite': groupInviteTemplate,
   'weekly-unlock': weeklyUnlockTemplate,
+  'interview-prep': interviewPrepTemplate,
+  'interview-refresher': interviewRefresherTemplate,
 }
