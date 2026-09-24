@@ -167,6 +167,60 @@ export type Database = {
           },
         ]
       }
+      capability_evidence: {
+        Row: {
+          capability_area: string
+          difficulty: string
+          evidence_weight: number
+          id: string
+          is_correct: boolean
+          prep_question_id: string | null
+          prep_session_id: string | null
+          recorded_at: string
+          sub_skill: string
+          user_id: string
+        }
+        Insert: {
+          capability_area: string
+          difficulty?: string
+          evidence_weight?: number
+          id?: string
+          is_correct: boolean
+          prep_question_id?: string | null
+          prep_session_id?: string | null
+          recorded_at?: string
+          sub_skill: string
+          user_id: string
+        }
+        Update: {
+          capability_area?: string
+          difficulty?: string
+          evidence_weight?: number
+          id?: string
+          is_correct?: boolean
+          prep_question_id?: string | null
+          prep_session_id?: string | null
+          recorded_at?: string
+          sub_skill?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capability_evidence_prep_question_id_fkey"
+            columns: ["prep_question_id"]
+            isOneToOne: true
+            referencedRelation: "prep_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "capability_evidence_prep_session_id_fkey"
+            columns: ["prep_session_id"]
+            isOneToOne: false
+            referencedRelation: "prep_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cron_tokens: {
         Row: {
           created_at: string
@@ -307,6 +361,118 @@ export type Database = {
         }
         Relationships: []
       }
+      interview_contexts: {
+        Row: {
+          candidate_profile_text: string | null
+          company_principles: Json
+          competencies: Json
+          context_completeness_score: number
+          context_sources: Json
+          created_at: string
+          id: string
+          interview_event_id: string
+          interviewer_responsibility: string | null
+          job_description_text: string | null
+          updated_at: string
+        }
+        Insert: {
+          candidate_profile_text?: string | null
+          company_principles?: Json
+          competencies?: Json
+          context_completeness_score?: number
+          context_sources?: Json
+          created_at?: string
+          id?: string
+          interview_event_id: string
+          interviewer_responsibility?: string | null
+          job_description_text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          candidate_profile_text?: string | null
+          company_principles?: Json
+          competencies?: Json
+          context_completeness_score?: number
+          context_sources?: Json
+          created_at?: string
+          id?: string
+          interview_event_id?: string
+          interviewer_responsibility?: string | null
+          job_description_text?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_contexts_interview_event_id_fkey"
+            columns: ["interview_event_id"]
+            isOneToOne: true
+            referencedRelation: "interview_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interview_events: {
+        Row: {
+          candidate_display_name: string
+          created_at: string
+          created_by: string
+          duration_minutes: number | null
+          external_ats_id: string | null
+          external_event_id: string | null
+          group_id: string | null
+          id: string
+          interview_stage: string
+          interviewer_id: string
+          role_title: string
+          source: string
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_display_name: string
+          created_at?: string
+          created_by: string
+          duration_minutes?: number | null
+          external_ats_id?: string | null
+          external_event_id?: string | null
+          group_id?: string | null
+          id?: string
+          interview_stage: string
+          interviewer_id: string
+          role_title: string
+          source?: string
+          starts_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_display_name?: string
+          created_at?: string
+          created_by?: string
+          duration_minutes?: number | null
+          external_ats_id?: string | null
+          external_event_id?: string | null
+          group_id?: string | null
+          id?: string
+          interview_stage?: string
+          interviewer_id?: string
+          role_title?: string
+          source?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_events_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invites: {
         Row: {
           created_at: string
@@ -389,6 +555,172 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      prep_questions: {
+        Row: {
+          capability_area: string
+          context_source: string
+          correct_index: number
+          created_at: string
+          difficulty: string
+          explanation: string
+          id: string
+          interview_stage: string | null
+          options: Json
+          position: number
+          prep_session_id: string
+          scenario: string
+          sub_skill: string
+        }
+        Insert: {
+          capability_area: string
+          context_source?: string
+          correct_index: number
+          created_at?: string
+          difficulty?: string
+          explanation: string
+          id?: string
+          interview_stage?: string | null
+          options: Json
+          position: number
+          prep_session_id: string
+          scenario: string
+          sub_skill: string
+        }
+        Update: {
+          capability_area?: string
+          context_source?: string
+          correct_index?: number
+          created_at?: string
+          difficulty?: string
+          explanation?: string
+          id?: string
+          interview_stage?: string | null
+          options?: Json
+          position?: number
+          prep_session_id?: string
+          scenario?: string
+          sub_skill?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prep_questions_prep_session_id_fkey"
+            columns: ["prep_session_id"]
+            isOneToOne: false
+            referencedRelation: "prep_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prep_responses: {
+        Row: {
+          answered_at: string
+          id: string
+          is_correct: boolean
+          prep_question_id: string
+          prep_session_id: string
+          response_time_seconds: number | null
+          selected_index: number
+          user_id: string
+        }
+        Insert: {
+          answered_at?: string
+          id?: string
+          is_correct: boolean
+          prep_question_id: string
+          prep_session_id: string
+          response_time_seconds?: number | null
+          selected_index: number
+          user_id: string
+        }
+        Update: {
+          answered_at?: string
+          id?: string
+          is_correct?: boolean
+          prep_question_id?: string
+          prep_session_id?: string
+          response_time_seconds?: number | null
+          selected_index?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prep_responses_prep_question_id_fkey"
+            columns: ["prep_question_id"]
+            isOneToOne: true
+            referencedRelation: "prep_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prep_responses_prep_session_id_fkey"
+            columns: ["prep_session_id"]
+            isOneToOne: false
+            referencedRelation: "prep_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prep_sessions: {
+        Row: {
+          completed_at: string | null
+          correct_answers: number | null
+          estimated_minutes: number
+          generated_at: string
+          generation_version: string
+          id: string
+          interview_event_id: string
+          interviewer_id: string
+          overall_score: number | null
+          reminder_at: string | null
+          scheduled_delivery_at: string | null
+          started_at: string | null
+          status: string
+          total_questions: number
+          used_fallback: boolean
+        }
+        Insert: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          estimated_minutes?: number
+          generated_at?: string
+          generation_version?: string
+          id?: string
+          interview_event_id: string
+          interviewer_id: string
+          overall_score?: number | null
+          reminder_at?: string | null
+          scheduled_delivery_at?: string | null
+          started_at?: string | null
+          status?: string
+          total_questions: number
+          used_fallback?: boolean
+        }
+        Update: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          estimated_minutes?: number
+          generated_at?: string
+          generation_version?: string
+          id?: string
+          interview_event_id?: string
+          interviewer_id?: string
+          overall_score?: number | null
+          reminder_at?: string | null
+          scheduled_delivery_at?: string | null
+          started_at?: string | null
+          status?: string
+          total_questions?: number
+          used_fallback?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prep_sessions_interview_event_id_fkey"
+            columns: ["interview_event_id"]
+            isOneToOne: false
+            referencedRelation: "interview_events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -757,19 +1089,25 @@ export type Database = {
       user_achievements: {
         Row: {
           achievement_code: string
+          capability_area: string | null
           earned_at: string
+          evidence_snapshot: Json | null
           id: string
           user_id: string
         }
         Insert: {
           achievement_code: string
+          capability_area?: string | null
           earned_at?: string
+          evidence_snapshot?: Json | null
           id?: string
           user_id: string
         }
         Update: {
           achievement_code?: string
+          capability_area?: string | null
           earned_at?: string
+          evidence_snapshot?: Json | null
           id?: string
           user_id?: string
         }
@@ -782,6 +1120,45 @@ export type Database = {
             referencedColumns: ["code"]
           },
         ]
+      }
+      user_capability_progress: {
+        Row: {
+          capability_area: string
+          correct_answers: number
+          evidence_confidence: string
+          last_evidence_at: string | null
+          mastery_stage: string
+          recent_direction: string
+          total_questions: number
+          updated_at: string
+          user_id: string
+          weighted_score: number
+        }
+        Insert: {
+          capability_area: string
+          correct_answers?: number
+          evidence_confidence?: string
+          last_evidence_at?: string | null
+          mastery_stage?: string
+          recent_direction?: string
+          total_questions?: number
+          updated_at?: string
+          user_id: string
+          weighted_score?: number
+        }
+        Update: {
+          capability_area?: string
+          correct_answers?: number
+          evidence_confidence?: string
+          last_evidence_at?: string | null
+          mastery_stage?: string
+          recent_direction?: string
+          total_questions?: number
+          updated_at?: string
+          user_id?: string
+          weighted_score?: number
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
