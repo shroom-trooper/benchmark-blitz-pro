@@ -35,6 +35,24 @@ export type Database = {
         }
         Relationships: []
       }
+      app_config: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       app_user_connections: {
         Row: {
           connection_key_ciphertext: string
@@ -1628,6 +1646,8 @@ export type Database = {
           level: number
           longest_sprint_streak: number
           longest_streak: number
+          onboarding_completed_at: string | null
+          onboarding_step: number
           share_bonus_awarded: boolean
           share_bonus_recruiter: boolean
           share_card_url: string | null
@@ -1651,6 +1671,8 @@ export type Database = {
           level?: number
           longest_sprint_streak?: number
           longest_streak?: number
+          onboarding_completed_at?: string | null
+          onboarding_step?: number
           share_bonus_awarded?: boolean
           share_bonus_recruiter?: boolean
           share_card_url?: string | null
@@ -1674,6 +1696,8 @@ export type Database = {
           level?: number
           longest_sprint_streak?: number
           longest_streak?: number
+          onboarding_completed_at?: string | null
+          onboarding_step?: number
           share_bonus_awarded?: boolean
           share_bonus_recruiter?: boolean
           share_card_url?: string | null
