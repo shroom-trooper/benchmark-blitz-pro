@@ -17,48 +17,18 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AuthenticatedCapabilityRouteImport } from './routes/_authenticated/capability'
 import { Route as AuthenticatedElectivesRouteImport } from './routes/_authenticated/electives'
-import { Route as AuthenticatedGovernanceRouteImport } from './routes/_authenticated/governance'
-import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedHubRouteImport } from './routes/_authenticated/hub'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
-import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticated/progress'
-import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedRecruiterRouteImport } from './routes/_authenticated/recruiter'
 import { Route as GuidesHowToTrainHiringManagersRouteImport } from './routes/guides/how-to-train-hiring-managers'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as AuthenticatedAssessmentIdRouteImport } from './routes/_authenticated/assessment.$id'
 import { Route as AuthenticatedElectivesIndexRouteImport } from './routes/_authenticated/electives.index'
-import { Route as AuthenticatedGovernanceIndexRouteImport } from './routes/_authenticated/governance.index'
-import { Route as AuthenticatedGovernanceAuditRouteImport } from './routes/_authenticated/governance.audit'
-import { Route as AuthenticatedGovernanceContentRouteImport } from './routes/_authenticated/governance.content'
-import { Route as AuthenticatedGovernanceFlagsRouteImport } from './routes/_authenticated/governance.flags'
-import { Route as AuthenticatedGovernancePrinciplesRouteImport } from './routes/_authenticated/governance.principles'
-import { Route as AuthenticatedGovernanceRetentionRouteImport } from './routes/_authenticated/governance.retention'
-import { Route as AuthenticatedGovernanceReviewRouteImport } from './routes/_authenticated/governance.review'
-import { Route as AuthenticatedGovernanceRolesRouteImport } from './routes/_authenticated/governance.roles'
-import { Route as AuthenticatedInterviewsIndexRouteImport } from './routes/_authenticated/interviews.index'
-import { Route as AuthenticatedInterviewsIdRouteImport } from './routes/_authenticated/interviews.$id'
-import { Route as AuthenticatedInterviewsNewRouteImport } from './routes/_authenticated/interviews.new'
-import { Route as AuthenticatedPrepSessionIdRouteImport } from './routes/_authenticated/prep.$sessionId'
-import { Route as AuthenticatedReadinessIndexRouteImport } from './routes/_authenticated/readiness.index'
-import { Route as AuthenticatedReadinessCapabilityRouteImport } from './routes/_authenticated/readiness.capability'
-import { Route as AuthenticatedReadinessInterviewsRouteImport } from './routes/_authenticated/readiness.interviews'
-import { Route as AuthenticatedReadinessPeopleRouteImport } from './routes/_authenticated/readiness.people'
-import { Route as AuthenticatedReadinessProgramRouteImport } from './routes/_authenticated/readiness.program'
 import { Route as AuthenticatedRecruiterIndexRouteImport } from './routes/_authenticated/recruiter.index'
 import { Route as AuthenticatedSessionWeekRouteImport } from './routes/_authenticated/session.$week'
-import { Route as AuthenticatedSettingsCalendarRouteImport } from './routes/_authenticated/settings.calendar'
-import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as AuthenticatedElectivesModuleLessonRouteImport } from './routes/_authenticated/electives.$module.$lesson'
-import { Route as AuthenticatedGovernanceContentIdRouteImport } from './routes/_authenticated/governance.content.$id'
-import { Route as AuthenticatedInterviewsConfirmEventIdRouteImport } from './routes/_authenticated/interviews.confirm.$eventId'
-import { Route as AuthenticatedReadinessCapabilityAreaRouteImport } from './routes/_authenticated/readiness.capability.$area'
-import { Route as AuthenticatedReadinessPeopleUserIdRouteImport } from './routes/_authenticated/readiness.people.$userId'
 import { Route as AuthenticatedRecruiterSessionWeekRouteImport } from './routes/_authenticated/recruiter.session.$week'
-import { Route as ApiPublicCronCalendarSyncRouteImport } from './routes/api/public/cron/calendar-sync'
-import { Route as ApiPublicCronRetentionRouteImport } from './routes/api/public/cron/retention'
 import { Route as ApiPublicCronWeeklyUnlockRouteImport } from './routes/api/public/cron/weekly-unlock'
 import { Route as ApiPublicOgSlugRouteImport } from './routes/api/public/og/$slug'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -104,24 +74,9 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCapabilityRoute = AuthenticatedCapabilityRouteImport.update({
-  id: '/capability',
-  path: '/capability',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedElectivesRoute = AuthenticatedElectivesRouteImport.update({
   id: '/electives',
   path: '/electives',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedGovernanceRoute = AuthenticatedGovernanceRouteImport.update({
-  id: '/governance',
-  path: '/governance',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHubRoute = AuthenticatedHubRouteImport.update({
@@ -132,16 +87,6 @@ const AuthenticatedHubRoute = AuthenticatedHubRouteImport.update({
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedProgressRoute = AuthenticatedProgressRouteImport.update({
-  id: '/progress',
-  path: '/progress',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
-  id: '/readiness',
-  path: '/readiness',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecruiterRoute = AuthenticatedRecruiterRouteImport.update({
@@ -172,108 +117,6 @@ const AuthenticatedElectivesIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedElectivesRoute,
   } as any)
-const AuthenticatedGovernanceIndexRoute =
-  AuthenticatedGovernanceIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedGovernanceRoute,
-  } as any)
-const AuthenticatedGovernanceAuditRoute =
-  AuthenticatedGovernanceAuditRouteImport.update({
-    id: '/audit',
-    path: '/audit',
-    getParentRoute: () => AuthenticatedGovernanceRoute,
-  } as any)
-const AuthenticatedGovernanceContentRoute =
-  AuthenticatedGovernanceContentRouteImport.update({
-    id: '/content',
-    path: '/content',
-    getParentRoute: () => AuthenticatedGovernanceRoute,
-  } as any)
-const AuthenticatedGovernanceFlagsRoute =
-  AuthenticatedGovernanceFlagsRouteImport.update({
-    id: '/flags',
-    path: '/flags',
-    getParentRoute: () => AuthenticatedGovernanceRoute,
-  } as any)
-const AuthenticatedGovernancePrinciplesRoute =
-  AuthenticatedGovernancePrinciplesRouteImport.update({
-    id: '/principles',
-    path: '/principles',
-    getParentRoute: () => AuthenticatedGovernanceRoute,
-  } as any)
-const AuthenticatedGovernanceRetentionRoute =
-  AuthenticatedGovernanceRetentionRouteImport.update({
-    id: '/retention',
-    path: '/retention',
-    getParentRoute: () => AuthenticatedGovernanceRoute,
-  } as any)
-const AuthenticatedGovernanceReviewRoute =
-  AuthenticatedGovernanceReviewRouteImport.update({
-    id: '/review',
-    path: '/review',
-    getParentRoute: () => AuthenticatedGovernanceRoute,
-  } as any)
-const AuthenticatedGovernanceRolesRoute =
-  AuthenticatedGovernanceRolesRouteImport.update({
-    id: '/roles',
-    path: '/roles',
-    getParentRoute: () => AuthenticatedGovernanceRoute,
-  } as any)
-const AuthenticatedInterviewsIndexRoute =
-  AuthenticatedInterviewsIndexRouteImport.update({
-    id: '/interviews/',
-    path: '/interviews/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedInterviewsIdRoute =
-  AuthenticatedInterviewsIdRouteImport.update({
-    id: '/interviews/$id',
-    path: '/interviews/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedInterviewsNewRoute =
-  AuthenticatedInterviewsNewRouteImport.update({
-    id: '/interviews/new',
-    path: '/interviews/new',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedPrepSessionIdRoute =
-  AuthenticatedPrepSessionIdRouteImport.update({
-    id: '/prep/$sessionId',
-    path: '/prep/$sessionId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReadinessIndexRoute =
-  AuthenticatedReadinessIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedReadinessRoute,
-  } as any)
-const AuthenticatedReadinessCapabilityRoute =
-  AuthenticatedReadinessCapabilityRouteImport.update({
-    id: '/capability',
-    path: '/capability',
-    getParentRoute: () => AuthenticatedReadinessRoute,
-  } as any)
-const AuthenticatedReadinessInterviewsRoute =
-  AuthenticatedReadinessInterviewsRouteImport.update({
-    id: '/interviews',
-    path: '/interviews',
-    getParentRoute: () => AuthenticatedReadinessRoute,
-  } as any)
-const AuthenticatedReadinessPeopleRoute =
-  AuthenticatedReadinessPeopleRouteImport.update({
-    id: '/people',
-    path: '/people',
-    getParentRoute: () => AuthenticatedReadinessRoute,
-  } as any)
-const AuthenticatedReadinessProgramRoute =
-  AuthenticatedReadinessProgramRouteImport.update({
-    id: '/program',
-    path: '/program',
-    getParentRoute: () => AuthenticatedReadinessRoute,
-  } as any)
 const AuthenticatedRecruiterIndexRoute =
   AuthenticatedRecruiterIndexRouteImport.update({
     id: '/',
@@ -286,46 +129,11 @@ const AuthenticatedSessionWeekRoute =
     path: '/session/$week',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedSettingsCalendarRoute =
-  AuthenticatedSettingsCalendarRouteImport.update({
-    id: '/settings/calendar',
-    path: '/settings/calendar',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
-  id: '/oauth/google/return',
-  path: '/oauth/google/return',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedElectivesModuleLessonRoute =
   AuthenticatedElectivesModuleLessonRouteImport.update({
     id: '/$module/$lesson',
     path: '/$module/$lesson',
     getParentRoute: () => AuthenticatedElectivesRoute,
-  } as any)
-const AuthenticatedGovernanceContentIdRoute =
-  AuthenticatedGovernanceContentIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedGovernanceContentRoute,
-  } as any)
-const AuthenticatedInterviewsConfirmEventIdRoute =
-  AuthenticatedInterviewsConfirmEventIdRouteImport.update({
-    id: '/interviews/confirm/$eventId',
-    path: '/interviews/confirm/$eventId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReadinessCapabilityAreaRoute =
-  AuthenticatedReadinessCapabilityAreaRouteImport.update({
-    id: '/$area',
-    path: '/$area',
-    getParentRoute: () => AuthenticatedReadinessCapabilityRoute,
-  } as any)
-const AuthenticatedReadinessPeopleUserIdRoute =
-  AuthenticatedReadinessPeopleUserIdRouteImport.update({
-    id: '/$userId',
-    path: '/$userId',
-    getParentRoute: () => AuthenticatedReadinessPeopleRoute,
   } as any)
 const AuthenticatedRecruiterSessionWeekRoute =
   AuthenticatedRecruiterSessionWeekRouteImport.update({
@@ -333,17 +141,6 @@ const AuthenticatedRecruiterSessionWeekRoute =
     path: '/session/$week',
     getParentRoute: () => AuthenticatedRecruiterRoute,
   } as any)
-const ApiPublicCronCalendarSyncRoute =
-  ApiPublicCronCalendarSyncRouteImport.update({
-    id: '/api/public/cron/calendar-sync',
-    path: '/api/public/cron/calendar-sync',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicCronRetentionRoute = ApiPublicCronRetentionRouteImport.update({
-  id: '/api/public/cron/retention',
-  path: '/api/public/cron/retention',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicCronWeeklyUnlockRoute =
   ApiPublicCronWeeklyUnlockRouteImport.update({
     id: '/api/public/cron/weekly-unlock',
@@ -380,48 +177,18 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/capability': typeof AuthenticatedCapabilityRoute
   '/electives': typeof AuthenticatedElectivesRouteWithChildren
-  '/governance': typeof AuthenticatedGovernanceRouteWithChildren
-  '/home': typeof AuthenticatedHomeRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/progress': typeof AuthenticatedProgressRoute
-  '/readiness': typeof AuthenticatedReadinessRouteWithChildren
   '/recruiter': typeof AuthenticatedRecruiterRouteWithChildren
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
-  '/governance/audit': typeof AuthenticatedGovernanceAuditRoute
-  '/governance/content': typeof AuthenticatedGovernanceContentRouteWithChildren
-  '/governance/flags': typeof AuthenticatedGovernanceFlagsRoute
-  '/governance/principles': typeof AuthenticatedGovernancePrinciplesRoute
-  '/governance/retention': typeof AuthenticatedGovernanceRetentionRoute
-  '/governance/review': typeof AuthenticatedGovernanceReviewRoute
-  '/governance/roles': typeof AuthenticatedGovernanceRolesRoute
-  '/interviews/$id': typeof AuthenticatedInterviewsIdRoute
-  '/interviews/new': typeof AuthenticatedInterviewsNewRoute
-  '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
-  '/readiness/capability': typeof AuthenticatedReadinessCapabilityRouteWithChildren
-  '/readiness/interviews': typeof AuthenticatedReadinessInterviewsRoute
-  '/readiness/people': typeof AuthenticatedReadinessPeopleRouteWithChildren
-  '/readiness/program': typeof AuthenticatedReadinessProgramRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
-  '/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
-  '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/electives/': typeof AuthenticatedElectivesIndexRoute
-  '/governance/': typeof AuthenticatedGovernanceIndexRoute
-  '/interviews/': typeof AuthenticatedInterviewsIndexRoute
-  '/readiness/': typeof AuthenticatedReadinessIndexRoute
   '/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
-  '/governance/content/$id': typeof AuthenticatedGovernanceContentIdRoute
-  '/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
-  '/readiness/capability/$area': typeof AuthenticatedReadinessCapabilityAreaRoute
-  '/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
-  '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
-  '/api/public/cron/retention': typeof ApiPublicCronRetentionRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -436,44 +203,16 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/capability': typeof AuthenticatedCapabilityRoute
-  '/home': typeof AuthenticatedHomeRoute
   '/hub': typeof AuthenticatedHubRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/progress': typeof AuthenticatedProgressRoute
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
   '/assessment/$id': typeof AuthenticatedAssessmentIdRoute
-  '/governance/audit': typeof AuthenticatedGovernanceAuditRoute
-  '/governance/content': typeof AuthenticatedGovernanceContentRouteWithChildren
-  '/governance/flags': typeof AuthenticatedGovernanceFlagsRoute
-  '/governance/principles': typeof AuthenticatedGovernancePrinciplesRoute
-  '/governance/retention': typeof AuthenticatedGovernanceRetentionRoute
-  '/governance/review': typeof AuthenticatedGovernanceReviewRoute
-  '/governance/roles': typeof AuthenticatedGovernanceRolesRoute
-  '/interviews/$id': typeof AuthenticatedInterviewsIdRoute
-  '/interviews/new': typeof AuthenticatedInterviewsNewRoute
-  '/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
-  '/readiness/capability': typeof AuthenticatedReadinessCapabilityRouteWithChildren
-  '/readiness/interviews': typeof AuthenticatedReadinessInterviewsRoute
-  '/readiness/people': typeof AuthenticatedReadinessPeopleRouteWithChildren
-  '/readiness/program': typeof AuthenticatedReadinessProgramRoute
   '/session/$week': typeof AuthenticatedSessionWeekRoute
-  '/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
-  '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/electives': typeof AuthenticatedElectivesIndexRoute
-  '/governance': typeof AuthenticatedGovernanceIndexRoute
-  '/interviews': typeof AuthenticatedInterviewsIndexRoute
-  '/readiness': typeof AuthenticatedReadinessIndexRoute
   '/recruiter': typeof AuthenticatedRecruiterIndexRoute
   '/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
-  '/governance/content/$id': typeof AuthenticatedGovernanceContentIdRoute
-  '/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
-  '/readiness/capability/$area': typeof AuthenticatedReadinessCapabilityAreaRoute
-  '/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
-  '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
-  '/api/public/cron/retention': typeof ApiPublicCronRetentionRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -490,48 +229,18 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/capability': typeof AuthenticatedCapabilityRoute
   '/_authenticated/electives': typeof AuthenticatedElectivesRouteWithChildren
-  '/_authenticated/governance': typeof AuthenticatedGovernanceRouteWithChildren
-  '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/hub': typeof AuthenticatedHubRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
-  '/_authenticated/progress': typeof AuthenticatedProgressRoute
-  '/_authenticated/readiness': typeof AuthenticatedReadinessRouteWithChildren
   '/_authenticated/recruiter': typeof AuthenticatedRecruiterRouteWithChildren
   '/guides/how-to-train-hiring-managers': typeof GuidesHowToTrainHiringManagersRoute
   '/p/$slug': typeof PSlugRoute
   '/_authenticated/assessment/$id': typeof AuthenticatedAssessmentIdRoute
-  '/_authenticated/governance/audit': typeof AuthenticatedGovernanceAuditRoute
-  '/_authenticated/governance/content': typeof AuthenticatedGovernanceContentRouteWithChildren
-  '/_authenticated/governance/flags': typeof AuthenticatedGovernanceFlagsRoute
-  '/_authenticated/governance/principles': typeof AuthenticatedGovernancePrinciplesRoute
-  '/_authenticated/governance/retention': typeof AuthenticatedGovernanceRetentionRoute
-  '/_authenticated/governance/review': typeof AuthenticatedGovernanceReviewRoute
-  '/_authenticated/governance/roles': typeof AuthenticatedGovernanceRolesRoute
-  '/_authenticated/interviews/$id': typeof AuthenticatedInterviewsIdRoute
-  '/_authenticated/interviews/new': typeof AuthenticatedInterviewsNewRoute
-  '/_authenticated/prep/$sessionId': typeof AuthenticatedPrepSessionIdRoute
-  '/_authenticated/readiness/capability': typeof AuthenticatedReadinessCapabilityRouteWithChildren
-  '/_authenticated/readiness/interviews': typeof AuthenticatedReadinessInterviewsRoute
-  '/_authenticated/readiness/people': typeof AuthenticatedReadinessPeopleRouteWithChildren
-  '/_authenticated/readiness/program': typeof AuthenticatedReadinessProgramRoute
   '/_authenticated/session/$week': typeof AuthenticatedSessionWeekRoute
-  '/_authenticated/settings/calendar': typeof AuthenticatedSettingsCalendarRoute
-  '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/_authenticated/electives/': typeof AuthenticatedElectivesIndexRoute
-  '/_authenticated/governance/': typeof AuthenticatedGovernanceIndexRoute
-  '/_authenticated/interviews/': typeof AuthenticatedInterviewsIndexRoute
-  '/_authenticated/readiness/': typeof AuthenticatedReadinessIndexRoute
   '/_authenticated/recruiter/': typeof AuthenticatedRecruiterIndexRoute
   '/_authenticated/electives/$module/$lesson': typeof AuthenticatedElectivesModuleLessonRoute
-  '/_authenticated/governance/content/$id': typeof AuthenticatedGovernanceContentIdRoute
-  '/_authenticated/interviews/confirm/$eventId': typeof AuthenticatedInterviewsConfirmEventIdRoute
-  '/_authenticated/readiness/capability/$area': typeof AuthenticatedReadinessCapabilityAreaRoute
-  '/_authenticated/readiness/people/$userId': typeof AuthenticatedReadinessPeopleUserIdRoute
   '/_authenticated/recruiter/session/$week': typeof AuthenticatedRecruiterSessionWeekRoute
-  '/api/public/cron/calendar-sync': typeof ApiPublicCronCalendarSyncRoute
-  '/api/public/cron/retention': typeof ApiPublicCronRetentionRoute
   '/api/public/cron/weekly-unlock': typeof ApiPublicCronWeeklyUnlockRoute
   '/api/public/og/$slug': typeof ApiPublicOgSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -548,48 +257,18 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/admin'
-    | '/capability'
     | '/electives'
-    | '/governance'
-    | '/home'
     | '/hub'
     | '/onboarding'
-    | '/progress'
-    | '/readiness'
     | '/recruiter'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
     | '/assessment/$id'
-    | '/governance/audit'
-    | '/governance/content'
-    | '/governance/flags'
-    | '/governance/principles'
-    | '/governance/retention'
-    | '/governance/review'
-    | '/governance/roles'
-    | '/interviews/$id'
-    | '/interviews/new'
-    | '/prep/$sessionId'
-    | '/readiness/capability'
-    | '/readiness/interviews'
-    | '/readiness/people'
-    | '/readiness/program'
     | '/session/$week'
-    | '/settings/calendar'
-    | '/oauth/google/return'
     | '/electives/'
-    | '/governance/'
-    | '/interviews/'
-    | '/readiness/'
     | '/recruiter/'
     | '/electives/$module/$lesson'
-    | '/governance/content/$id'
-    | '/interviews/confirm/$eventId'
-    | '/readiness/capability/$area'
-    | '/readiness/people/$userId'
     | '/recruiter/session/$week'
-    | '/api/public/cron/calendar-sync'
-    | '/api/public/cron/retention'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -604,44 +283,16 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/admin'
-    | '/capability'
-    | '/home'
     | '/hub'
     | '/onboarding'
-    | '/progress'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
     | '/assessment/$id'
-    | '/governance/audit'
-    | '/governance/content'
-    | '/governance/flags'
-    | '/governance/principles'
-    | '/governance/retention'
-    | '/governance/review'
-    | '/governance/roles'
-    | '/interviews/$id'
-    | '/interviews/new'
-    | '/prep/$sessionId'
-    | '/readiness/capability'
-    | '/readiness/interviews'
-    | '/readiness/people'
-    | '/readiness/program'
     | '/session/$week'
-    | '/settings/calendar'
-    | '/oauth/google/return'
     | '/electives'
-    | '/governance'
-    | '/interviews'
-    | '/readiness'
     | '/recruiter'
     | '/electives/$module/$lesson'
-    | '/governance/content/$id'
-    | '/interviews/confirm/$eventId'
-    | '/readiness/capability/$area'
-    | '/readiness/people/$userId'
     | '/recruiter/session/$week'
-    | '/api/public/cron/calendar-sync'
-    | '/api/public/cron/retention'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -657,48 +308,18 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/_authenticated/admin'
-    | '/_authenticated/capability'
     | '/_authenticated/electives'
-    | '/_authenticated/governance'
-    | '/_authenticated/home'
     | '/_authenticated/hub'
     | '/_authenticated/onboarding'
-    | '/_authenticated/progress'
-    | '/_authenticated/readiness'
     | '/_authenticated/recruiter'
     | '/guides/how-to-train-hiring-managers'
     | '/p/$slug'
     | '/_authenticated/assessment/$id'
-    | '/_authenticated/governance/audit'
-    | '/_authenticated/governance/content'
-    | '/_authenticated/governance/flags'
-    | '/_authenticated/governance/principles'
-    | '/_authenticated/governance/retention'
-    | '/_authenticated/governance/review'
-    | '/_authenticated/governance/roles'
-    | '/_authenticated/interviews/$id'
-    | '/_authenticated/interviews/new'
-    | '/_authenticated/prep/$sessionId'
-    | '/_authenticated/readiness/capability'
-    | '/_authenticated/readiness/interviews'
-    | '/_authenticated/readiness/people'
-    | '/_authenticated/readiness/program'
     | '/_authenticated/session/$week'
-    | '/_authenticated/settings/calendar'
-    | '/oauth/google/return'
     | '/_authenticated/electives/'
-    | '/_authenticated/governance/'
-    | '/_authenticated/interviews/'
-    | '/_authenticated/readiness/'
     | '/_authenticated/recruiter/'
     | '/_authenticated/electives/$module/$lesson'
-    | '/_authenticated/governance/content/$id'
-    | '/_authenticated/interviews/confirm/$eventId'
-    | '/_authenticated/readiness/capability/$area'
-    | '/_authenticated/readiness/people/$userId'
     | '/_authenticated/recruiter/session/$week'
-    | '/api/public/cron/calendar-sync'
-    | '/api/public/cron/retention'
     | '/api/public/cron/weekly-unlock'
     | '/api/public/og/$slug'
     | '/lovable/email/auth/preview'
@@ -716,9 +337,6 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   GuidesHowToTrainHiringManagersRoute: typeof GuidesHowToTrainHiringManagersRoute
   PSlugRoute: typeof PSlugRoute
-  OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
-  ApiPublicCronCalendarSyncRoute: typeof ApiPublicCronCalendarSyncRoute
-  ApiPublicCronRetentionRoute: typeof ApiPublicCronRetentionRoute
   ApiPublicCronWeeklyUnlockRoute: typeof ApiPublicCronWeeklyUnlockRoute
   ApiPublicOgSlugRoute: typeof ApiPublicOgSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -784,32 +402,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/capability': {
-      id: '/_authenticated/capability'
-      path: '/capability'
-      fullPath: '/capability'
-      preLoaderRoute: typeof AuthenticatedCapabilityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/electives': {
       id: '/_authenticated/electives'
       path: '/electives'
       fullPath: '/electives'
       preLoaderRoute: typeof AuthenticatedElectivesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/governance': {
-      id: '/_authenticated/governance'
-      path: '/governance'
-      fullPath: '/governance'
-      preLoaderRoute: typeof AuthenticatedGovernanceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/home': {
-      id: '/_authenticated/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hub': {
@@ -824,20 +421,6 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/progress': {
-      id: '/_authenticated/progress'
-      path: '/progress'
-      fullPath: '/progress'
-      preLoaderRoute: typeof AuthenticatedProgressRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/readiness': {
-      id: '/_authenticated/readiness'
-      path: '/readiness'
-      fullPath: '/readiness'
-      preLoaderRoute: typeof AuthenticatedReadinessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recruiter': {
@@ -875,125 +458,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedElectivesIndexRouteImport
       parentRoute: typeof AuthenticatedElectivesRoute
     }
-    '/_authenticated/governance/': {
-      id: '/_authenticated/governance/'
-      path: '/'
-      fullPath: '/governance/'
-      preLoaderRoute: typeof AuthenticatedGovernanceIndexRouteImport
-      parentRoute: typeof AuthenticatedGovernanceRoute
-    }
-    '/_authenticated/governance/audit': {
-      id: '/_authenticated/governance/audit'
-      path: '/audit'
-      fullPath: '/governance/audit'
-      preLoaderRoute: typeof AuthenticatedGovernanceAuditRouteImport
-      parentRoute: typeof AuthenticatedGovernanceRoute
-    }
-    '/_authenticated/governance/content': {
-      id: '/_authenticated/governance/content'
-      path: '/content'
-      fullPath: '/governance/content'
-      preLoaderRoute: typeof AuthenticatedGovernanceContentRouteImport
-      parentRoute: typeof AuthenticatedGovernanceRoute
-    }
-    '/_authenticated/governance/flags': {
-      id: '/_authenticated/governance/flags'
-      path: '/flags'
-      fullPath: '/governance/flags'
-      preLoaderRoute: typeof AuthenticatedGovernanceFlagsRouteImport
-      parentRoute: typeof AuthenticatedGovernanceRoute
-    }
-    '/_authenticated/governance/principles': {
-      id: '/_authenticated/governance/principles'
-      path: '/principles'
-      fullPath: '/governance/principles'
-      preLoaderRoute: typeof AuthenticatedGovernancePrinciplesRouteImport
-      parentRoute: typeof AuthenticatedGovernanceRoute
-    }
-    '/_authenticated/governance/retention': {
-      id: '/_authenticated/governance/retention'
-      path: '/retention'
-      fullPath: '/governance/retention'
-      preLoaderRoute: typeof AuthenticatedGovernanceRetentionRouteImport
-      parentRoute: typeof AuthenticatedGovernanceRoute
-    }
-    '/_authenticated/governance/review': {
-      id: '/_authenticated/governance/review'
-      path: '/review'
-      fullPath: '/governance/review'
-      preLoaderRoute: typeof AuthenticatedGovernanceReviewRouteImport
-      parentRoute: typeof AuthenticatedGovernanceRoute
-    }
-    '/_authenticated/governance/roles': {
-      id: '/_authenticated/governance/roles'
-      path: '/roles'
-      fullPath: '/governance/roles'
-      preLoaderRoute: typeof AuthenticatedGovernanceRolesRouteImport
-      parentRoute: typeof AuthenticatedGovernanceRoute
-    }
-    '/_authenticated/interviews/': {
-      id: '/_authenticated/interviews/'
-      path: '/interviews'
-      fullPath: '/interviews/'
-      preLoaderRoute: typeof AuthenticatedInterviewsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/interviews/$id': {
-      id: '/_authenticated/interviews/$id'
-      path: '/interviews/$id'
-      fullPath: '/interviews/$id'
-      preLoaderRoute: typeof AuthenticatedInterviewsIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/interviews/new': {
-      id: '/_authenticated/interviews/new'
-      path: '/interviews/new'
-      fullPath: '/interviews/new'
-      preLoaderRoute: typeof AuthenticatedInterviewsNewRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/prep/$sessionId': {
-      id: '/_authenticated/prep/$sessionId'
-      path: '/prep/$sessionId'
-      fullPath: '/prep/$sessionId'
-      preLoaderRoute: typeof AuthenticatedPrepSessionIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/readiness/': {
-      id: '/_authenticated/readiness/'
-      path: '/'
-      fullPath: '/readiness/'
-      preLoaderRoute: typeof AuthenticatedReadinessIndexRouteImport
-      parentRoute: typeof AuthenticatedReadinessRoute
-    }
-    '/_authenticated/readiness/capability': {
-      id: '/_authenticated/readiness/capability'
-      path: '/capability'
-      fullPath: '/readiness/capability'
-      preLoaderRoute: typeof AuthenticatedReadinessCapabilityRouteImport
-      parentRoute: typeof AuthenticatedReadinessRoute
-    }
-    '/_authenticated/readiness/interviews': {
-      id: '/_authenticated/readiness/interviews'
-      path: '/interviews'
-      fullPath: '/readiness/interviews'
-      preLoaderRoute: typeof AuthenticatedReadinessInterviewsRouteImport
-      parentRoute: typeof AuthenticatedReadinessRoute
-    }
-    '/_authenticated/readiness/people': {
-      id: '/_authenticated/readiness/people'
-      path: '/people'
-      fullPath: '/readiness/people'
-      preLoaderRoute: typeof AuthenticatedReadinessPeopleRouteImport
-      parentRoute: typeof AuthenticatedReadinessRoute
-    }
-    '/_authenticated/readiness/program': {
-      id: '/_authenticated/readiness/program'
-      path: '/program'
-      fullPath: '/readiness/program'
-      preLoaderRoute: typeof AuthenticatedReadinessProgramRouteImport
-      parentRoute: typeof AuthenticatedReadinessRoute
-    }
     '/_authenticated/recruiter/': {
       id: '/_authenticated/recruiter/'
       path: '/'
@@ -1008,20 +472,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSessionWeekRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/settings/calendar': {
-      id: '/_authenticated/settings/calendar'
-      path: '/settings/calendar'
-      fullPath: '/settings/calendar'
-      preLoaderRoute: typeof AuthenticatedSettingsCalendarRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/oauth/google/return': {
-      id: '/oauth/google/return'
-      path: '/oauth/google/return'
-      fullPath: '/oauth/google/return'
-      preLoaderRoute: typeof OauthGoogleReturnRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/electives/$module/$lesson': {
       id: '/_authenticated/electives/$module/$lesson'
       path: '/$module/$lesson'
@@ -1029,54 +479,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedElectivesModuleLessonRouteImport
       parentRoute: typeof AuthenticatedElectivesRoute
     }
-    '/_authenticated/governance/content/$id': {
-      id: '/_authenticated/governance/content/$id'
-      path: '/$id'
-      fullPath: '/governance/content/$id'
-      preLoaderRoute: typeof AuthenticatedGovernanceContentIdRouteImport
-      parentRoute: typeof AuthenticatedGovernanceContentRoute
-    }
-    '/_authenticated/interviews/confirm/$eventId': {
-      id: '/_authenticated/interviews/confirm/$eventId'
-      path: '/interviews/confirm/$eventId'
-      fullPath: '/interviews/confirm/$eventId'
-      preLoaderRoute: typeof AuthenticatedInterviewsConfirmEventIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/readiness/capability/$area': {
-      id: '/_authenticated/readiness/capability/$area'
-      path: '/$area'
-      fullPath: '/readiness/capability/$area'
-      preLoaderRoute: typeof AuthenticatedReadinessCapabilityAreaRouteImport
-      parentRoute: typeof AuthenticatedReadinessCapabilityRoute
-    }
-    '/_authenticated/readiness/people/$userId': {
-      id: '/_authenticated/readiness/people/$userId'
-      path: '/$userId'
-      fullPath: '/readiness/people/$userId'
-      preLoaderRoute: typeof AuthenticatedReadinessPeopleUserIdRouteImport
-      parentRoute: typeof AuthenticatedReadinessPeopleRoute
-    }
     '/_authenticated/recruiter/session/$week': {
       id: '/_authenticated/recruiter/session/$week'
       path: '/session/$week'
       fullPath: '/recruiter/session/$week'
       preLoaderRoute: typeof AuthenticatedRecruiterSessionWeekRouteImport
       parentRoute: typeof AuthenticatedRecruiterRoute
-    }
-    '/api/public/cron/calendar-sync': {
-      id: '/api/public/cron/calendar-sync'
-      path: '/api/public/cron/calendar-sync'
-      fullPath: '/api/public/cron/calendar-sync'
-      preLoaderRoute: typeof ApiPublicCronCalendarSyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/cron/retention': {
-      id: '/api/public/cron/retention'
-      path: '/api/public/cron/retention'
-      fullPath: '/api/public/cron/retention'
-      preLoaderRoute: typeof ApiPublicCronRetentionRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/public/cron/weekly-unlock': {
       id: '/api/public/cron/weekly-unlock'
@@ -1133,107 +541,6 @@ const AuthenticatedElectivesRouteWithChildren =
     AuthenticatedElectivesRouteChildren,
   )
 
-interface AuthenticatedGovernanceContentRouteChildren {
-  AuthenticatedGovernanceContentIdRoute: typeof AuthenticatedGovernanceContentIdRoute
-}
-
-const AuthenticatedGovernanceContentRouteChildren: AuthenticatedGovernanceContentRouteChildren =
-  {
-    AuthenticatedGovernanceContentIdRoute:
-      AuthenticatedGovernanceContentIdRoute,
-  }
-
-const AuthenticatedGovernanceContentRouteWithChildren =
-  AuthenticatedGovernanceContentRoute._addFileChildren(
-    AuthenticatedGovernanceContentRouteChildren,
-  )
-
-interface AuthenticatedGovernanceRouteChildren {
-  AuthenticatedGovernanceAuditRoute: typeof AuthenticatedGovernanceAuditRoute
-  AuthenticatedGovernanceContentRoute: typeof AuthenticatedGovernanceContentRouteWithChildren
-  AuthenticatedGovernanceFlagsRoute: typeof AuthenticatedGovernanceFlagsRoute
-  AuthenticatedGovernancePrinciplesRoute: typeof AuthenticatedGovernancePrinciplesRoute
-  AuthenticatedGovernanceRetentionRoute: typeof AuthenticatedGovernanceRetentionRoute
-  AuthenticatedGovernanceReviewRoute: typeof AuthenticatedGovernanceReviewRoute
-  AuthenticatedGovernanceRolesRoute: typeof AuthenticatedGovernanceRolesRoute
-  AuthenticatedGovernanceIndexRoute: typeof AuthenticatedGovernanceIndexRoute
-}
-
-const AuthenticatedGovernanceRouteChildren: AuthenticatedGovernanceRouteChildren =
-  {
-    AuthenticatedGovernanceAuditRoute: AuthenticatedGovernanceAuditRoute,
-    AuthenticatedGovernanceContentRoute:
-      AuthenticatedGovernanceContentRouteWithChildren,
-    AuthenticatedGovernanceFlagsRoute: AuthenticatedGovernanceFlagsRoute,
-    AuthenticatedGovernancePrinciplesRoute:
-      AuthenticatedGovernancePrinciplesRoute,
-    AuthenticatedGovernanceRetentionRoute:
-      AuthenticatedGovernanceRetentionRoute,
-    AuthenticatedGovernanceReviewRoute: AuthenticatedGovernanceReviewRoute,
-    AuthenticatedGovernanceRolesRoute: AuthenticatedGovernanceRolesRoute,
-    AuthenticatedGovernanceIndexRoute: AuthenticatedGovernanceIndexRoute,
-  }
-
-const AuthenticatedGovernanceRouteWithChildren =
-  AuthenticatedGovernanceRoute._addFileChildren(
-    AuthenticatedGovernanceRouteChildren,
-  )
-
-interface AuthenticatedReadinessCapabilityRouteChildren {
-  AuthenticatedReadinessCapabilityAreaRoute: typeof AuthenticatedReadinessCapabilityAreaRoute
-}
-
-const AuthenticatedReadinessCapabilityRouteChildren: AuthenticatedReadinessCapabilityRouteChildren =
-  {
-    AuthenticatedReadinessCapabilityAreaRoute:
-      AuthenticatedReadinessCapabilityAreaRoute,
-  }
-
-const AuthenticatedReadinessCapabilityRouteWithChildren =
-  AuthenticatedReadinessCapabilityRoute._addFileChildren(
-    AuthenticatedReadinessCapabilityRouteChildren,
-  )
-
-interface AuthenticatedReadinessPeopleRouteChildren {
-  AuthenticatedReadinessPeopleUserIdRoute: typeof AuthenticatedReadinessPeopleUserIdRoute
-}
-
-const AuthenticatedReadinessPeopleRouteChildren: AuthenticatedReadinessPeopleRouteChildren =
-  {
-    AuthenticatedReadinessPeopleUserIdRoute:
-      AuthenticatedReadinessPeopleUserIdRoute,
-  }
-
-const AuthenticatedReadinessPeopleRouteWithChildren =
-  AuthenticatedReadinessPeopleRoute._addFileChildren(
-    AuthenticatedReadinessPeopleRouteChildren,
-  )
-
-interface AuthenticatedReadinessRouteChildren {
-  AuthenticatedReadinessCapabilityRoute: typeof AuthenticatedReadinessCapabilityRouteWithChildren
-  AuthenticatedReadinessInterviewsRoute: typeof AuthenticatedReadinessInterviewsRoute
-  AuthenticatedReadinessPeopleRoute: typeof AuthenticatedReadinessPeopleRouteWithChildren
-  AuthenticatedReadinessProgramRoute: typeof AuthenticatedReadinessProgramRoute
-  AuthenticatedReadinessIndexRoute: typeof AuthenticatedReadinessIndexRoute
-}
-
-const AuthenticatedReadinessRouteChildren: AuthenticatedReadinessRouteChildren =
-  {
-    AuthenticatedReadinessCapabilityRoute:
-      AuthenticatedReadinessCapabilityRouteWithChildren,
-    AuthenticatedReadinessInterviewsRoute:
-      AuthenticatedReadinessInterviewsRoute,
-    AuthenticatedReadinessPeopleRoute:
-      AuthenticatedReadinessPeopleRouteWithChildren,
-    AuthenticatedReadinessProgramRoute: AuthenticatedReadinessProgramRoute,
-    AuthenticatedReadinessIndexRoute: AuthenticatedReadinessIndexRoute,
-  }
-
-const AuthenticatedReadinessRouteWithChildren =
-  AuthenticatedReadinessRoute._addFileChildren(
-    AuthenticatedReadinessRouteChildren,
-  )
-
 interface AuthenticatedRecruiterRouteChildren {
   AuthenticatedRecruiterIndexRoute: typeof AuthenticatedRecruiterIndexRoute
   AuthenticatedRecruiterSessionWeekRoute: typeof AuthenticatedRecruiterSessionWeekRoute
@@ -1253,45 +560,22 @@ const AuthenticatedRecruiterRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedCapabilityRoute: typeof AuthenticatedCapabilityRoute
   AuthenticatedElectivesRoute: typeof AuthenticatedElectivesRouteWithChildren
-  AuthenticatedGovernanceRoute: typeof AuthenticatedGovernanceRouteWithChildren
-  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedHubRoute: typeof AuthenticatedHubRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
-  AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
-  AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRouteWithChildren
   AuthenticatedRecruiterRoute: typeof AuthenticatedRecruiterRouteWithChildren
   AuthenticatedAssessmentIdRoute: typeof AuthenticatedAssessmentIdRoute
-  AuthenticatedInterviewsIdRoute: typeof AuthenticatedInterviewsIdRoute
-  AuthenticatedInterviewsNewRoute: typeof AuthenticatedInterviewsNewRoute
-  AuthenticatedPrepSessionIdRoute: typeof AuthenticatedPrepSessionIdRoute
   AuthenticatedSessionWeekRoute: typeof AuthenticatedSessionWeekRoute
-  AuthenticatedSettingsCalendarRoute: typeof AuthenticatedSettingsCalendarRoute
-  AuthenticatedInterviewsIndexRoute: typeof AuthenticatedInterviewsIndexRoute
-  AuthenticatedInterviewsConfirmEventIdRoute: typeof AuthenticatedInterviewsConfirmEventIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedCapabilityRoute: AuthenticatedCapabilityRoute,
   AuthenticatedElectivesRoute: AuthenticatedElectivesRouteWithChildren,
-  AuthenticatedGovernanceRoute: AuthenticatedGovernanceRouteWithChildren,
-  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedHubRoute: AuthenticatedHubRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
-  AuthenticatedProgressRoute: AuthenticatedProgressRoute,
-  AuthenticatedReadinessRoute: AuthenticatedReadinessRouteWithChildren,
   AuthenticatedRecruiterRoute: AuthenticatedRecruiterRouteWithChildren,
   AuthenticatedAssessmentIdRoute: AuthenticatedAssessmentIdRoute,
-  AuthenticatedInterviewsIdRoute: AuthenticatedInterviewsIdRoute,
-  AuthenticatedInterviewsNewRoute: AuthenticatedInterviewsNewRoute,
-  AuthenticatedPrepSessionIdRoute: AuthenticatedPrepSessionIdRoute,
   AuthenticatedSessionWeekRoute: AuthenticatedSessionWeekRoute,
-  AuthenticatedSettingsCalendarRoute: AuthenticatedSettingsCalendarRoute,
-  AuthenticatedInterviewsIndexRoute: AuthenticatedInterviewsIndexRoute,
-  AuthenticatedInterviewsConfirmEventIdRoute:
-    AuthenticatedInterviewsConfirmEventIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1307,9 +591,6 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   GuidesHowToTrainHiringManagersRoute: GuidesHowToTrainHiringManagersRoute,
   PSlugRoute: PSlugRoute,
-  OauthGoogleReturnRoute: OauthGoogleReturnRoute,
-  ApiPublicCronCalendarSyncRoute: ApiPublicCronCalendarSyncRoute,
-  ApiPublicCronRetentionRoute: ApiPublicCronRetentionRoute,
   ApiPublicCronWeeklyUnlockRoute: ApiPublicCronWeeklyUnlockRoute,
   ApiPublicOgSlugRoute: ApiPublicOgSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

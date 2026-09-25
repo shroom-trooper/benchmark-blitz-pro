@@ -766,15 +766,6 @@ export async function createGroup(
   track: "interviewer" | "recruiter" = "interviewer",
 ) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  // Pre-pilot: creating a group grants admin rights, so only existing organization admins may do it.
-  const { data: adminRole } = await supabaseAdmin
-    .from("organization_roles")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("role", "organization_admin")
-    .limit(1)
-    .maybeSingle();
-  if (!adminRole) fail("Groups are set up by your organization admin.");
   const { data, error } = await supabaseAdmin.rpc("create_group_tracked", {
     _name: name,
     _actor: userId,

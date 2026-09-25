@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -14,10 +14,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 
 export const Route = createFileRoute("/_authenticated/assessment/$id")({
-  beforeLoad: () => {
-    // Retired weekly/group assessments; training is now interview-triggered.
-    throw redirect({ to: "/home", replace: true });
-  },
   head: () => ({
     meta: [
       { title: "Group assessment · Benchmark" },
@@ -93,7 +89,7 @@ function AssessmentPage() {
             {(query.error as Error)?.message ?? "This assessment is no longer available."}
           </p>
           <Button asChild className="mt-6">
-            <Link to="/home">Back to home</Link>
+            <Link to="/hub">Back to hub</Link>
           </Button>
         </div>
       </AppShell>
@@ -154,7 +150,7 @@ function AssessmentPage() {
           })}
 
           <Button asChild>
-            <Link to="/home">Back to home</Link>
+            <Link to="/hub">Back to hub</Link>
           </Button>
         </div>
       </AppShell>
@@ -201,7 +197,7 @@ function AssessmentPage() {
             );
           })}
           <Button asChild variant="outline">
-            <Link to="/home">Back to home</Link>
+            <Link to="/hub">Back to hub</Link>
           </Button>
         </div>
       </AppShell>
@@ -217,7 +213,7 @@ function AssessmentPage() {
             Your group lead hasn't added any questions to this assessment.
           </p>
           <Button asChild className="mt-6">
-            <Link to="/home">Back to home</Link>
+            <Link to="/hub">Back to hub</Link>
           </Button>
         </div>
       </AppShell>

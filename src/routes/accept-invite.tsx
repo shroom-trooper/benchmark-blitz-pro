@@ -65,7 +65,7 @@ function AcceptInvitePage() {
         const res = await completeFn({ data: { token } });
         if (cancelled) return;
         if (res.ok) {
-          router.navigate({ to: "/home" });
+          router.navigate({ to: res.track === "recruiter" ? "/recruiter" : "/hub" });
           return;
         }
         setPhase("error");

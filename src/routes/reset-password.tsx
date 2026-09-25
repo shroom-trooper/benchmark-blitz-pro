@@ -58,7 +58,7 @@ function ResetPasswordPage() {
       return;
     }
     toast.success("Password updated — welcome back.");
-    router.navigate({ to: "/home" });
+    router.navigate({ to: "/hub" });
   }
 
   return (

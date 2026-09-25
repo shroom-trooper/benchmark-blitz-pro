@@ -121,9 +121,7 @@ export const Route = createFileRoute('/api/public/cron/weekly-unlock')({
       POST: async ({ request }) => {
         const denied = await authenticateCronRequest(request)
         if (denied && !(await hasDbCronToken(request))) return denied
-        // Phase 5: weekly curriculum emails are retired. Never send.
-        void run
-        return Response.json({ disabled: true, sent: 0 })
+        return Response.json(await run())
       },
     },
   },

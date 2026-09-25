@@ -22,8 +22,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ReadinessTab } from "@/components/ReadinessTab";
-import { FEATURES } from "@/lib/features";
 import { LoadingSplash } from "@/components/LoadingSplash";
 import {
   Select,
@@ -86,7 +84,7 @@ function AdminPage() {
             Create one from your hub to invite managers and track their progress.
           </p>
           <Button asChild className="mt-4">
-            <Link to="/home">Go to home</Link>
+            <Link to="/hub">Go to hub</Link>
           </Button>
         </div>
       </AppShell>
@@ -132,7 +130,6 @@ function AdminPage() {
             <TabsTrigger value="team">Team</TabsTrigger>
             {t.group.track === "recruiter" ? null : (
               <>
-                {FEATURES.interview_readiness ? <TabsTrigger value="readiness">Interview readiness</TabsTrigger> : null}
                 <TabsTrigger value="assessments">Assessments</TabsTrigger>
                 <TabsTrigger value="electives">Electives</TabsTrigger>
               </>
@@ -146,9 +143,6 @@ function AdminPage() {
 
           {t.group.track === "recruiter" ? null : (
             <>
-              <TabsContent value="readiness" className="mt-6 space-y-6">
-                <ReadinessTab />
-              </TabsContent>
               <TabsContent value="assessments" className="mt-6 space-y-6">
                 <AssessmentsTab />
               </TabsContent>

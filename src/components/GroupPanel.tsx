@@ -92,6 +92,9 @@ export function GroupPanel({
                   <Link to="/admin">Open group console</Link>
                 </Button>
               ) : null}
+              <Button asChild size="sm" variant="outline">
+                <Link to="/leaderboard">Group leaderboard</Link>
+              </Button>
             </div>
           </>
         ) : pendingInvites.length ? (

@@ -9,13 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RouteError, RouteNotFound } from "@/components/RouteError";
 
-// Email links must always land on the real site, never the editor preview.
-function siteOrigin() {
-  const { hostname, origin } = window.location;
-  if (hostname === "localhost" || hostname === "127.0.0.1") return origin;
-  return "https://usebenchmark.app";
-}
-
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -46,9 +39,21 @@ function isExistingUserError(message: string): boolean {
   return m.includes("already registered") || m.includes("already been registered") || m.includes("user already exists");
 }
 
-/** Phase 5: everyone lands on the interview-readiness home. */
-async function trackDestination(): Promise<"/home"> {
-  return "/home";
+/** Resolve the hub that matches the signed-in person's track. */
+async function trackDestination(): Promise<"/hub" | "/recruiter"> {
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return "/hub";
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("active_track, allowed_tracks")
+    .eq("id", userId)
+    .maybeSingle();
+  const allowed = (profile?.allowed_tracks ?? []) as string[];
+  if (allowed.length && !allowed.includes("interviewer") && allowed.includes("recruiter")) {
+    return "/recruiter";
+  }
+  return profile?.active_track === "recruiter" ? "/recruiter" : "/hub";
 }
 
 function AuthPage() {
@@ -104,7 +109,7 @@ function AuthPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${siteOrigin()}/home`,
+        emailRedirectTo: `${window.location.origin}/hub`,
         data: { full_name: fullName },
       },
     });
@@ -133,7 +138,7 @@ function AuthPage() {
     const { error } = await supabase.auth.resend({
       type: "signup",
       email: signedUpEmail,
-      options: { emailRedirectTo: `${siteOrigin()}/home` },
+      options: { emailRedirectTo: `${window.location.origin}/hub` },
     });
     setLoading(false);
     if (error) {
@@ -149,7 +154,7 @@ function AuthPage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false, emailRedirectTo: `${siteOrigin()}/home` },
+      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/hub` },
     });
     setLoading(false);
     if (error) {
@@ -163,7 +168,7 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${siteOrigin()}/reset-password`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
     if (error) {
@@ -366,7 +371,7 @@ function AuthPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Short, gamified training right before your real interviews.
+          Train solo, or create a group and invite 1 manager and 1 recruiter — free.
         </p>
       </div>
     </div>

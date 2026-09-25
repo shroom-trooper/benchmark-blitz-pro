@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -32,10 +32,6 @@ import { TrackSwitch } from "@/components/TrackSwitch";
 
 
 export const Route = createFileRoute("/_authenticated/hub")({
-  // Phase 5: retired surface, kept for data history.
-  beforeLoad: () => {
-    throw redirect({ to: "/home", replace: true });
-  },
   head: () => ({
     meta: [
       { title: "Your training hub · Benchmark" },
